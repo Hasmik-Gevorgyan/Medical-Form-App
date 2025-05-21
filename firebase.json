@@ -1,0 +1,19 @@
+{
+  "hosting": {
+    "site": "medical-project-2ba5d-7073c",
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "predeploy": [],
+    "source": "functions"
+  }
+}
