@@ -3,9 +3,9 @@ import {useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { message } from 'antd';
 import { db } from '../firebase';
-import { getDoc, doc } from 'firebase/firestore';
+import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
 import { Typography, Descriptions, Alert, Spin, Form, Input, Button } from 'antd';
-
+import emailjs from '@emailjs/browser' // Importing emailjs for sending emails
 const { Title } = Typography;
 
 const ResponsePage = () => {
@@ -40,9 +40,42 @@ const ResponsePage = () => {
   }, [doctorId, requestId]);
 
   // mail handler for sending response and updating the response object with status and response 
-  const handleFinish = async () => {
-	
-   }
+  const handleFinish = async (values : any) => {
+  
+	try {
+		// Getting the patient data from the request
+	  const queryDocRef = doc(db, 'queries', requestId || '');
+	//   Updating the response in Firestore
+	  await updateDoc(queryDocRef, {
+		response: {
+		  message : values.message,
+		  replyTime: serverTimestamp(),
+		},
+		status: 'responded',
+	  });
+
+	//   Sending an email to the patient using emailjs
+	  await emailjs.send(
+		'service_bb7nlek',
+		'template_vrnbuod',
+		{
+		  title : 'Response to your request',
+		  email: patientData.email,
+		  message: values.message,
+		  replyTime: new Date().toLocaleString(),
+		},
+		'ooOyDWjTfU7j0PLn-'
+	  );
+
+	//   Displaying success message and redirecting to home page
+	  message.success('Response sent and saved successfully!');
+	  navigate('/'); // Redirecting to home page after successful response
+	} catch (error) {
+		// Handling errors during the update and email sending process
+	  console.error('Error updating response:', error);
+	  message.error('Failed to send response. Please try again.');
+	}
+  };
 
   
   if (isValid === null) {
@@ -81,9 +114,10 @@ const ResponsePage = () => {
 
 	  {/* Response part */}
 	<Form layout="vertical" onFinish={handleFinish}>
-        <Form.Item label="Your Message">
+        <Form.Item label="Your Message" name={'message'} rules={[{ required: true, message: 'Please enter your response message' }]}>
           <Input.TextArea
             rows={5}
+			name='message'
             placeholder="Type your response here..."
           />
         </Form.Item>
