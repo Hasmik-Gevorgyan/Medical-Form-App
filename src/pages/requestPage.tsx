@@ -1,13 +1,12 @@
 // Imports
-import { Button, Form, Input, Upload } from 'antd';
+import { Button, Form, Input, message, Upload } from 'antd';
 import { DatePicker} from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
-import { doc,getDoc } from 'firebase/firestore';
-import {db} from "../firebase";
-import { storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useNavigate, useParams } from 'react-router-dom';
+import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db, storage } from '../firebase';
 import {useEffect} from "react";
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 // Type definition for form
 
@@ -16,10 +15,9 @@ type FormValues = {
 	surname: string;
 	email: string;
 	about?: string;
-	date: string; // YYYY-MM-DD
+	date: any; // YYYY-MM-DD
 	file?: File;
 };
-
 
 
 const getDoctorUnavailableDates = async (doctorId: string): Promise<string[]> => {
@@ -38,14 +36,66 @@ const getDoctorUnavailableDates = async (doctorId: string): Promise<string[]> =>
 	}
 };
 
+const addRequestToFirestore = async (doctorId: string, values: FormValues) => {
+	let fileUrl = '';
+	
+	// if there is a file, upload it to Firebase Storage and get the URL
+	if (values.file) {
+	  const storageRef = ref(storage, `requests/${doctorId}/${values.file.name}`);
+	  const snapshot = await uploadBytes(storageRef, values.file);
+	  fileUrl = await getDownloadURL(snapshot.ref);
+	}
+	
+	// adding request to Firestore
+
+	await addDoc(collection(db, 'queries'), {
+		doctorId, // doctorId from url param
+		request : {
+			name: values.name,
+			surname: values.surname,
+			email: values.email,
+			about: values.about || '',
+			date: values.date.format("YYYY-MM-DD"), // format date to string
+			fileUrl, // URL of the uploaded file
+		}, // request object with user data
+		response : {}, // empty response object
+		status : 'new', // status of the request
+		createdAt: serverTimestamp(), // timestamp of request creation
+	});
+};
+
+const updateDoctorUnavailableDates = async (doctorId: string, selectedDate: any) => {
+	// getting document from doctors by id in url param
+	const doctorRef = doc(db, 'doctors', doctorId);
+	// getting asynchronously the document
+	const doctorSnap = await getDoc(doctorRef);
+  
+	// if we have that doctor
+	if (!doctorSnap.exists()) {
+	  console.error('Doctor not found');
+	  return;
+	}
+  
+	// getting existing unavailable dates and adding the new one
+	const existingDates = doctorSnap.data().unavailableDates || [];
+	const updatedDates = Array.from(new Set([...existingDates, selectedDate.format("YYYY-MM-DD")])); // avoid duplicates and format date to string
+  
+	// updating the document with new unavailable dates
+	await updateDoc(doctorRef, {
+	  unavailableDates: updatedDates,
+	});
+  };
 
 export const RequestPage = () => {
 	const [form] = Form.useForm();
+	// using useParams to get doctorId from the URL
 	const { doctorId } = useParams<{ doctorId: string }>();
+	// using useNavigate to navigate after form submission
+	const navigate = useNavigate();
+	// Array to store unavailable dates of the doctor
 	let undates : string[] = [];
 
 	
-	console.log('Doctor ID:', doctorId);
 	// Getting unavailable days of doctor by array
 	useEffect(() => {
 		if (!doctorId) return;
@@ -59,13 +109,25 @@ export const RequestPage = () => {
 
 
 	// asynchron Function for backend after submitting
-
-	const onFinish = async (values : FormValues) => {
-		let fileUrl = '';
-
-		// if (values.file && doctorId)
-			// fileUrl = await uploadFileToStorage(values.file, doctorId);
-	};
+	const onFinish = async (values: FormValues) => {
+		// if doctorId is not provided, do nothing
+		if (!doctorId) return;
+		// if date is not selected, show error message
+		try {
+		  await updateDoctorUnavailableDates(doctorId, values.date);
+		  await addRequestToFirestore(doctorId, values);
+		  message.success('Request submitted successfully!');
+			setTimeout(() => {
+		  		navigate('/');
+			}
+		  , 1000);
+		} catch (error) {
+		  // if there is an error, log it and show error message	
+		  console.error('Error submitting request:', error);
+		  message.error('Failed to submit request.');
+		}
+};
+	  
 
 
 return (
@@ -113,8 +175,8 @@ return (
       </Form.Item>
 	  <Form.Item
   		name="date"
-  		label="Выберите дату"
-  		rules={[{ required: true, message: 'Пожалуйста, выберите дату' }]}
+  		label="Select Date"
+  		rules={[{ required: true, message: 'select date' }]}
 		>
   		<DatePicker disabledDate={disabledDate} format="YYYY-MM-DD" style={{ width: '100%' }} />
 	</Form.Item>
