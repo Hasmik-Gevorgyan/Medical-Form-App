@@ -7,6 +7,7 @@ import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'fir
 import { db, storage } from '../firebase';
 import {useEffect} from "react";
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import AIChatModal from '../ai/AIComponent';
 
 // Type definition for form
 
@@ -131,6 +132,7 @@ export const RequestPage = () => {
 
 
 return (
+	<>
     <Form
       form={form}
       layout="vertical"
@@ -186,5 +188,7 @@ return (
         </Button>
       </Form.Item>
     </Form>
+	<AIChatModal />
+	</>
   );
 };
