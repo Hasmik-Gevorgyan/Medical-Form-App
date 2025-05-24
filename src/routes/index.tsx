@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RequestPage } from '../pages/requestPage';
+import ResponsePage from '../pages/responsePage';
 
 export const router = createBrowserRouter([
 	{
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
 	{
 		path: '/request/doctor/:doctorId',
 		element: <RequestPage />
+	},
+	{
+		path: '/response/doctor/:doctorId/:requestId',
+		element: <ResponsePage />
 	},
 	{
 		path: '*',
