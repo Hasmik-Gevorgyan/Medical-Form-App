@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db, storage } from '../firebase.ts'; // Импортируй firebase.ts
 import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
-import { Alert, Button, Form, Input, Select, Upload, message, notification } from 'antd';
+import { Button, Form, Input, Select, Upload, message } from 'antd';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { UploadOutlined } from '@ant-design/icons';
 import type { InitialData } from './DoctorProfileView.tsx'; // Импортируй типы из types.ts
