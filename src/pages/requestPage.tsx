@@ -1,13 +1,14 @@
 // Imports
-import { Button, Form, Input, message, Upload } from 'antd';
+import { Button, Form, Input, message, Upload,Spin } from 'antd';
 import { DatePicker} from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db, storage } from '../firebase';
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import AIChatModal from '../ai/AIComponent';
+
 
 // Type definition for form
 
@@ -37,16 +38,16 @@ const getDoctorUnavailableDates = async (doctorId: string): Promise<string[]> =>
 	}
 };
 
-const addRequestToFirestore = async (doctorId: string, values: FormValues) => {
+const addRequestToFirestore = async (doctorId: string, values: any) => {
 	let fileUrl = '';
 	
 	// if there is a file, upload it to Firebase Storage and get the URL
 	if (values.file) {
-	  const storageRef = ref(storage, `requests/${doctorId}/${values.file.name}`);
-	  const snapshot = await uploadBytes(storageRef, values.file);
-	  fileUrl = await getDownloadURL(snapshot.ref);
+		let k = values.file.fileList[0].originFileObj;
+		const storageRef = ref(storage, `files/${k.name}`);
+		await uploadBytes(storageRef, k);
+		fileUrl = await getDownloadURL(storageRef);
 	}
-	
 	// adding request to Firestore
 
 	await addDoc(collection(db, 'queries'), {
@@ -117,6 +118,7 @@ export const RequestPage = () => {
 		try {
 		  await updateDoctorUnavailableDates(doctorId, values.date);
 		  await addRequestToFirestore(doctorId, values);
+		  setLoading(true);
 		  message.success('Request submitted successfully!');
 			setTimeout(() => {
 		  		navigate('/');
@@ -129,66 +131,88 @@ export const RequestPage = () => {
 		}
 };
 	  
-
+const [loading, setLoading] = useState(false);
 
 return (
 	<>
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onFinish}
-      style={{ maxWidth: 600, margin: '0 auto', paddingTop: '2rem' }}
-    >
-      <Form.Item
-        label="Name"
-        name="name"
-        rules={[{ required: true, message: 'Please enter your name' }]}
-      >
-        <Input placeholder="Enter your name" />
-      </Form.Item>
-
-      <Form.Item
-        label="Surname"
-        name="surname"
-        rules={[{ required: true, message: 'Please enter your surname' }]}
-      >
-        <Input placeholder="Enter your surname" />
-      </Form.Item>
-
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-          { required: true, message: 'Please enter your email' },
-          { type: 'email', message: 'Invalid email format' },
-        ]}
-      >
-        <Input placeholder="Enter your email" />
-      </Form.Item>
-
-      <Form.Item label="About" name="about">
-        <Input.TextArea rows={4} placeholder="Tell us about yourself (optional)" />
-      </Form.Item>
-
-      <Form.Item label="Attach File" name="file">
-        <Upload beforeUpload={() => false} maxCount={1}>
-          <Button icon={<UploadOutlined />}>Click to Upload (optional)</Button>
-        </Upload>
-      </Form.Item>
-	  <Form.Item
-  		name="date"
-  		label="Select Date"
-  		rules={[{ required: true, message: 'select date' }]}
+	  {loading ? (
+		<div
+		  style={{
+			position: 'fixed',
+			top: 0,
+			left: 0,
+			width: '100vw',
+			height: '100vh',
+			backgroundColor: 'rgba(255, 255, 255, 0.8)',
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center',
+			zIndex: 1000,
+		  }}
 		>
-  		<DatePicker disabledDate={disabledDate} format="YYYY-MM-DD" style={{ width: '100%' }} />
-	</Form.Item>
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit Request
-        </Button>
-      </Form.Item>
-    </Form>
-	<AIChatModal />
+		  <Spin tip="Submitting your request..." size="large" />
+		</div>
+	  ) : (
+		<Form
+		  form={form}
+		  layout="vertical"
+		  onFinish={onFinish}
+		  style={{ maxWidth: 600, margin: '0 auto', paddingTop: '2rem' }}
+		>
+		  <Form.Item
+			label="Name"
+			name="name"
+			rules={[{ required: true, message: 'Please enter your name' }]}
+		  >
+			<Input placeholder="Enter your name" />
+		  </Form.Item>
+  
+		  <Form.Item
+			label="Surname"
+			name="surname"
+			rules={[{ required: true, message: 'Please enter your surname' }]}
+		  >
+			<Input placeholder="Enter your surname" />
+		  </Form.Item>
+  
+		  <Form.Item
+			label="Email"
+			name="email"
+			rules={[
+			  { required: true, message: 'Please enter your email' },
+			  { type: 'email', message: 'Invalid email format' },
+			]}
+		  >
+			<Input placeholder="Enter your email" />
+		  </Form.Item>
+  
+		  <Form.Item label="About" name="about">
+			<Input.TextArea rows={4} placeholder="Tell us about yourself (optional)" />
+		  </Form.Item>
+  
+		  <Form.Item label="Attach File" name="file">
+			<Upload beforeUpload={() => false} maxCount={1} accept=".jpg,.jpeg,.png,.pdf">
+			  <Button icon={<UploadOutlined />}>Click to Upload (optional)</Button>
+			</Upload>
+		  </Form.Item>
+  
+		  <Form.Item
+			name="date"
+			label="Select Date"
+			rules={[{ required: true, message: 'Select date' }]}
+		  >
+			<DatePicker disabledDate={disabledDate} format="YYYY-MM-DD" style={{ width: '100%' }} />
+		  </Form.Item>
+  
+		  <Form.Item>
+			<Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+			  Submit Request
+			</Button>
+		  </Form.Item>
+		</Form>
+	  )}
+	  <AIChatModal />
 	</>
   );
+  
 };

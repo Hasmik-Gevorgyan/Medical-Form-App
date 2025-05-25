@@ -1,10 +1,11 @@
 // Importing necessary libraries and components
 import {useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { message } from 'antd';
+import { Checkbox, message } from 'antd';
 import { db } from '../firebase';
 import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
 import { Typography, Descriptions, Alert, Spin, Form, Input, Button } from 'antd';
+import { CloseCircleFilled } from '@ant-design/icons';
 import emailjs from '@emailjs/browser' // Importing emailjs for sending emails
 const { Title } = Typography;
 
@@ -14,7 +15,9 @@ const ResponsePage = () => {
   const { doctorId, requestId } = useParams();// получаем ID из URL
   const [isValid, setIsValid] : any = useState(null);
   const [patientData,setPatientData] : any = useState(null); // состояние для хранения данных пациента, если нужно
-  
+  const [isRejected, setIsRejected] = useState(false);
+  const [form] = Form.useForm();
+
   useEffect(() => {
 	// Getting the request document from Firestore
 	const ref = doc(db, 'queries', requestId || '');
@@ -45,13 +48,15 @@ const ResponsePage = () => {
 	try {
 		// Getting the patient data from the request
 	  const queryDocRef = doc(db, 'queries', requestId || '');
-	//   Updating the response in Firestore
+	  const status = isRejected ? 'rejected' : 'responded'; // setting status based on isRejected state
+
+	  //   Updating the response in Firestore
 	  await updateDoc(queryDocRef, {
 		response: {
 		  message : values.message,
 		  replyTime: serverTimestamp(),
 		},
-		status: 'responded',
+		status: status,
 	  });
 
 	//   Sending an email to the patient using emailjs
@@ -84,12 +89,14 @@ const ResponsePage = () => {
 	) 
 	// waiting for validation
   }
+  
+  // If isValid is false, show an error message and redirect to home page
   if (!isValid) {
 	message.error('You do not have permission to view this request.');
 	navigate("/"); // redirecting to home page if not valid
   }
 
-  return (
+return (
     <div style={{ padding: '24px' }}>
       <Title level={2}>Response to Request</Title>
 	{/* Patient Info */}
@@ -113,19 +120,44 @@ const ResponsePage = () => {
       )}
 
 	  {/* Response part */}
-	<Form layout="vertical" onFinish={handleFinish}>
-        <Form.Item label="Your Message" name={'message'} rules={[{ required: true, message: 'Please enter your response message' }]}>
-          <Input.TextArea
-            rows={5}
-			name='message'
-            placeholder="Type your response here..."
-          />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">Send Response</Button>
-        </Form.Item>
-      </Form>
-    </div>
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleFinish}
+      style={{ maxWidth: 600, margin: '0 auto', paddingTop: '2rem' }}
+    >
+		{/* Message part by status */}
+      <Form.Item
+        label="Your Message"
+        name="message"
+        rules={[{ required: !isRejected, message: 'Please enter your response message' }]}
+      >
+        <Input.TextArea
+          rows={5}
+          placeholder={isRejected ? 'No message needed if rejected' : 'Type your response here...'}
+        />
+      </Form.Item>
+
+	  {/* Checkbox to mark as rejected */}
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
+        <Checkbox
+          checked={isRejected}
+          onChange={(e) => setIsRejected(e.target.checked)}
+          style={{ fontWeight: 500 }}
+        >
+          <CloseCircleFilled style={{ color: '#ff4d4f', marginRight: 6 }} />
+          Mark as Rejected
+        </Checkbox>
+      </div>
+
+	  {/* Value for buttons */}
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          {isRejected ? 'Reject' : 'Send Response'}
+        </Button>
+      </Form.Item>
+    </Form>
+	</div>	
   );
 };
 
