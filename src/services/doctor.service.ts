@@ -7,7 +7,8 @@ import {
     limit,
     orderBy,
     query,
-    startAfter
+    startAfter,
+    where
 
 } from "firebase/firestore";
 import {db} from "../firebase/config.ts";
@@ -32,29 +33,53 @@ export const DoctorService = () => {
         }
     }
 
-    const getDoctorsByPage = async (pageNumber: number): Promise<PaginatedDoctorsResponse> => {
-        if (pageNumber < 1) throw new Error("Page number must be greater than or equal to 1");
+    const getDoctorsByPage = async (
+        pageNumber: number,
+        specificationId?: string,
+        searchQuery?: string
+    ): Promise<PaginatedDoctorsResponse> => {
+        if (pageNumber < 1) {
+            throw new Error("Page number must be greater than or equal to 1");
+        }
 
         const cursor = pageNumber > 1 ? doctorPageCursors[pageNumber - 2] : null;
-        const doctorQuery = query(
-            DOCTOR_COLLECTION,
-            orderBy(NAME),
-            ...(cursor ? [startAfter(cursor)] : []),
-            limit(DOCTOR_PAGE_SIZE)
-        );
 
         try {
+            const filters: any[] = [];
+
+            if (searchQuery) {
+                filters.push(where(NAME, "==", searchQuery));
+            }
+
+            if (specificationId) {
+                filters.push(where("specificationIds", "array-contains", specificationId));
+            }
+
+            // Build constraints for the paginated query
+            const constraints = [
+                ...filters,
+                orderBy(NAME),
+                ...(cursor ? [startAfter(cursor)] : []),
+                limit(DOCTOR_PAGE_SIZE),
+            ]
+
+            const countQuery = query(DOCTOR_COLLECTION, ...filters);
+
             const [snapshot, countSnapshot] = await Promise.all([
-                getDocs(doctorQuery),
-                getCountFromServer(DOCTOR_COLLECTION),
+                getDocs(query(DOCTOR_COLLECTION, ...constraints)),
+                getCountFromServer(countQuery),
             ]);
 
-            const doctors = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate().toISOString(),
-            } as DoctorInfoModel));
+            const doctors = snapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate().toISOString(),
+                }
+            })
 
+            // Save cursor for next page
             if (snapshot.docs.length > 0) {
                 doctorPageCursors[pageNumber - 1] = snapshot.docs[snapshot.docs.length - 1];
             }
@@ -63,10 +88,10 @@ export const DoctorService = () => {
                 total: countSnapshot.data().count,
                 doctors,
             }
-        } catch (error) {
-            throw new Error(`Failed to fetch doctors`);
+        } catch {
+            throw new Error("Failed to fetch doctors");
         }
-    }
+    };
 
     const getDoctor = async (id: string): Promise<DoctorInfoModel | null> => {
         try {
@@ -74,7 +99,7 @@ export const DoctorService = () => {
             const snapshot = await getDoc(doctorRef);
 
             return snapshot.exists()
-                ? { id: snapshot.id, ...snapshot.data() } as DoctorInfoModel
+                ? {id: snapshot.id, ...snapshot.data()} as DoctorInfoModel
                 : null;
         } catch (error) {
             throw new Error(`Failed to fetch doctor with ID ${id}`);

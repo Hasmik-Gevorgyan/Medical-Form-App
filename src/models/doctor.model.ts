@@ -21,6 +21,8 @@ export interface DoctorStateModel {
     doctors: DoctorInfoModel[],
     doctorsByPage: PaginatedDoctorsResponse
     doctor: DoctorInfoModel,
+    selectedSpecificationId: string,
+    searchQuery: string;
     status: Status,
     error: string | null
 }
