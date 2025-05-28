@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal, Button, Input, List, Typography } from 'antd';
+import { getJSONFromFirebase } from './getFirebasedata';
 const { TextArea } = Input;
 
 const AIChatModal = () => {
@@ -11,16 +12,23 @@ const AIChatModal = () => {
   const [userInput, setUserInput] = useState('');
 
 //   Get message from AI
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!userInput.trim()) return;
-	setChatLog([...chatLog, { sender: 'you', text: userInput }]);
     setUserInput('');
+
+	// Getting the json data for sending to AI
+	const data = await getJSONFromFirebase(userInput);
 	
-	/*
-		const data = ... getJSONFromFirebase(userInput);
-		...getResponseFromAI(data);
-	*/
-	};
+	console.log('Data to send:', data);
+	// const response  = await fetch('http://localhost:3001/api/chat', {
+		// method: 'POST',
+		// headers: {
+			// 'Content-Type': 'application/json',
+		// },
+		// body: JSON.stringify({ message: data }),
+	// });
+	// console.log('Response:', response);
+	}
 
   return (
     <>

@@ -25,7 +25,7 @@ app.use(cors());
 
 // Initing OpenAI with the API key from environment variables
 const openai = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY
+	apiKey: process.env.VITE_AI_API_KEY,
 });
 
 // Port for the server to listen on
@@ -61,9 +61,3 @@ app.post('/api/chat', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
-
-// Firebase function for getting doctors and articles json
-
-export const getDataJson = (message : string) => {
-
-}
