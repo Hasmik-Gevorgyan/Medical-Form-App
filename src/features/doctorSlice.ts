@@ -12,9 +12,13 @@ const initialState: DoctorStateModel = {
     doctors: [],
     doctorsByPage: {total: 0, doctors: []},
     doctor: {},
+    selectedSpecificationId: '',
+    searchQuery: '',
     status: Status.IDLE,
     error: null,
 }
+
+const doctorService = DoctorService();
 
 export const getDoctors = createAsyncThunk<
     DoctorInfoModel[],
@@ -24,7 +28,7 @@ export const getDoctors = createAsyncThunk<
     'doctors/getDoctors',
     async (_, {rejectWithValue}) => {
         try {
-            return await DoctorService.getDoctors();
+            return await doctorService.getDoctors();
         } catch (err: unknown) {
             if (err instanceof Error) {
                 return rejectWithValue({message: err.message});
@@ -36,21 +40,22 @@ export const getDoctors = createAsyncThunk<
 
 export const getDoctorsByPage = createAsyncThunk<
     PaginatedDoctorsResponse,
-    number,
+    { page: number; specificationId: string, searchQuery?: string;},
     { rejectValue: ApiError }
 >(
-    'doctors/getDoctorsByPage',
-    async (page: number, {rejectWithValue}) => {
+    'doctors/searchDoctorsByPage',
+    async ({ page, specificationId, searchQuery }, { rejectWithValue }) => {
         try {
-            return await DoctorService.getDoctorsByPage(page);
+            return await doctorService.getDoctorsByPage(page, specificationId, searchQuery);
         } catch (err: unknown) {
             if (err instanceof Error) {
-                return rejectWithValue({message: err.message});
+                return rejectWithValue({ message: err.message });
             }
-            return rejectWithValue({message: 'Failed to fetch doctors by page'});
+            return rejectWithValue({ message: 'Failed to search doctors by page' });
         }
     }
 )
+
 
 export const getDoctor = createAsyncThunk<
     DoctorInfoModel,
@@ -60,7 +65,7 @@ export const getDoctor = createAsyncThunk<
     'doctors/getDoctor',
     async (id: string, { rejectWithValue }) => {
         try {
-            const doctor = await DoctorService.getDoctor(id);
+            const doctor = await doctorService.getDoctor(id);
             if (!doctor) {
                 throw new Error('Doctor not found');
             }
@@ -78,7 +83,14 @@ export const getDoctor = createAsyncThunk<
 const doctorSlice = createSlice({
     name: 'doctors',
     initialState,
-    reducers: {},
+    reducers: {
+        setFilter: (state: DoctorStateModel, action: PayloadAction<string>): void => {
+            state.selectedSpecificationId = action.payload;
+        },
+        setSearchQuery(state: DoctorStateModel, action: PayloadAction<string>): void {
+            state.searchQuery = action.payload;
+        }
+    },
     extraReducers: builder => {
         builder
             .addCase(getDoctors.pending, (state: DoctorStateModel): void => {
@@ -132,4 +144,5 @@ const doctorSlice = createSlice({
     }
 })
 
+export const {setFilter, setSearchQuery} = doctorSlice.actions;
 export default doctorSlice.reducer;

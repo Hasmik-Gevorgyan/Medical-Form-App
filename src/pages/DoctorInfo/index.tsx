@@ -1,11 +1,12 @@
 import {useEffect} from "react";
 import {useParams} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch, RootState} from "../../app/store.ts";
 import {getDoctor} from "../../features/doctorSlice.ts";
-import type {DoctorStateModel} from "../../models/doctor.model.ts";
-import {Card, Col, Row, Spin} from "antd";
+import {Card, Col, Row} from "antd";
 import {Status} from "../../constants/enums.ts";
+import {renderStatus} from "../../utils/checkStateStatus.tsx";
+import type {DoctorStateModel} from "../../models/doctor.model.ts";
+import type {AppDispatch, RootState} from "../../app/store.ts";
 
 const DoctorInfo = () => {
     const {id} = useParams<{ id: string }>();
@@ -14,20 +15,18 @@ const DoctorInfo = () => {
         (state: RootState) => state.doctors
     );
 
+    const stateStatus = renderStatus(status, error);
+
     useEffect(() => {
         if (id) {
             dispatch(getDoctor(id));
         }
     }, [id, dispatch]);
 
-    if (status === Status.LOADING) {
-        return <Spin size="large" style={{display: "block", margin: "auto", marginTop: "50px"}}/>;
+    if(stateStatus) {
+        return stateStatus;
     }
 
-    if (status === Status.FAILED) {
-        return <p
-            style={{color: "red", textAlign: "center"}}>{error || "Failed to load doctor details"}</p>;
-    }
 
     return (
         <div style={{padding: "20px"}}>

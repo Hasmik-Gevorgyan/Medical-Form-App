@@ -1,4 +1,5 @@
 import type {Status} from "../constants/enums.ts";
+import type {SpecificationModel} from "./specification.model.ts";
 
 export interface DoctorModel {
     id: string;
@@ -21,6 +22,8 @@ export interface DoctorStateModel {
     doctors: DoctorInfoModel[],
     doctorsByPage: PaginatedDoctorsResponse
     doctor: DoctorInfoModel,
+    selectedSpecificationId: string,
+    searchQuery: string;
     status: Status,
     error: string | null
 }
@@ -28,4 +31,11 @@ export interface DoctorStateModel {
 export interface PaginatedDoctorsResponse {
     total: number;
     doctors: DoctorInfoModel[];
+}
+
+export interface DoctorCardProps {
+    doctor: DoctorInfoModel;
+    specifications: SpecificationModel[];
+    stringToColor: (str: string) => string;
+    getSpecificationsByIds: (ids: string[], specs: SpecificationModel[]) => string[];
 }
