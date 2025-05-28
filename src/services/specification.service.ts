@@ -21,4 +21,4 @@ export const SpecificationService = () => {
     return {getSpecifications}
 }
 
-export default SpecificationService();
+export default SpecificationService;

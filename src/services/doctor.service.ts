@@ -113,4 +113,4 @@ export const DoctorService = () => {
     };
 }
 
-export default DoctorService();
+export default DoctorService;

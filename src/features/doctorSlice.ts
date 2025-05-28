@@ -18,6 +18,8 @@ const initialState: DoctorStateModel = {
     error: null,
 }
 
+const doctorService = DoctorService();
+
 export const getDoctors = createAsyncThunk<
     DoctorInfoModel[],
     void,
@@ -26,7 +28,7 @@ export const getDoctors = createAsyncThunk<
     'doctors/getDoctors',
     async (_, {rejectWithValue}) => {
         try {
-            return await DoctorService.getDoctors();
+            return await doctorService.getDoctors();
         } catch (err: unknown) {
             if (err instanceof Error) {
                 return rejectWithValue({message: err.message});
@@ -44,7 +46,7 @@ export const getDoctorsByPage = createAsyncThunk<
     'doctors/searchDoctorsByPage',
     async ({ page, specificationId, searchQuery }, { rejectWithValue }) => {
         try {
-            return await DoctorService.getDoctorsByPage(page, specificationId, searchQuery);
+            return await doctorService.getDoctorsByPage(page, specificationId, searchQuery);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 return rejectWithValue({ message: err.message });
@@ -63,7 +65,7 @@ export const getDoctor = createAsyncThunk<
     'doctors/getDoctor',
     async (id: string, { rejectWithValue }) => {
         try {
-            const doctor = await DoctorService.getDoctor(id);
+            const doctor = await doctorService.getDoctor(id);
             if (!doctor) {
                 throw new Error('Doctor not found');
             }

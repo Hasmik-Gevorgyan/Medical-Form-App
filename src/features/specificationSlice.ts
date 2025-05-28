@@ -14,6 +14,8 @@ const initialState: SpecificationStateModel = {
     error: null,
 }
 
+const specificationService = SpecificationService();
+
 export const getSpecifications = createAsyncThunk<
     SpecificationModel[],
     void,
@@ -22,7 +24,7 @@ export const getSpecifications = createAsyncThunk<
     'doctors/getDoctors',
     async (_, {rejectWithValue}) => {
         try {
-            return await SpecificationService.getSpecifications();
+            return await specificationService.getSpecifications();
         } catch (err: unknown) {
             if (err instanceof Error) {
                 return rejectWithValue({message: err.message});
