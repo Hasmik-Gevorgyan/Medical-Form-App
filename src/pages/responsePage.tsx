@@ -47,6 +47,7 @@ const ResponsePage = () => {
   
 	try {
 		// Getting the patient data from the request
+	  setIsValid(true); // setting isValid to true to allow response
 	  const queryDocRef = doc(db, 'queries', requestId || '');
 	  const status = isRejected ? 'rejected' : 'responded'; // setting status based on isRejected state
 

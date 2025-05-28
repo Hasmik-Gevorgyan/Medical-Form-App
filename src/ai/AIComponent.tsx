@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Modal, Button, Input, List, Typography } from 'antd';
-
 const { TextArea } = Input;
 
 const AIChatModal = () => {
@@ -11,11 +10,17 @@ const AIChatModal = () => {
 //  state for user input 
   const [userInput, setUserInput] = useState('');
 
+//   Get message from AI
   const handleSend = () => {
     if (!userInput.trim()) return;
-    setChatLog([...chatLog, { sender: 'you', text: userInput }]);
+	setChatLog([...chatLog, { sender: 'you', text: userInput }]);
     setUserInput('');
-  };
+	
+	/*
+		const data = ... getJSONFromFirebase(userInput);
+		...getResponseFromAI(data);
+	*/
+	};
 
   return (
     <>
@@ -56,6 +61,9 @@ const AIChatModal = () => {
         <Button type="primary" onClick={handleSend} style={{ marginTop: 8 }}>
           Send
         </Button>
+		<Button type='default' onClick={() => setChatLog([])} style={{ marginTop: 8, marginLeft: 8 }}>
+			Clear
+		</Button>
       </Modal>
     </>
   );

@@ -112,13 +112,13 @@ export const RequestPage = () => {
 
 	// asynchron Function for backend after submitting
 	const onFinish = async (values: FormValues) => {
+		setLoading(true);
 		// if doctorId is not provided, do nothing
 		if (!doctorId) return;
 		// if date is not selected, show error message
 		try {
 		  await updateDoctorUnavailableDates(doctorId, values.date);
 		  await addRequestToFirestore(doctorId, values);
-		  setLoading(true);
 		  message.success('Request submitted successfully!');
 			setTimeout(() => {
 		  		navigate('/');
@@ -153,6 +153,7 @@ return (
 		  <Spin tip="Submitting your request..." size="large" />
 		</div>
 	  ) : (
+		<>
 		<Form
 		  form={form}
 		  layout="vertical"
@@ -210,8 +211,9 @@ return (
 			</Button>
 		  </Form.Item>
 		</Form>
+		<AIChatModal />
+		</>
 	  )}
-	  <AIChatModal />
 	</>
   );
   
