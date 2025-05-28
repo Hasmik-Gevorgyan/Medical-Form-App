@@ -26,10 +26,6 @@ const Doctors = () => {
         dispatch(getDoctorsByPage({page: currentPage, specificationId: selectedSpecificationId}));
     }, [dispatch, currentPage, selectedSpecificationId]);
 
-    useEffect(() => {
-        dispatch(getSpecifications());
-    }, []);
-
     const handleSearch = (query: string) => {
         dispatch(setSearchQuery(query));
         dispatch(getDoctorsByPage({page: 1, specificationId: selectedSpecificationId, searchQuery: query}));
