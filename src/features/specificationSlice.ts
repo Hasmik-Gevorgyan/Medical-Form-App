@@ -21,7 +21,7 @@ export const getSpecifications = createAsyncThunk<
     void,
     { rejectValue: ApiError }
 >(
-    'spacifications/getSpecifications',
+    'specifications/getSpecifications',
     async (_, {rejectWithValue}) => {
         try {
             return await specificationService.getSpecifications();
