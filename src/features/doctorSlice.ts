@@ -1,0 +1,135 @@
+import type {PayloadAction} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import DoctorService from "../services/doctor.service.ts";
+import type {DoctorInfoModel, DoctorStateModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
+import {Status} from "../constants/enums.ts";
+
+interface ApiError {
+    message: string;
+}
+
+const initialState: DoctorStateModel = {
+    doctors: [],
+    doctorsByPage: {total: 0, doctors: []},
+    doctor: {},
+    status: Status.IDLE,
+    error: null,
+}
+
+export const getDoctors = createAsyncThunk<
+    DoctorInfoModel[],
+    void,
+    { rejectValue: ApiError }
+>(
+    'doctors/getDoctors',
+    async (_, {rejectWithValue}) => {
+        try {
+            return await DoctorService.getDoctors();
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return rejectWithValue({message: err.message});
+            }
+            return rejectWithValue({message: 'Failed to fetch doctors'});
+        }
+    }
+)
+
+export const getDoctorsByPage = createAsyncThunk<
+    PaginatedDoctorsResponse,
+    number,
+    { rejectValue: ApiError }
+>(
+    'doctors/getDoctorsByPage',
+    async (page: number, {rejectWithValue}) => {
+        try {
+            return await DoctorService.getDoctorsByPage(page);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return rejectWithValue({message: err.message});
+            }
+            return rejectWithValue({message: 'Failed to fetch doctors by page'});
+        }
+    }
+)
+
+export const getDoctor = createAsyncThunk<
+    DoctorInfoModel,
+    string,
+    { rejectValue: ApiError }
+>(
+    'doctors/getDoctor',
+    async (id: string, { rejectWithValue }) => {
+        try {
+            const doctor = await DoctorService.getDoctor(id);
+            if (!doctor) {
+                throw new Error('Doctor not found');
+            }
+            return doctor;
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return rejectWithValue({ message: err.message });
+            }
+            return rejectWithValue({ message: 'Failed to fetch doctor' });
+        }
+    }
+)
+
+
+const doctorSlice = createSlice({
+    name: 'doctors',
+    initialState,
+    reducers: {},
+    extraReducers: builder => {
+        builder
+            .addCase(getDoctors.pending, (state: DoctorStateModel): void => {
+                state.status = Status.LOADING;
+            })
+            .addCase(getDoctors.fulfilled, (state: DoctorStateModel, action: PayloadAction<DoctorInfoModel[]>): void => {
+                state.status = Status.SUCCEEDED;
+                state.doctors = action.payload;
+            })
+            .addCase(getDoctors.rejected, (state: DoctorStateModel, action: ReturnType<typeof getDoctors.rejected>): void => {
+                state.status = Status.FAILED;
+                if(action.payload) {
+                    state.error = action.payload?.message;
+                }else {
+                    state.error = action.error?.message || null;
+                }
+            })
+            .addCase(getDoctorsByPage.pending, (state: DoctorStateModel): void => {
+                state.status = Status.LOADING;
+            })
+            .addCase(getDoctorsByPage.fulfilled, (state: DoctorStateModel, action: PayloadAction<PaginatedDoctorsResponse>): void => {
+                state.status = Status.SUCCEEDED;
+                state.doctorsByPage = {
+                    doctors: action.payload.doctors,
+                    total: action.payload.total,
+                };
+            })
+            .addCase(getDoctorsByPage.rejected, (state: DoctorStateModel, action: ReturnType<typeof getDoctorsByPage.rejected>): void => {
+                state.status = Status.FAILED;
+                if(action.payload) {
+                    state.error = action.payload?.message;
+                }else {
+                    state.error = action.error?.message || null;
+                }
+            })
+            .addCase(getDoctor.pending, (state: DoctorStateModel): void => {
+                state.status = Status.LOADING;
+            })
+            .addCase(getDoctor.fulfilled, (state: DoctorStateModel, action: PayloadAction<DoctorInfoModel>): void => {
+                state.status = Status.SUCCEEDED;
+                state.doctor = action.payload;
+            })
+            .addCase(getDoctor.rejected, (state: DoctorStateModel, action: ReturnType<typeof getDoctor.rejected>): void => {
+                state.status = Status.FAILED;
+                if(action.payload) {
+                    state.error = action.payload?.message;
+                }else {
+                    state.error = action.error?.message || null;
+                }
+            })
+    }
+})
+
+export default doctorSlice.reducer;
