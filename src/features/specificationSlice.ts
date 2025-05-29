@@ -45,7 +45,6 @@ const specificationSlice = createSlice({
             })
             .addCase(getSpecifications.fulfilled, (state: SpecificationStateModel, action: PayloadAction<SpecificationModel[]>): void => {
                 state.status = Status.SUCCEEDED;
-                console.log(action.payload)
                 state.specifications = action.payload;
             })
             .addCase(getSpecifications.rejected, (state: SpecificationStateModel, action: ReturnType<typeof getSpecifications.rejected>): void => {

@@ -8,7 +8,7 @@ import Specifications from "../../components/Specifications";
 import DoctorCard from "../../components/DoctorCard";
 import type {AppDispatch, RootState} from "../../app/store.ts";
 import type {DoctorInfoModel, DoctorStateModel} from "../../models/doctor.model.ts";
-import type {SpecificationModel, SpecificationStateModel} from "../../models/specification.model.ts";
+import type {SpecificationStateModel} from "../../models/specification.model.ts";
 
 const Doctors = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -68,11 +68,6 @@ const Doctors = () => {
         return color;
     }
 
-    const getSpecificationsByIds = (ids: string[], specs: SpecificationModel[]) => (
-        ids?.map(id => specs.find((s: SpecificationModel) => s.id === id)?.name)
-            .filter(name => name != null)
-    )
-
     if (stateStatus) {
         return stateStatus;
     }
@@ -96,7 +91,6 @@ const Doctors = () => {
                                     doctor={doctor}
                                     specifications={specifications}
                                     stringToColor={stringToColor}
-                                    getSpecificationsByIds={getSpecificationsByIds}
                                 />
                             </Col>
                         ))}
