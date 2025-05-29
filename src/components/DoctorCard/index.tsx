@@ -3,13 +3,18 @@ import { Link } from "react-router";
 import { ROUTE_PATHS } from "../../routes/paths.ts";
 import type {FC} from "react";
 import type {DoctorCardProps} from "../../models/doctor.model.ts";
+import {getSpecializationByIds} from "../../utils/getSpecializationById.ts";
 
 const DoctorCard: FC<DoctorCardProps> = ({
        doctor,
        specifications,
-       stringToColor,
-       getSpecificationsByIds
+       stringToColor
    }) => {
+
+    const doctorSpecializations = doctor.specificationIds
+        ? getSpecializationByIds(doctor.specificationIds, specifications)
+        : [];
+
     return (
         <Link to={`/${ROUTE_PATHS.DOCTORS}/${doctor.id}`}>
             <Card
@@ -65,9 +70,8 @@ const DoctorCard: FC<DoctorCardProps> = ({
                         {doctor.name} {doctor.surname}
                     </p>
                     <p style={{ color: "#888", fontSize: "14px" }}>
-                        Specialties:{" "}
-                        {doctor.specificationIds &&
-                            getSpecificationsByIds(doctor.specificationIds, specifications).join(", ")}
+                        Specializations:{" "}
+                        {doctorSpecializations.join(", ")}
                     </p>
                 </div>
             </Card>

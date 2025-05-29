@@ -16,7 +16,9 @@ export interface DoctorModel {
 export interface DoctorInfoModel extends Partial<DoctorModel> {
     about?: string;
     photoUrl?: string;
-    unavailableDates?: Date[]
+    unavailableDates?: Date[],
+    education?: EducationModel[];
+    activity?: ActivityModel[];
 }
 
 export interface DoctorStateModel {
@@ -34,9 +36,22 @@ export interface PaginatedDoctorsResponse {
     doctors: DoctorInfoModel[];
 }
 
+export interface EducationModel {
+    place: string;
+    startDate: string;
+    endDate: string;
+    profession: string;
+}
+
+export interface ActivityModel {
+    place: string;
+    startDate: string;
+    endDate: string;
+    profession: string;
+}
+
 export interface DoctorCardProps {
     doctor: DoctorInfoModel;
     specifications: SpecificationModel[];
     stringToColor: (str: string) => string;
-    getSpecificationsByIds: (ids: string[], specs: SpecificationModel[]) => string[];
 }
