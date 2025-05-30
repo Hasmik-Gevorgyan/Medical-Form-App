@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Space } from 'antd';
+import { Input } from 'antd';
 
 const { Search } = Input;
 
@@ -7,15 +7,16 @@ type Props = {
     onSearch: (value: string) => void;
 };
 
-const SearchArticles: React.FC<Props> = ({ onSearch }) => (
-    <Space direction="vertical" style={{ marginBottom: '1rem' }}>
+const SearchArticles: React.FC<Props> = ({ onSearch }) => {
+    return (
         <Search
             placeholder="Search articles..."
             onSearch={onSearch}
             enterButton
             allowClear
+            style={{ width: '100%' }}
         />
-    </Space>
-);
+    );
+};
 
 export default SearchArticles;

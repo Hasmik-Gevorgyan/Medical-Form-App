@@ -1,37 +1,28 @@
-import type { MenuProps } from "antd";
-import { Menu } from 'antd';
+import React from 'react';
+import type { MenuProps } from 'antd';
+import { Dropdown, Button } from 'antd';
 
 type SortArticlesProps = {
     onSort: (sortOrder: 'newest' | 'oldest') => void;
 };
 
 const items: MenuProps['items'] = [
-    {
-        key: 'sub1',
-        label: 'Sort by date added',
-        children: [
-            { key: '1', label: 'Newest' },
-            { key: '2', label: 'Oldest' },
-        ],
-    },
+    { key: 'newest', label: 'Newest' },
+    { key: 'oldest', label: 'Oldest' },
 ];
 
 const SortArticles: React.FC<SortArticlesProps> = ({ onSort }) => {
-    const onClickMenu: MenuProps['onClick'] = (e) => {
-        if (e.key === '1') onSort('newest');
-        else if (e.key === '2') onSort('oldest');
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        if (e.key === 'newest' || e.key === 'oldest') {
+            onSort(e.key);
+        }
     };
 
     return (
-        <Menu
-            onClick={onClickMenu}
-            style={{ width: 256 }}
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            mode="inline"
-            items={items}
-        />
-    )
-}
+        <Dropdown menu={{ items, onClick: handleMenuClick }} placement="bottomRight">
+            <Button>Sort By</Button>
+        </Dropdown>
+    );
+};
 
 export default SortArticles;

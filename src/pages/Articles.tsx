@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { fetchArticles } from '../features/articleSlice';
-import SortArticles from "../components/SortArticles.tsx";
-import SearchArticles from "../components/SearchArticles.tsx";
+import SortArticles from "../components/SortArticles";
+import SearchArticles from "../components/SearchArticles";
+import { Row, Col, Card, Typography, Spin, Space, Divider } from 'antd';
+
+const { Title, Paragraph } = Typography;
 
 const Articles = () => {
     const dispatch = useAppDispatch();
@@ -26,24 +30,36 @@ const Articles = () => {
         article.content.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 100 }} />;
 
     return (
-        <div style={{ color: "black" }}>
-            <h1>Articles</h1>
+        <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '2rem' }}>
+            <Title level={2}>Articles</Title>
 
-            <SortArticles onSort={setSortOrder} />
-            <SearchArticles onSearch={(value) => setSearchTerm(value)} />
-            {displayedArticles.map(article => (
-                <div key={article.id}>
-                    <h2>{article.title}</h2>
-                    <p>{article.content}</p>
-                </div>
-            ))}
+            <Space style={{ marginBottom: 24 }} direction="horizontal" size="middle">
+                <SearchArticles onSearch={setSearchTerm} />
+                <SortArticles onSort={setSortOrder} />
+            </Space>
 
-            {displayedArticles.length === 0 && (
-                <p>No articles match your search.</p>
-            )}
+            <Divider />
+
+            <Row gutter={[16, 16]}>
+                {displayedArticles.length > 0 ? (
+                    displayedArticles.map(article => (
+                        <Col xs={24} sm={12} key={article.id}>
+                            <Link to={`/article/${article.id}`}>
+                                <Card title={article.title} hoverable>
+                                    <Paragraph ellipsis={{ rows: 3 }}>{article.content}</Paragraph>
+                                </Card>
+                            </Link>
+                        </Col>
+                    ))
+                ) : (
+                    <Col span={24}>
+                        <Paragraph>No articles match your search.</Paragraph>
+                    </Col>
+                )}
+            </Row>
         </div>
     );
 };
