@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useAppDispatch } from '../app/hooks';
-import { addArticle } from '../features/articleSlice';
+import { useAppDispatch } from '../../app/hooks.ts';
+import { addArticle } from '../../features/articleSlice.ts';
 import { Button, Form, Input, Typography, Layout } from 'antd';
 
 const { Title } = Typography;

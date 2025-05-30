@@ -1,8 +1,8 @@
 // src/store/articleSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../services/firebase.ts';
+import { db } from '../firebase/config.ts';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
-import type {Article} from '../types/article.ts';
+import type {Article} from '../models/article.model.ts';
 
 const articlesRef = collection(db, 'articles');
 

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../app/hooks';
+import { useAppSelector } from '../../app/hooks.ts';
 import { Typography, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { fetchArticles } from '../features/articleSlice';
-import SortArticles from "../components/SortArticles";
-import SearchArticles from "../components/SearchArticles";
+import { useAppDispatch, useAppSelector } from '../../app/hooks.ts';
+import { fetchArticles } from '../../features/articleSlice.ts';
+import SortArticles from "../../components/SortArticles";
+import SearchArticles from "../../components/SearchArticles";
 import { Row, Col, Card, Typography, Spin, Space, Divider } from 'antd';
 
 const { Title, Paragraph } = Typography;
@@ -47,11 +47,12 @@ const Articles = () => {
                 {displayedArticles.length > 0 ? (
                     displayedArticles.map(article => (
                         <Col xs={24} sm={12} key={article.id}>
-                            <Link to={`/article/${article.id}`}>
+                            <Link to={`/articles/${article.id}`}>
                                 <Card title={article.title} hoverable>
                                     <Paragraph ellipsis={{ rows: 3 }}>{article.content}</Paragraph>
                                 </Card>
                             </Link>
+
                         </Col>
                     ))
                 ) : (
