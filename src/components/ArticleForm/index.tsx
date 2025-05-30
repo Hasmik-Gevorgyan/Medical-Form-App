@@ -1,27 +1,53 @@
 import React, { useState } from 'react';
 import { useAppDispatch } from '../../app/hooks.ts';
 import { addArticle } from '../../features/articleSlice.ts';
-import { Button, Form, Input, Typography, Layout } from 'antd';
-
+import {Button, Form, Input, Typography, Layout, message, Upload} from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 const { Title } = Typography;
 const { Content } = Layout;
+import {storage} from "../../firebase/config.ts"
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 
 const ArticleForm: React.FC = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [image, setImage] = useState<File | null>(null);
+    //const [loading, setLoading] = useState(false);
     const dispatch = useAppDispatch();
 
-    const handleSubmit = () => {
-        dispatch(
-            addArticle({
-                title,
-                content,
-                authorId: 'user-id-placeholder',
-                createdAt: '',
-            })
-        );
-        setTitle('');
-        setContent('');
+    const handleSubmit = async() => {
+        //setLoading(true);
+        try {
+            let imageUrl = '';
+
+            if (image) {
+                const imageRef = ref(storage, `articles/${Date.now()}-${image.name}`);
+                const snapshot = await uploadBytes(imageRef, image);
+                imageUrl = await getDownloadURL(snapshot.ref);
+            }
+
+            dispatch(
+                addArticle({
+                    title,
+                    content,
+                    authorId: 'user-id-placeholder',
+                    createdAt: new Date().toISOString(),
+                    imageUrl,
+                })
+            );
+
+            message.success('Article submitted successfully');
+            setTitle('');
+            setContent('');
+            setImage(null);
+        } catch (err) {
+            console.error('Error uploading article:', err);
+            message.error('Failed to submit article');
+        }
+        // } finally {
+        //     setLoading(false);
+        // }
     };
 
     return (
@@ -61,6 +87,20 @@ const ArticleForm: React.FC = () => {
                             onChange={e => setContent(e.target.value)}
                             placeholder="Write your article here"
                         />
+                    </Form.Item>
+                    <Form.Item label="Upload Image (optional)">
+                        <Upload
+                            beforeUpload={(file) => {
+                                setImage(file);
+                                return false;
+                            }}
+                            showUploadList={{ showRemoveIcon: true }}
+                            onRemove={() => setImage(null)}
+                            accept="image/*"
+                            maxCount={1}
+                        >
+                            <Button icon={<UploadOutlined />}>Select Image</Button>
+                        </Upload>
                     </Form.Item>
 
                     <Form.Item>

@@ -1,11 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
 import themeReducer from '../features/themeSlice';
 import articleReducer from '../features/articleSlice';
+import doctorReducer from '../features/doctorSlice.ts';
+import specificationReducer from '../features/specificationSlice.ts';
 
 export const store = configureStore({
   reducer: {
     theme: themeReducer,
-    articles: articleReducer
+    articles: articleReducer,
+    doctors: doctorReducer,
+    specifications: specificationReducer,
   },
 });
 

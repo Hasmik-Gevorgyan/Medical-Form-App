@@ -4,4 +4,5 @@ export interface Article {
     content: string;
     authorId: string;
     createdAt: string;
+    imageUrl?: string
 }
