@@ -1,14 +1,13 @@
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getDoctorsByPage, setFilter, setSearchQuery} from "../../features/doctorSlice.ts";
-import {getSpecifications} from "../../features/specificationSlice.ts";
+import {getDoctorsByPage, setFilter, setSearchQuery} from "@/features/doctorSlice.ts";
 import {Col, Pagination, Row, Input} from "antd";
 import {renderStatus} from "../../utils/checkStateStatus.tsx";
 import Specifications from "../../components/Specifications";
 import DoctorCard from "../../components/DoctorCard";
-import type {AppDispatch, RootState} from "../../app/store.ts";
-import type {DoctorInfoModel, DoctorStateModel} from "../../models/doctor.model.ts";
-import type {SpecificationModel, SpecificationStateModel} from "../../models/specification.model.ts";
+import type {AppDispatch, RootState} from "@/app/store.ts";
+import type {DoctorInfoModel, DoctorStateModel} from "@/models/doctor.model.ts";
+import type {SpecificationStateModel} from "@/models/specification.model.ts";
 
 const Doctors = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -25,10 +24,6 @@ const Doctors = () => {
     useEffect(() => {
         dispatch(getDoctorsByPage({page: currentPage, specificationId: selectedSpecificationId}));
     }, [dispatch, currentPage, selectedSpecificationId]);
-
-    useEffect(() => {
-        dispatch(getSpecifications());
-    }, []);
 
     const handleSearch = (query: string) => {
         dispatch(setSearchQuery(query));
@@ -68,11 +63,6 @@ const Doctors = () => {
         return color;
     }
 
-    const getSpecificationsByIds = (ids: string[], specs: SpecificationModel[]) => (
-        ids?.map(id => specs.find((s: SpecificationModel) => s.id === id)?.name)
-            .filter(name => name != null)
-    )
-
     if (stateStatus) {
         return stateStatus;
     }
@@ -96,7 +86,6 @@ const Doctors = () => {
                                     doctor={doctor}
                                     specifications={specifications}
                                     stringToColor={stringToColor}
-                                    getSpecificationsByIds={getSpecificationsByIds}
                                 />
                             </Col>
                         ))}

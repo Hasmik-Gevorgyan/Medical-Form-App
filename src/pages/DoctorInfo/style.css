@@ -1,0 +1,7 @@
+.tabs {
+    margin-bottom: 20px;
+}
+
+.tabs .ant-card .ant-card-body{
+    padding: 0;
+}
