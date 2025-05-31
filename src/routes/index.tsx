@@ -6,6 +6,9 @@ import MainLayout from '@/components/Layout';
 import {ROUTE_PATHS} from "./paths.ts";
 import Doctors from "@/pages/Doctors";
 import DoctorInfo from "@/pages/DoctorInfo";
+import Articles from '@/pages/Articles/index.tsx';
+import ArticleForm from "@/components/ArticleForm";
+import ArticleDetail from "@/components/ArticleDetail";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +27,18 @@ export const router = createBrowserRouter([
         path: ROUTE_PATHS.DOCTOR_INFO,
         element: <DoctorInfo />
       },
+      {
+        path: ROUTE_PATHS.ARTICLES,
+        element: <Articles/>
+      },
+      {
+        path: ROUTE_PATHS.ADD_ARTICLE,
+        element: <ArticleForm/>
+      },
+      {
+        path: ROUTE_PATHS.ARTICLE_DETAIL,
+        element: <ArticleDetail />
+      }
     ],
   },
   {
