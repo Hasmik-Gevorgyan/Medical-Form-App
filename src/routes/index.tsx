@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -10,6 +11,7 @@ import Articles from '@/pages/Articles/index.tsx';
 import ArticleForm from '@/pages/ArticleForm/index.tsx';
 import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
 import PrivateRoute from "@/components/PrivateRoute";
+import Profile from '@/pages/Profile/index.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -43,8 +45,12 @@ export const router = createBrowserRouter([
             path: ROUTE_PATHS.ADD_ARTICLE,
             element: <ArticleForm/>
           },
+          {
+            path: ROUTE_PATHS.DOCTOR_PROFILE,
+            element:<Profile />
+          }
         ]
-      }
+      },
     ],
   },
   {
