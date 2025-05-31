@@ -8,8 +8,9 @@ import {ROUTE_PATHS} from "./paths.ts";
 import Doctors from "@/pages/Doctors";
 import DoctorInfo from "@/pages/DoctorInfo";
 import Articles from '@/pages/Articles/index.tsx';
-import ArticleForm from "@/components/ArticleForm";
-import ArticleDetail from "@/components/ArticleDetail";
+import ArticleForm from '@/pages/ArticleForm/index.tsx';
+import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
+import PrivateRoute from "@/components/PrivateRoute";
 import Profile from '@/pages/Profile/index.tsx';
 
 export const router = createBrowserRouter([
@@ -34,17 +35,22 @@ export const router = createBrowserRouter([
         element: <Articles/>
       },
       {
-        path: ROUTE_PATHS.ADD_ARTICLE,
-        element: <ArticleForm/>
-      },
-      {
         path: ROUTE_PATHS.ARTICLE_DETAIL,
         element: <ArticleDetail />
       },
       {
-        path: ROUTE_PATHS.DOCTOR_PROFILE,
-        element:<Profile />
-      }
+        element: <PrivateRoute />,
+        children: [
+          {
+            path: ROUTE_PATHS.ADD_ARTICLE,
+            element: <ArticleForm/>
+          },
+          {
+            path: ROUTE_PATHS.DOCTOR_PROFILE,
+            element:<Profile />
+          }
+        ]
+      },
     ],
   },
   {

@@ -9,6 +9,7 @@ import HospitalService from '@/services/hospitals.service';
 import { useSelector } from 'react-redux';
 import DoctorQueriesTable from './DoctorQueriesTable';
 import { UserOutlined } from '@ant-design/icons';
+import useAuth from '@/hooks/useAuth';
 
 
 
@@ -18,15 +19,17 @@ const DoctorProfileView: React.FC = () => {
   const [editVisible, setEditVisible] = useState(false);
   const [specs, setSpecs] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
-  const doctorId = 'test';
+  // const doctorId = 'test';
+  const { userId:doctorId,  } = useAuth();
   // const {id: doctorId} = useSelector((state: any) => state.auth.user);
-  const {user} = useSelector((state: any) => state.auth);
+  // const {user} = useSelector((state: any) => state.auth);
 
-  console.log('Doctor ID:', doctorId,user?.id, user);
+  // console.log('Doctor ID:', doctorId,user?.id, user);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const docSnap = await getDoc(doc(db, 'doctors', doctorId));
+      if (!doctorId) return;
+const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
       if (docSnap.exists()) {
         setDoctor(docSnap.data());
       }
@@ -48,6 +51,10 @@ const DoctorProfileView: React.FC = () => {
   const getHospitalNames = (ids: string[]) =>
     hospitals.filter((h) => ids?.includes(h.id)).map((h) => h.name).join(', ');
 
+    if (!doctorId) {
+    // можно показывать спиннер или сообщение о том, что профиль не загружен
+    return <Spin />;
+  }
   if (loading) return <Spin />;
 
   return (
@@ -88,18 +95,20 @@ const DoctorProfileView: React.FC = () => {
         <Descriptions.Item label="Specifications">
           {getSpecNames(doctor?.specificationIds || [])}
         </Descriptions.Item>
-        {doctor.about.trim() !== '' && (
+        {doctor?.about?.trim() !== '' && (
           <Descriptions.Item label="About">{doctor.about}</Descriptions.Item>
         )}
-        <Descriptions.Item label="Education">
-          {(doctor?.education || []).map((edu: any, idx: number) => (
-            <div key={idx}>
-              🎓 {edu.institution} (
-              {dayjs(edu.dateFrom).format('YYYY-MM')} –{' '}
-              {edu.dateTo ? dayjs(edu.dateTo).format('YYYY-MM') : 'Present'})
-            </div>
-          ))}
-        </Descriptions.Item>
+       {doctor?.education && doctor.education.length > 0 && (
+  <Descriptions.Item label="Education">
+    {doctor.education.map((edu: any, idx: number) => (
+      <div key={idx}>
+        🎓 {edu.institution} (
+        {dayjs(edu.dateFrom).format('YYYY-MM')} –{' '}
+        {edu.dateTo ? dayjs(edu.dateTo).format('YYYY-MM') : 'Present'})
+      </div>
+    ))}
+  </Descriptions.Item>
+)}
       </Descriptions>
 
       <Drawer
@@ -114,7 +123,7 @@ const DoctorProfileView: React.FC = () => {
           onSave={() => {
             setEditVisible(false);
             // refetch updated profile
-            getDoc(doc(db, 'doctors', doctorId)).then((snap) => {
+            getDoc(doc(db, 'doctors', doctorId!)).then((snap) => {
               if (snap.exists()) {
                 setDoctor(snap.data());
               }
@@ -122,6 +131,7 @@ const DoctorProfileView: React.FC = () => {
           }}
         />
       </Drawer>
+      <br />
       <DoctorQueriesTable doctorId={doctorId} />
     </>
   );

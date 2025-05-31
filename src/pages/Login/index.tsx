@@ -1,5 +1,5 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, Flex, message, Typography, Card, Space } from 'antd';
+import { Button, Checkbox, Form, Input, Flex, Typography, Card, Space } from 'antd';
 import {loginUser} from '@/services/auth.service';
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +7,15 @@ import { Link } from 'react-router-dom';
 import { fetchUser } from "@/features/authSlice"; 
 import type { AppDispatch } from '@/app/store';
 import { useState } from 'react';
+import type { User } from 'firebase/auth';
 
 const { Title, Text } = Typography;
+
+interface LoginFormValues {
+  username: string;
+  password: string;
+  remember: boolean;
+}
 
 const Login = () => {
   const [form] = Form.useForm();
@@ -16,18 +23,17 @@ const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [error, setError] = useState<string | null>(null);
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: LoginFormValues) => {
     handleSignIn({...values})
   };
 
-  const handleSignIn = async ({username, password, remember}: any) => {
+  const handleSignIn = async ({username, password, remember}: LoginFormValues) => {
     try {
-      const logedUser: any = await loginUser({email: username, password, rememberMe: remember});
+      const logedUser: User = await loginUser({email: username, password, rememberMe: remember});
 
       dispatch(fetchUser(logedUser?.uid));
-      message.success("Logged in successfully!");
       navigate('/');
-    } catch (err: any) {
+    } catch (err: { message?: string } | any) {
       const msg = err.message || "Something went wrong. Please try again.";
       
       if (msg.includes("auth/invalid-credential") || 

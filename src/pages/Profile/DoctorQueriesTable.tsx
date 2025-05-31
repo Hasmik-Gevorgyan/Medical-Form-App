@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Table, Tag, Modal, Descriptions } from 'antd';
+import { Table, Tag, Modal, Descriptions,Button } from 'antd';
 import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config.ts';
 import type { ColumnsType } from 'antd/es/table';
+import { useNavigate } from 'react-router-dom';
 
 export interface QueryData {
   id: string;
@@ -146,6 +147,7 @@ const DoctorQueriesTable = ({ doctorId }: Props) => {
     setSelectedQuery(record);
     setModalOpen(true);
   };
+  const navigate = useNavigate();
 
   return (
     <>
@@ -210,6 +212,19 @@ const DoctorQueriesTable = ({ doctorId }: Props) => {
             </Descriptions.Item>
           </Descriptions>
         )}
+         <div style={{ marginTop: 16, textAlign: 'right' }}>
+     <Button
+  type="primary"
+  onClick={() => {
+    if (selectedQuery) {
+      navigate(`/query/${selectedQuery.id}`);
+    }
+  }}
+  disabled={!selectedQuery}
+>
+  Go to Query Page
+</Button>
+    </div>
       </Modal>
     </>
   );

@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 const { Option } = Select;
 
 interface Props {
-  doctorId: string;
+  doctorId: string | null;
   initialData: any;
   onSave: () => void;
 }
@@ -64,6 +64,11 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
   }, [initialData, form]);
 
   const handleSave = async (values: any) => {
+
+      if (!doctorId) {
+    message.error('Doctor ID is missing');
+    return;
+  }
     setLoading(true);
 
     try {
