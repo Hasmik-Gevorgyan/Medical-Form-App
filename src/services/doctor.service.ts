@@ -9,7 +9,6 @@ import {
     query,
     startAfter,
     where
-
 } from "firebase/firestore";
 import {db} from "../firebase/config.ts";
 import type {DoctorInfoModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
@@ -75,7 +74,12 @@ export const DoctorService = () => {
                 return {
                     id: doc.id,
                     ...data,
-                    createdAt: data.createdAt?.toDate().toISOString(),
+                    birthdate: data.birthdate?.toDate?.() instanceof Date
+                        ? data.birthdate.toDate().toISOString()
+                        : null,
+                    createdAt: data.createdAt?.toDate?.() instanceof Date
+                        ? data.createdAt.toDate().toISOString()
+                        : null
                 }
             })
 
@@ -99,7 +103,14 @@ export const DoctorService = () => {
             const snapshot = await getDoc(doctorRef);
 
             return snapshot.exists()
-                ? {id: snapshot.id, ...snapshot.data()} as DoctorInfoModel
+                ? {
+                    id: snapshot.id,
+                    ...snapshot.data(),
+                    birthdate: snapshot.data().birthdate?.toDate?.() instanceof Date
+                        ? snapshot.data().birthdate.toDate().toISOString() : null,
+                    createdAt: snapshot.data().createdAt?.toDate?.() instanceof Date
+                        ? snapshot.data().createdAt.toDate().toISOString() : null,
+                } as DoctorInfoModel
                 : null;
         } catch (error) {
             throw new Error(`Failed to fetch doctor with ID ${id}`);
@@ -109,7 +120,7 @@ export const DoctorService = () => {
     return {
         getDoctors,
         getDoctor,
-        getDoctorsByPage,
+        getDoctorsByPage
     };
 }
 
