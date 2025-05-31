@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {getDoctorsByPage, setFilter, setSearchQuery} from "../../features/doctorSlice.ts";
-import {getSpecifications} from "../../features/specificationSlice.ts";
 import {Col, Pagination, Row, Input} from "antd";
 import {renderStatus} from "../../utils/checkStateStatus.tsx";
 import Specifications from "../../components/Specifications";
@@ -25,10 +24,6 @@ const Doctors = () => {
     useEffect(() => {
         dispatch(getDoctorsByPage({page: currentPage, specificationId: selectedSpecificationId}));
     }, [dispatch, currentPage, selectedSpecificationId]);
-
-    useEffect(() => {
-        dispatch(getSpecifications());
-    }, []);
 
     const handleSearch = (query: string) => {
         dispatch(setSearchQuery(query));

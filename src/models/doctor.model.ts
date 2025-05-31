@@ -10,7 +10,7 @@ export interface DoctorModel {
     birthDate: Date;
     gender: string;
     specificationIds: string[];
-    hospitalId: string;
+    hospitalIds: string[];
 }
 
 export interface DoctorInfoModel extends Partial<DoctorModel> {
