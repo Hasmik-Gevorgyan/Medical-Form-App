@@ -4,7 +4,7 @@ import { DatePicker} from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { db, storage } from '../firebase';
+import { db, storage } from '@/firebase/config';
 import {useEffect, useState} from "react";
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import AIChatModal from '../ai/AIComponent';

@@ -2,7 +2,7 @@
 import {useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Checkbox, message } from 'antd';
-import { db } from '../firebase';
+import { db } from '@/firebase/config'; // Importing Firestore configuration
 import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
 import { Typography, Descriptions, Alert, Spin, Form, Input, Button } from 'antd';
 import { CloseCircleFilled } from '@ant-design/icons';

@@ -1,9 +1,7 @@
 import { collection,getDoc,getDocs,doc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "@/firebase/config";
 
 // Getting all docs
-
-
 const getAllDoctors = async () => {
 	try {
 	  const snapshot = await getDocs(collection(db, "doctors"));
@@ -50,39 +48,18 @@ const getAllDoctors = async () => {
 	  return [];
 	}
   };
-  
 
-// Getting all articles
-const getAllArticles = () => {
-  return getDocs(collection(db, "articles"))
-    .then((snapshot) => {
-      return snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-    })
-    .catch((error) => {
-      console.error("Ошибка при получении статей:", error);
-      return [];
-    });
-};
-
-export const getJSONFromFirebase = async (userInput: string) => {
+export const getJSONFromFirebase = async () => {
 	const data: {
-	  message: string;
 	  doctors: { id: string; [key: string]: any }[];
-	  articles: { id: string; [key: string]: any }[];
 	} = {
-	  message: userInput,
 	  doctors: [],
-	  articles: [],
 	};
   
 	const doctors = await getAllDoctors();
-	const articles = await getAllArticles();
+	// const articles = await getAllArticles();
   
 	data.doctors = doctors;
-	data.articles = articles;
   
-	return JSON.stringify(data);
+	return data;
 };

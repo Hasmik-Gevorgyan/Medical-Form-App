@@ -3,5 +3,7 @@ export const ROUTE_PATHS = {
     LOGIN: "login",
     REGISTER: "register",
     DOCTORS: "doctors",
-    DOCTOR_INFO: "doctors/:id"
+    DOCTOR_INFO: "doctors/:id",
+	REQUEST: "request/doctor/:doctorId",
+	RESPONSE: "response/doctor/:doctorId/request/:requestId"
 };
