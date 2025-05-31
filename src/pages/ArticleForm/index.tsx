@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useAppDispatch } from '../../app/hooks.ts';
-import { addArticle } from '../../features/articleSlice.ts';
+import { useAppDispatch } from '@/app/hooks.ts';
+import { addArticle } from '@/features/articleSlice.ts';
 import {Button, Form, Input, Typography, Layout, message, Upload} from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 const { Title } = Typography;
 const { Content } = Layout;
-import {storage} from "../../firebase/config.ts"
+import {storage} from "@/firebase/config.ts"
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 

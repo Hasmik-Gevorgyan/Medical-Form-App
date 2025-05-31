@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../app/hooks.ts';
-import { fetchArticles } from '../../features/articleSlice.ts';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
+import { fetchArticles } from '@/features/articleSlice.ts';
 import SortArticles from "../../components/SortArticles";
 import SearchArticles from "../../components/SearchArticles";
 import { Row, Col, Card, Typography, Spin, Space, Divider, Pagination } from 'antd';
@@ -15,7 +15,7 @@ const Articles = () => {
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 4; // Display 4 articles per page
+    const pageSize = 4;
 
     useEffect(() => {
         dispatch(fetchArticles());
