@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import DrProfileEdit from './DrProfileEdit';
 import SpecificationService from '@/services/specification.service';
 import HospitalService from '@/services/hospitals.service';
-import { useSelector } from 'react-redux';
+
 import DoctorQueriesTable from './DoctorQueriesTable';
 import { UserOutlined } from '@ant-design/icons';
 import useAuth from '@/hooks/useAuth';
