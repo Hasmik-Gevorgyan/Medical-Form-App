@@ -6,5 +6,6 @@ export const ROUTE_PATHS = {
     DOCTOR_INFO: "doctors/:id",
     ARTICLES: "articles",
     ADD_ARTICLE: "add-article",
-    ARTICLE_DETAIL: "articles/:id"
+    ARTICLE_DETAIL: "articles/:id",
+    DOCTOR_PROFILE: "profile",
 };

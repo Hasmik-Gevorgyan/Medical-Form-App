@@ -10,6 +10,7 @@ import DoctorInfo from "@/pages/DoctorInfo";
 import Articles from '@/pages/Articles/index.tsx';
 import ArticleForm from "@/components/ArticleForm";
 import ArticleDetail from "@/components/ArticleDetail";
+import Profile from '@/pages/Profile/index.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTE_PATHS.ARTICLE_DETAIL,
         element: <ArticleDetail />
+      },
+      {
+        path: ROUTE_PATHS.DOCTOR_PROFILE,
+        element:<Profile />
       }
     ],
   },
