@@ -1,22 +1,40 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../../app/hooks.ts';
-import { Typography, Button, message } from 'antd';
+import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
+import { Typography, Button, Spin, message } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined } from '@ant-design/icons';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import dayjs from 'dayjs';
+import { fetchArticles } from "@/features/articleSlice.ts";
 
 const { Title, Paragraph, Text } = Typography;
 
 const ArticleDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     const articleRef = useRef<HTMLDivElement>(null);
 
-    const article = useAppSelector(state =>
-        state.articles.articles.find(article => article.id === id)
-    );
+    const { articles, loading } = useAppSelector(state => state.articles);
+    const article = articles.find(article => article.id === id);
+
+    useEffect(() => {
+        const articleExists = articles.some(a => a.id === id);
+        if (!loading && !articleExists) {
+            dispatch(fetchArticles());
+        }
+    }, [id, articles, loading, dispatch]);
+
+    if (!article && loading) {
+        return (
+            <div style={{ textAlign: 'center', marginTop: '100px' }}>
+                <Spin size="large" tip="Loading article..." />
+            </div>
+        );
+    }
+
+    if (!article) return <p>Article not found.</p>;
 
     const handleDownloadPDF = async () => {
         if (!articleRef.current) return;
@@ -53,8 +71,6 @@ const ArticleDetail = () => {
             console.error(err);
         }
     };
-
-    if (!article) return <p>Article not found.</p>;
 
     return (
         <div style={{ padding: '2rem', backgroundColor: '#fff' }}>

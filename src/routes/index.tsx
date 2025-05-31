@@ -7,8 +7,8 @@ import {ROUTE_PATHS} from "./paths.ts";
 import Doctors from "@/pages/Doctors";
 import DoctorInfo from "@/pages/DoctorInfo";
 import Articles from '@/pages/Articles/index.tsx';
-import ArticleForm from "@/components/ArticleForm";
-import ArticleDetail from "@/components/ArticleDetail";
+import ArticleForm from '@/pages/ArticleForm/index.tsx';
+import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
 
 export const router = createBrowserRouter([
   {
