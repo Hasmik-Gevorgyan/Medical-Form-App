@@ -40,18 +40,18 @@ export const getDoctors = createAsyncThunk<
 
 export const getDoctorsByPage = createAsyncThunk<
     PaginatedDoctorsResponse,
-    { page: number; specificationId: string, searchQuery?: string;},
+    { page: number; specificationId: string, searchQuery?: string; },
     { rejectValue: ApiError }
 >(
-    'doctors/searchDoctorsByPage',
-    async ({ page, specificationId, searchQuery }, { rejectWithValue }) => {
+    'doctors/getDoctorsByPage',
+    async ({page, specificationId, searchQuery}, {rejectWithValue}) => {
         try {
             return await doctorService.getDoctorsByPage(page, specificationId, searchQuery);
         } catch (err: unknown) {
             if (err instanceof Error) {
-                return rejectWithValue({ message: err.message });
+                return rejectWithValue({message: err.message});
             }
-            return rejectWithValue({ message: 'Failed to search doctors by page' });
+            return rejectWithValue({message: 'Failed to search doctors by page'});
         }
     }
 )
@@ -63,7 +63,7 @@ export const getDoctor = createAsyncThunk<
     { rejectValue: ApiError }
 >(
     'doctors/getDoctor',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             const doctor = await doctorService.getDoctor(id);
             if (!doctor) {
@@ -72,9 +72,9 @@ export const getDoctor = createAsyncThunk<
             return doctor;
         } catch (err: unknown) {
             if (err instanceof Error) {
-                return rejectWithValue({ message: err.message });
+                return rejectWithValue({message: err.message});
             }
-            return rejectWithValue({ message: 'Failed to fetch doctor' });
+            return rejectWithValue({message: 'Failed to fetch doctor'});
         }
     }
 )
@@ -102,9 +102,9 @@ const doctorSlice = createSlice({
             })
             .addCase(getDoctors.rejected, (state: DoctorStateModel, action: ReturnType<typeof getDoctors.rejected>): void => {
                 state.status = Status.FAILED;
-                if(action.payload) {
+                if (action.payload) {
                     state.error = action.payload?.message;
-                }else {
+                } else {
                     state.error = action.error?.message || null;
                 }
             })
@@ -120,9 +120,9 @@ const doctorSlice = createSlice({
             })
             .addCase(getDoctorsByPage.rejected, (state: DoctorStateModel, action: ReturnType<typeof getDoctorsByPage.rejected>): void => {
                 state.status = Status.FAILED;
-                if(action.payload) {
+                if (action.payload) {
                     state.error = action.payload?.message;
-                }else {
+                } else {
                     state.error = action.error?.message || null;
                 }
             })
@@ -135,9 +135,9 @@ const doctorSlice = createSlice({
             })
             .addCase(getDoctor.rejected, (state: DoctorStateModel, action: ReturnType<typeof getDoctor.rejected>): void => {
                 state.status = Status.FAILED;
-                if(action.payload) {
+                if (action.payload) {
                     state.error = action.payload?.message;
-                }else {
+                } else {
                     state.error = action.error?.message || null;
                 }
             })

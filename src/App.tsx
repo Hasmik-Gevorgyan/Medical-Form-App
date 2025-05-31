@@ -46,9 +46,9 @@ function App() {
     document.documentElement.classList.add(mode);
   }, [mode]);
 
-  if (stateStatus || firstLoad) {
-    return stateStatus;
-  }
+  // if (stateStatus || firstLoad) {
+  //   return stateStatus;
+  // }
   
   return (
     <ConfigProvider theme={{ algorithm: antdThemeAlgorithm }}>

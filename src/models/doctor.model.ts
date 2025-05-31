@@ -1,5 +1,7 @@
 import type {Status} from "../constants/enums.ts";
 import type {SpecificationModel} from "./specification.model.ts";
+import type {ReviewModel} from "./review.model.ts";
+import { Timestamp } from 'firebase/firestore';
 
 export interface DoctorModel {
     id: string;
@@ -7,7 +9,7 @@ export interface DoctorModel {
     surname: string;
     email: string;
     phone: string;
-    birthDate: Date;
+    birthdate: Timestamp;
     gender: string;
     specificationIds: string[];
     hospitalIds: string[];
@@ -19,11 +21,12 @@ export interface DoctorInfoModel extends Partial<DoctorModel> {
     unavailableDates?: Date[],
     education?: EducationModel[];
     activity?: ActivityModel[];
+    reviews?: ReviewModel[]
 }
 
 export interface DoctorStateModel {
     doctors: DoctorInfoModel[],
-    doctorsByPage: PaginatedDoctorsResponse
+    doctorsByPage: PaginatedDoctorsResponse,
     doctor: DoctorInfoModel,
     selectedSpecificationId: string,
     searchQuery: string;
