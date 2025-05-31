@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
 import { fetchArticles } from '@/features/articleSlice.ts';
-import SortArticles from "../../components/SortArticles";
-import SearchArticles from "../../components/SearchArticles";
+import SortArticles from "@/components/SortArticles";
+import SearchArticles from "@/components/SearchArticles";
 import { Row, Col, Card, Typography, Spin, Space, Divider, Pagination } from 'antd';
 
 const { Title, Paragraph } = Typography;
