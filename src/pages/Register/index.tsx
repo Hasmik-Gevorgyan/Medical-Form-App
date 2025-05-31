@@ -22,6 +22,20 @@ import type { RootState } from '@/app/store';
 const { Title } = Typography;
 const { Option } = Select;
 
+interface RegisterFormValues {
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  prefix: string;
+  gender: string;
+  hospitalIds: string[];
+  specificationIds: string[];
+  password: string;
+  confirm: string;
+  birthdate: string | Date;
+}
+
 const Register: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -34,12 +48,11 @@ const Register: React.FC = () => {
     (state: RootState) => state.hospitals.hospitals
   );
   
-  const onFinish = (values: any) => {
-    console.log('Received values of form: ', values);
+  const onFinish = (values: RegisterFormValues) => {
     handleSignUp({...values})
   };
 
-  const handleSignUp = async ({ name, surname, email, gender, hospitalIds, password, phone, prefix, specificationIds, birthdate}: any) => {
+  const handleSignUp = async ({ name, surname, email, gender, hospitalIds, password, phone, prefix, specificationIds, birthdate}: RegisterFormValues) => {
     try {
       await registerUser({
         email,
@@ -53,11 +66,10 @@ const Register: React.FC = () => {
         birthdate: dayjs(birthdate).toDate(),
       });
 
-      message.success("Registration successful!");
       form.resetFields();
 
       navigate('/login');
-    } catch (err: any) {
+    } catch (err: {message?: string, code?: string} | any) {
 
       console.error(err.message);
       const msg = err.message || "An error occurred during registration.";
