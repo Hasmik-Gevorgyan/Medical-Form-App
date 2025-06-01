@@ -4,6 +4,8 @@ export const ROUTE_PATHS = {
     REGISTER: "register",
     DOCTORS: "doctors",
     DOCTOR_INFO: "doctors/:id",
+	REQUEST: "request/doctor", // ?doctorId=id
+	RESPONSE: "response", // /?requestId=id
     ARTICLES: "articles",
     ADD_ARTICLE: "add-article",
     ARTICLE_DETAIL: "articles/:id",

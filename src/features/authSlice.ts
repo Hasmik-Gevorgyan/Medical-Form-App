@@ -11,15 +11,18 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  status: Status.IDLE,
+  status: Status.LOADING,
 };
 
 const doctorService = DoctorService();
 
-export const fetchUser = createAsyncThunk<DoctorInfoModel, string>(
-  "doctors/getDoctor",
-  async (uid: string, { rejectWithValue }) => {
+export const fetchUser = createAsyncThunk<DoctorInfoModel, string | undefined>(
+  "user/fetchUser",
+  async (uid: string | undefined, { rejectWithValue }) => {
     try {
+      if (!uid) {
+        return rejectWithValue("User ID is required");
+      }
       const user = await doctorService.getDoctor(uid);
       if (!user) {
         return rejectWithValue("User not found");

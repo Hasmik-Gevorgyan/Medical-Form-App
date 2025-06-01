@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
-import {useParams} from "react-router-dom";
+import {useParams, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {getDoctor} from "@/features/doctorSlice.ts";
 import {Button, Card, Col, Row, Tabs} from "antd";
@@ -18,6 +18,7 @@ import "./style.css";
 
 const DoctorInfo = () => {
     const {id} = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [isReviewModalVisible, setIsReviewModalVisible] = useState<boolean>(false);
     const dispatch: AppDispatch = useDispatch<AppDispatch>();
     const {doctor, status, error} = useSelector<RootState, DoctorStateModel>(
@@ -219,7 +220,9 @@ const DoctorInfo = () => {
                         zIndex: 1000,
                         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                     }}
-                    onClick={() => alert("Chat now")}
+                    onClick={() => {
+                        navigate(`/request/doctor?doctorId=${doctor.id}`)
+                    }}
                 >
                     Chat Now
                 </Button>
