@@ -1,13 +1,14 @@
-import { useSelector } from "react-redux";
-import type { RootState } from '../../app/store';
+import useAuth from "@/hooks/useAuth";
 
-function Home() {
-  const user = useSelector((state: RootState) => state.auth.user);
+const Home = () =>{
+
+  const { isLoggedIn, userId, user } = useAuth();
+  console.log('isLoggedIn', isLoggedIn, user, userId);
 
   return (
     <div>
       <h1>Home Page</h1>
-      <pre>{JSON.stringify(user, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
   </div>
 );
 }

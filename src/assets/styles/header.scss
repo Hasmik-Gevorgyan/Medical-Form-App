@@ -1,0 +1,52 @@
+.layout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+    .logo-title {
+        text-align: center;
+        margin: 0;
+    }
+    .profile-avatar {
+        background-color: '#1677ff'
+    }
+    .page-link {
+        display: flex;
+        align-items: center;
+        line-height: normal;
+    }
+}
+
+.mobile-drawer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .ant-drawer-body {
+        display: flex;
+        flex-direction: column;
+    }
+    .mobile-menu {
+        margin-bottom: 1rem;;
+    }
+    .guest-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    
+        & > div {
+            width: 100%;
+            & button, a {
+                width: 100%;
+            }
+        }
+    }
+    button, a {
+        width: 100%;
+    }
+}

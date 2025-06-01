@@ -2,15 +2,16 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {DoctorInfoModel} from "@/models/doctor.model";
 import DoctorService from "@/services/doctor.service";
+import {Status} from "@/constants/enums.ts";
 
 interface AuthState {
   user: DoctorInfoModel | null;
-  loading: boolean;
+  status: Status;
 }
 
 const initialState: AuthState = {
   user: null,
-  loading: true,
+  status: Status.IDLE,
 };
 
 const doctorService = DoctorService();
@@ -37,15 +38,15 @@ export const authReducer = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
-        state.loading = true;
+        state.status = Status.LOADING;
       })
       .addCase(fetchUser.fulfilled, (state, action: PayloadAction<DoctorInfoModel>) => {
-        state.user = action.payload;
-        state.loading = false;
+        state.user = action.payload
+        state.status = Status.SUCCEEDED;
       })
       .addCase(fetchUser.rejected, (state) => {
         state.user = null;
-        state.loading = false;
+        state.status = Status.FAILED;
       });
   },
 });

@@ -1,13 +1,13 @@
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {getDoctorsByPage, setFilter, setSearchQuery} from "../../features/doctorSlice.ts";
+import {getDoctorsByPage, setFilter, setSearchQuery} from "@/features/doctorSlice.ts";
 import {Col, Pagination, Row, Input} from "antd";
 import {renderStatus} from "../../utils/checkStateStatus.tsx";
 import Specifications from "../../components/Specifications";
 import DoctorCard from "../../components/DoctorCard";
-import type {AppDispatch, RootState} from "../../app/store.ts";
-import type {DoctorInfoModel, DoctorStateModel} from "../../models/doctor.model.ts";
-import type {SpecificationStateModel} from "../../models/specification.model.ts";
+import type {AppDispatch, RootState} from "@/app/store.ts";
+import type {DoctorInfoModel, DoctorStateModel} from "@/models/doctor.model.ts";
+import type {SpecificationStateModel} from "@/models/specification.model.ts";
 
 const Doctors = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
