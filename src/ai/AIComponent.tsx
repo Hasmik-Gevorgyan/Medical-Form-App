@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { Tooltip} from 'antd';
 import { Modal, Button, Input, List, Typography } from 'antd';
 import { getJSONFromFirebase } from './getFirebasedata';
-
-
+import { RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
 const AIChatModal = () => {
@@ -16,6 +16,8 @@ const AIChatModal = () => {
 	const send = await getJSONFromFirebase();
     if (!userInput.trim()) return;
 
+
+    setUserInput('');
     const userMessage = { sender: 'You', text: userInput };
     setChatLog((prev) => [...prev, userMessage]); // Add user message
     setLoading(true);
@@ -29,30 +31,40 @@ const AIChatModal = () => {
 
       const data = await res.json();
 
-	  console.log(data);
       const aiReply = {
         sender: 'AI',
         text: data.reply || 'Sorry, I did not understand that.',
       };
 
       setChatLog((prev) => [...prev, aiReply]); // Add AI reply
-    } catch (error) {
+	  setLoading(false);
+	} catch (error) {
       setChatLog((prev) => [
         ...prev,
         { sender: 'AI', text: 'Error: Failed to get a response.' },
       ]);
       console.error(error);
     }
-
-    setUserInput('');
-    setLoading(false);
   };
 
   return (
     <>
-      <Button type="default" onClick={() => setIsModalOpen(true)}>
-        Open AI Assistant
-      </Button>
+	  <Tooltip title="AI Assistant" placement="left">
+		<Button
+		  type="primary"
+		  icon={<RobotOutlined />}
+		  style={{
+			position: 'fixed',
+			bottom: 24,
+			left: 24,
+			zIndex: 1000,
+			width: 50,           // Larger width
+			height: 50,          // Larger height
+			fontSize: 24,        // Larger icon
+		  }}
+		  onClick={() => setIsModalOpen(true)}
+		/>
+	</Tooltip>	
 
       <Modal
         title="AI Assistant"
@@ -79,6 +91,7 @@ const AIChatModal = () => {
           onChange={(e) => setUserInput(e.target.value)}
           onPressEnter={(e) => {
             if (!e.shiftKey) {
+			if (loading || !userInput.trim()) return;
               e.preventDefault();
               handleSend();
             }

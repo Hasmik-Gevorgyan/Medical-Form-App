@@ -1,24 +1,29 @@
 // Importing necessary libraries and components
 import {useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Checkbox, message } from 'antd';
 import { db } from '@/firebase/config'; // Importing Firestore configuration
 import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
 import { Typography, Descriptions, Alert, Spin, Form, Input, Button } from 'antd';
 import { CloseCircleFilled } from '@ant-design/icons';
 import emailjs from '@emailjs/browser' // Importing emailjs for sending emails
+import useAuth from '@/hooks/useAuth';
 const { Title } = Typography;
 
 const ResponsePage = () => {
+	const [searchParams] = useSearchParams(); // Using search params to get doctorId from URL
 //   This page allows doctors to respond to patient requests
   const navigate = useNavigate();
-  const { doctorId, requestId } = useParams();// получаем ID из URL
+  const requestId = searchParams.get('requestId'); // Getting requestId from URL
   const [isValid, setIsValid] : any = useState(null);
   const [patientData,setPatientData] : any = useState(null); // состояние для хранения данных пациента, если нужно
   const [isRejected, setIsRejected] = useState(false);
   const [form] = Form.useForm();
+  const { user,userId: doctorId, isLoading } = useAuth(); // Getting the current user from the auth context
+
 
   useEffect(() => {
+	if (isLoading) return; // If loading, do not proceed
 	// Getting the request document from Firestore
 	const ref = doc(db, 'queries', requestId || '');
 	
@@ -40,7 +45,7 @@ const ResponsePage = () => {
 		else
 			setIsValid(false);
 	})
-  }, [doctorId, requestId]);
+  }, [doctorId, requestId, isLoading]);
 
   // mail handler for sending response and updating the response object with status and response 
   const handleFinish = async (values : any) => {
@@ -66,7 +71,11 @@ const ResponsePage = () => {
 		'template_vrnbuod',
 		{
 		  title : 'Response to your request',
+		  name : patientData.name,
+		  time : patientData.date,
 		  email: patientData.email,
+		  doctor_name : `${user?.name} ${user?.surname}`, // Assuming user object has name and surname
+		  status : status,
 		  message: values.message,
 		  replyTime: new Date().toLocaleString(),
 		},

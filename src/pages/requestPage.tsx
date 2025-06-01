@@ -2,12 +2,16 @@
 import { Button, Form, Input, message, Upload,Spin } from 'antd';
 import { DatePicker} from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
+import {Select} from 'antd';
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/firebase/config';
 import {useEffect, useState} from "react";
+import { useSearchParams } from 'react-router-dom';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import AIChatModal from '../ai/AIComponent';
+import { useDispatch, useSelector } from 'react-redux';
+import { getDoctors } from '@/features/doctorSlice';
+import type { AppDispatch } from '@/app/store';
 
 
 // Type definition for form
@@ -89,9 +93,12 @@ const updateDoctorUnavailableDates = async (doctorId: string, selectedDate: any)
   };
 
 export const RequestPage = () => {
+	const [searchParams] = useSearchParams();
 	const [form] = Form.useForm();
+	const dispatch : AppDispatch = useDispatch();
+	const doctors = useSelector((state: any) => state.doctors.doctors);
 	// using useParams to get doctorId from the URL
-	const { doctorId } = useParams<{ doctorId: string }>();
+	const [doctorId,setDoctorID] = useState(() => searchParams.get('doctorId') || '');
 	// using useNavigate to navigate after form submission
 	const navigate = useNavigate();
 	// Array to store unavailable dates of the doctor
@@ -99,6 +106,13 @@ export const RequestPage = () => {
 
 	
 	// Getting unavailable days of doctor by array
+
+	useEffect(() => {
+		if (!doctors.length) {
+			dispatch(getDoctors());
+		}
+	}, []);
+
 	useEffect(() => {
 		if (!doctorId) return;
 		getDoctorUnavailableDates(doctorId).then((d) => undates = d);
@@ -159,15 +173,31 @@ return (
 		  layout="vertical"
 		  onFinish={onFinish}
 		  style={{ maxWidth: 600, margin: '0 auto', paddingTop: '2rem' }}
+		  initialValues={{ doctorId }} // Set initial value for doctorId
 		>
-		  <Form.Item
-			label="Name"
-			name="name"
-			rules={[{ required: true, message: 'Please enter your name' }]}
-		  >
-			<Input placeholder="Enter your name" />
+			<Form.Item
+				label="Select Doctor"
+				name="doctorId"
+				rules={[{ required: true, message: 'Please select a doctor' }]}
+			>
+				<Select 
+					placeholder="Select a doctor"
+					defaultValue={doctorId}
+					onChange={(value) => setDoctorID(value)}
+					style={{ width: '100%' }}
+					options = {doctors.map((doctor: any) => ({
+						value: doctor.id,
+						label: doctor.name + ' ' + doctor.surname,
+					}))}
+				>
+				</Select>	
+
+			</Form.Item>
+
+			<Form.Item label="Name" name="name" required={true}>
+		  <Input placeholder="Enter your name" />
 		  </Form.Item>
-  
+			
 		  <Form.Item
 			label="Surname"
 			name="surname"
@@ -211,7 +241,6 @@ return (
 			</Button>
 		  </Form.Item>
 		</Form>
-		<AIChatModal />
 		</>
 	  )}
 	</>
