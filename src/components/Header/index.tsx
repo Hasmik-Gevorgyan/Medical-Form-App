@@ -8,7 +8,6 @@ import { logoutUser } from '@/services/auth.service';
 import { toggleTheme } from '@/features/themeSlice';
 import useAuth from '@/hooks/useAuth';
 import  '@/assets/styles/header.scss';
-import AIChatModal from '@/ai/AIComponent';
 
 const { Header } = Layout;
 const { Title } = Typography;

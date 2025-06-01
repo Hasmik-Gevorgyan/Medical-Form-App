@@ -1,5 +1,3 @@
-import useAuth from "@/hooks/useAuth";
-
 const Home = () =>{
 
 //   const { isLoggedIn, userId, user } = useAuth();

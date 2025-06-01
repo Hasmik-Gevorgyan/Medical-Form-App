@@ -1,6 +1,6 @@
 // Importing necessary libraries and components
 import {useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Checkbox, message } from 'antd';
 import { db } from '@/firebase/config'; // Importing Firestore configuration
 import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
