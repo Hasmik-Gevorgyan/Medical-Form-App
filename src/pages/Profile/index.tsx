@@ -12,7 +12,6 @@ import { UserOutlined } from '@ant-design/icons';
 import useAuth from '@/hooks/useAuth';
 
 
-
 const DoctorProfileView: React.FC = () => {
   const [doctor, setDoctor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -66,9 +65,9 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
         bordered
         column={1}
         extra={
-          <Button type="primary" onClick={() => setEditVisible(true)}>
-            Edit
-          </Button>
+          <Button className={styles.editButton} onClick={() => setEditVisible(true)}>
+      Edit
+    </Button>
         }
       >
        <Descriptions.Item label="Photo">
