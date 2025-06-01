@@ -1,15 +1,16 @@
 import type {FC} from "react";
 import type {AppDispatch, RootState} from "@/app/store.ts";
-import type {Review} from "@/models/review.model.ts";
+import type {Review, ReviewModalProps} from "@/models/review.model.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {addReview, clearFieldError, clearFieldErrors} from "@/features/reviewSlice.ts";
 import {Button, Form, Input, message, Modal, Rate} from "antd";
 import {useEffect, useState} from "react";
+import {Status} from "@/constants/enums.ts";
 
-const ReviewModal: FC<any> = ({setIsModalVisible, isModalVisible, doctorId}) => {
+const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, doctorId}) => {
     const [isFormValid, setIsFormValid] = useState(false);
     const [reviewForm] = Form.useForm();
-    const {fieldErrors} = useSelector((state: RootState) => state.reviews);
+    const {fieldErrors, status} = useSelector((state: RootState) => state.reviews);
     const dispatch: AppDispatch = useDispatch();
     const NAME = "name";
     const SURNAME = "surname";
@@ -22,14 +23,15 @@ const ReviewModal: FC<any> = ({setIsModalVisible, isModalVisible, doctorId}) => 
 
 
     const updateInputStateChanges = () => {
-        const isClientErrors = reviewForm
-            .getFieldsError()
-            .some(({ errors }) => errors.length > 0);
+        const fields = reviewForm.getFieldsValue();
+        const areFieldsEmpty = Object.values(fields).every(value => !value);
+        const isClientErrors = reviewForm.getFieldsError().some(({ errors }) => errors.length > 0);
         const isTouched = reviewForm.isFieldsTouched(true);
         const isServerErrors = Object.keys(fieldErrors).length > 0;
 
-        setIsFormValid(isTouched && !isClientErrors && !isServerErrors);
-    }
+        setIsFormValid(isTouched && !isClientErrors && !areFieldsEmpty && !isServerErrors);
+    };
+
 
     const handleReviewSubmit = async (review: Review) => {
         const reviewAction = await dispatch(addReview({ doctorId, ...review }));
@@ -47,6 +49,8 @@ const ReviewModal: FC<any> = ({setIsModalVisible, isModalVisible, doctorId}) => 
         reviewForm.resetFields();
         dispatch(clearFieldErrors());
     }
+    const isSubmitting = status === Status.LOADING;
+
 
     return (
         <Modal
@@ -119,7 +123,8 @@ const ReviewModal: FC<any> = ({setIsModalVisible, isModalVisible, doctorId}) => 
                 </Form.Item>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" disabled={!isFormValid} block>
+                    <Button type="primary" htmlType="submit" loading={isSubmitting}
+                            disabled={!isFormValid || isSubmitting} block>
                         Submit Review
                     </Button>
                 </Form.Item>

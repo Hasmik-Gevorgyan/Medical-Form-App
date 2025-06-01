@@ -1,4 +1,6 @@
 import {Status} from "../constants/enums.ts";
+import {SpecificationModel} from "@/models/specification.model.ts";
+import type {DoctorInfoModel} from "@/models/doctor.model.ts";
 
 export interface ReviewModel {
     id: string,
@@ -29,4 +31,10 @@ export interface FieldErrors {
     surname?: string;
     comment?: string;
     rating?: string;
+}
+
+export interface ReviewModalProps {
+    doctorId: string;
+    isModalVisible: boolean;
+    setIsModalVisible: (value: boolean) => boolean;
 }
