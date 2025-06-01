@@ -38,7 +38,7 @@ const Articles = () => {
     if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 100 }} />;
 
     return (
-        <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '2rem' }}>
+        <div style={{ minHeight: '100vh', padding: '2rem' }}>
             <Title level={2}>Articles</Title>
 
             <Space style={{ marginBottom: 24 }} direction="horizontal" size="middle">

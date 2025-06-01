@@ -105,7 +105,7 @@ const ArticleDetail = () => {
 
                 <div style={{ marginTop: 24 }}>
                     <Text type="secondary">
-                        By <strong>{article.authorId}</strong> •{' '}
+                        By <strong>{article.authorName}</strong> •{' '}
                         {dayjs(article.createdAt).format('MMMM D, YYYY')}
                     </Text>
                 </div>

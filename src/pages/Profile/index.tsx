@@ -6,11 +6,11 @@ import dayjs from 'dayjs';
 import DrProfileEdit from './DrProfileEdit';
 import SpecificationService from '@/services/specification.service';
 import HospitalService from '@/services/hospitals.service';
-
+import { useNavigate } from 'react-router-dom';
 import DoctorQueriesTable from './DoctorQueriesTable';
 import { UserOutlined } from '@ant-design/icons';
 import useAuth from '@/hooks/useAuth';
-
+import DoctorArticles from "@/pages/Profile/DoctorArticles.tsx";
 
 
 const DoctorProfileView: React.FC = () => {
@@ -19,7 +19,10 @@ const DoctorProfileView: React.FC = () => {
   const [editVisible, setEditVisible] = useState(false);
   const [specs, setSpecs] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
-  // const doctorId = 'test';
+  const navigate = useNavigate();
+
+
+    // const doctorId = 'test';
   const { userId:doctorId,  } = useAuth();
   // const {id: doctorId} = useSelector((state: any) => state.auth.user);
   // const {user} = useSelector((state: any) => state.auth);
@@ -132,7 +135,19 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
         />
       </Drawer>
       <br />
-      <DoctorQueriesTable doctorId={doctorId} />
+        {/*//////////////*/}
+        <DoctorArticles doctorId={doctorId} />
+
+        <DoctorQueriesTable doctorId={doctorId} />
+
+        <Button
+            type="primary"
+            style={{ marginTop: 24 }}
+            onClick={() => navigate('/add-article')}
+        >
+            Add New Article
+        </Button>
+
     </>
   );
 };
