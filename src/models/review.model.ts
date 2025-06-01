@@ -32,7 +32,7 @@ export interface FieldErrors {
 }
 
 export interface ReviewModalProps {
-    doctorId: string;
+    doctorId: string | undefined;
     isModalVisible: boolean;
     setIsModalVisible: (value: boolean) => void;
 }
