@@ -14,6 +14,7 @@ import type {SpecificationStateModel} from "@/models/specification.model.ts";
 import ReviewModal from "../../components/ReviewModal";
 import type {ReviewStateModel} from "@/models/review.model.ts";
 import {getReviews} from "@/features/reviewSlice.ts";
+import {dateFormatting} from "@/utils/dateFormatting.ts";
 import "./style.css";
 
 const DoctorInfo = () => {
@@ -186,13 +187,8 @@ const DoctorInfo = () => {
                                     {review.comment}
                                 </div>
                                 <div style={{textAlign: "left", fontStyle: "italic"}}>
-                                    {/*{new Date(review.createdAt).toString()}*/}
                                     {
-                                        new Intl.DateTimeFormat("en-US", {
-                                            year: "numeric",
-                                            month: "long",
-                                            day: "numeric",
-                                        }).format(new Date(review.createdAt))
+                                        dateFormatting(review.createdAt)
                                     }
                                 </div>
                             </Card>

@@ -13,6 +13,7 @@ import {
 import {db} from "../firebase/config.ts";
 import type {DoctorInfoModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
 import {COLLECTIONS} from "../constants/collections.ts";
+import {convertFirestoreTimestampToDate} from "@/utils/dateFormatting.ts";
 
 export const DoctorService = () => {
     const DOCTOR_COLLECTION = collection(db, COLLECTIONS.DOCTORS);
@@ -60,7 +61,7 @@ export const DoctorService = () => {
                 orderBy(NAME),
                 ...(cursor ? [startAfter(cursor)] : []),
                 limit(DOCTOR_PAGE_SIZE),
-            ]
+            ];
 
             const countQuery = query(DOCTOR_COLLECTION, ...filters);
 
@@ -69,19 +70,15 @@ export const DoctorService = () => {
                 getCountFromServer(countQuery),
             ]);
 
-            const doctors = snapshot.docs.map((doc) => {
+            const doctors: DoctorInfoModel[] = snapshot.docs.map((doc) => {
                 const data = doc.data();
                 return {
                     id: doc.id,
                     ...data,
-                    birthdate: data.birthdate?.toDate?.() instanceof Date
-                        ? data.birthdate.toDate().toISOString()
-                        : null,
-                    createdAt: data.createdAt?.toDate?.() instanceof Date
-                        ? data.createdAt.toDate().toISOString()
-                        : null
-                }
-            })
+                    birthdate: convertFirestoreTimestampToDate(data.birthdate, true),
+                    createdAt: convertFirestoreTimestampToDate(data.createdAt, true),
+                } as DoctorInfoModel;
+            });
 
             // Save cursor for next page
             if (snapshot.docs.length > 0) {
@@ -91,7 +88,7 @@ export const DoctorService = () => {
             return {
                 total: countSnapshot.data().count,
                 doctors,
-            }
+            };
         } catch {
             throw new Error("Failed to fetch doctors");
         }
@@ -106,10 +103,8 @@ export const DoctorService = () => {
                 ? {
                     id: snapshot.id,
                     ...snapshot.data(),
-                    birthdate: snapshot.data().birthdate?.toDate?.() instanceof Date
-                        ? snapshot.data().birthdate.toDate().toISOString() : null,
-                    createdAt: snapshot.data().createdAt?.toDate?.() instanceof Date
-                        ? snapshot.data().createdAt.toDate().toISOString() : null,
+                    birthdate: convertFirestoreTimestampToDate(snapshot.data().birthdate, true),
+                    createdAt: convertFirestoreTimestampToDate(snapshot.data().createdAt, true),
                 } as DoctorInfoModel
                 : null;
         } catch (error) {

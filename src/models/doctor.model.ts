@@ -1,7 +1,6 @@
 import type {Status} from "../constants/enums.ts";
 import type {SpecificationModel} from "./specification.model.ts";
 import type {ReviewModel} from "./review.model.ts";
-import { Timestamp } from 'firebase/firestore';
 
 export interface DoctorModel {
     id: string;
@@ -9,7 +8,7 @@ export interface DoctorModel {
     surname: string;
     email: string;
     phone: string;
-    birthdate: Timestamp;
+    birthdate?: Date;
     gender: string;
     specificationIds: string[];
     hospitalIds: string[];
