@@ -12,7 +12,8 @@ import ArticleForm from '@/pages/ArticleForm/index.tsx';
 import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
 import PrivateRoute from "@/components/PrivateRoute";
 import Profile from '@/pages/Profile/index.tsx';
-
+import ResponsePage from '@/pages/responsePage.tsx';
+import { RequestPage } from '@/pages/requestPage.tsx';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -30,6 +31,14 @@ export const router = createBrowserRouter([
         path: ROUTE_PATHS.DOCTOR_INFO,
         element: <DoctorInfo />
       },
+	  {
+		path: ROUTE_PATHS.REQUEST,
+		element: <RequestPage />
+	  },
+	  {
+		path: ROUTE_PATHS.RESPONSE,
+		element: <ResponsePage />
+	  },
       {
         path: ROUTE_PATHS.ARTICLES,
         element: <Articles/>

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RouterProvider } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { ConfigProvider, theme } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/firebase/config';

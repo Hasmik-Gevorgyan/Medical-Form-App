@@ -217,7 +217,7 @@ const DoctorQueriesTable = ({ doctorId }: Props) => {
   type="primary"
   onClick={() => {
     if (selectedQuery) {
-      navigate(`/query/${selectedQuery.id}`);
+      navigate(`/response?requestId=${selectedQuery.id}`);
     }
   }}
   disabled={!selectedQuery}
