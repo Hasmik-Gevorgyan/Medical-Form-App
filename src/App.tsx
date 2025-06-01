@@ -14,7 +14,7 @@ import '@/App.css'
 function App() {
   const dispatch = useDispatch<AppDispatch>();
   const mode = useSelector((state: RootState) => state.theme.mode);
-  
+
   const antdThemeAlgorithm = mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
 
   useEffect(() => {
@@ -37,13 +37,12 @@ function App() {
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(mode);
   }, [mode]);
-  
+
   return (
-    <ConfigProvider theme={{ algorithm: antdThemeAlgorithm }}>
-      <RouterProvider router={router} />
-    </ConfigProvider>
+      <ConfigProvider theme={{ algorithm: antdThemeAlgorithm }}>
+        <RouterProvider router={router} />
+      </ConfigProvider>
   )
 }
 
 export default App
-
