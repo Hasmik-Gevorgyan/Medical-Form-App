@@ -51,7 +51,7 @@ const guestLinks: ProfileMenuItem[] = [
 const MainHeader: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
-    const { user, isLoading, isLoggedIn } = useAuth()
+    const { isLoading, isLoggedIn } = useAuth()
 
     const theme = useSelector((state: RootState) => state.theme.mode);
     
