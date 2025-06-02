@@ -85,19 +85,14 @@ const DoctorInfo = () => {
                                         alt={`${doctor.name} ${doctor.surname}`}
                                         src={doctor.photoUrl}
                                         style={{
-                                            width: 180,
+                                            width: '300px',
                                             height: 300,
                                             objectFit: 'cover',
                                             borderRadius: 8,
                                         }}
-                                        onError={(e) => {
-                                            e.currentTarget.onerror = null;
-                                            e.currentTarget.src = ''; // Optional fallback
-                                        }}
                                     />
                                 }
                                 style={{
-                                    width: 180,
                                     height: 300,
                                     borderRadius: 8,
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -188,10 +183,10 @@ const DoctorInfo = () => {
 
             <Tabs defaultActiveKey="1" style={{margin: "20px"}} className="tabs">
                 <TabPane tab="Education" key="1">
-                    {doctor.education ? (
+                    {doctor.education?.length ? (
                         <Card
                             style={{
-                                marginBottom: "20px",
+                                marginBottom: "10px",
                                 border: "none",
                                 padding: "16px 20px"
                             }}
@@ -210,12 +205,12 @@ const DoctorInfo = () => {
                                             marginBottom: "4px",
                                         }}
                                     >
-                                        {education.endDate
-                                            ? `${education.startDate} - ${education.endDate}`
-                                            : `Since ${education.startDate}`}
+                                        {education.endYear
+                                            ? `${education.startYear} - ${education.endYear}`
+                                            : `Since ${education.startYear}`}
                                     </div>
                                     <div>
-                                        {education.place}
+                                        {education.institution}
                                         {education.profession && `, ${education.profession}`}
                                     </div>
                                     {doctor.education && index < doctor.education.length - 1 && (
@@ -233,43 +228,43 @@ const DoctorInfo = () => {
                 </TabPane>
 
                 <TabPane tab="Activity" key="2">
-
-                    <Card
-                        style={{
-                            marginBottom: "10px",
-                            border: "none",
-                            padding: "16px 20px"
-                        }}
-                    >
-                        {doctor.activity?.map((activity: ActivityModel, index) => (
-                            <>
-                                <div
-                                    style={{
-                                        fontWeight: "bold",
-                                        marginBottom: "4px",
-                                        textAlign: "left",
-                                    }}
-                                >
-                                    {activity.endDate
-                                        ? `${activity?.startDate} - ${activity.endDate}`
-                                        : `Since ${activity.startDate}`}
-                                </div>
-                                <div style={{textAlign: "left"}}>
-                                    {activity.place}
-                                    {activity.profession && `, ${activity.profession}`}
-                                </div>
-                                {doctor.activity && index < doctor.activity.length - 1 && (
-                                    <hr
+                    {doctor.activity?.length ? (
+                        <Card
+                            style={{
+                                marginBottom: "10px",
+                                border: "none",
+                                padding: "16px 20px"
+                            }}
+                        >
+                            {doctor.activity?.map((activity: ActivityModel, index) => (
+                                <>
+                                    <div
                                         style={{
-                                            border: "none",
-                                            borderTop: "1px solid #f0f0f0",
-                                            margin: "12px 0",
+                                            fontWeight: "bold",
+                                            marginBottom: "4px",
+                                            textAlign: "left",
                                         }}
-                                    />
-                                )}
-                            </>
-                        ))}
-                    </Card>
+                                    >
+                                        {activity.endYear
+                                            ? `${activity?.startYear} - ${activity.endYear}`
+                                            : `Since ${activity.startYear}`}
+                                    </div>
+                                    <div style={{textAlign: "left"}}>
+                                        {activity.organization}
+                                        {activity.profession && `, ${activity.profession}`}
+                                    </div>
+                                    {doctor.activity && index < doctor.activity.length - 1 && (
+                                        <hr
+                                            style={{
+                                                border: "none",
+                                                borderTop: "1px solid #f0f0f0",
+                                                margin: "12px 0",
+                                            }}
+                                        />
+                                    )}
+                                </>
+                            ))}
+                        </Card>) : ''}
 
                 </TabPane>
                 <TabPane tab="Reviews" key="3" style={{position: 'relative'}}>
