@@ -30,3 +30,9 @@ export interface FieldErrors {
     comment?: string;
     rating?: string;
 }
+
+export interface ReviewModalProps {
+    doctorId: string;
+    isModalVisible: boolean;
+    setIsModalVisible: (value: boolean) => void;
+}
