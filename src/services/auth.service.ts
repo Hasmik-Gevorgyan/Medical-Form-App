@@ -1,36 +1,23 @@
-// src/services/authService.ts
 import { browserLocalPersistence, createUserWithEmailAndPassword, setPersistence, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from "@/firebase/config";
 import dayjs from "dayjs";
+import { FirebaseError } from "firebase/app";
+import {authValidator} from "@/vallidators/validation.ts";
+import { areAllFieldsRequired } from "@/utils/validateRequiredFields.ts";
+import type { RegisterUserParams } from "@/models/auth.model.ts";
 
-interface RegisterUserParams {
-    email: string;
-    password: string;
-    name: string;
-    surname: string;
-    phone: string;
-    gender: string;
-    hospitalIds: string[];
-    specificationIds: string[];
-    birthdate: string | Date;
-}
-
-export const registerUser = async ({
-    email,
-    password,
-    name,
-    surname,
-    phone,
-    gender,
-    hospitalIds,
-    specificationIds,
-    birthdate
-}: RegisterUserParams) => {
-
-    if (!email || !password || !name || !surname || !phone || !gender || !hospitalIds || !specificationIds || !birthdate) {
+export const registerUser = async (registerData: RegisterUserParams) => {
+    if (!areAllFieldsRequired(registerData)) {
         throw new Error("All fields are required.");
     }
+
+    const {
+        email,
+        password,
+        phone,
+        birthdate
+    } = registerData
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -39,7 +26,7 @@ export const registerUser = async ({
     
     const phoneRegex = /^\+?[0-9]{10,15}$/;
     if (!phoneRegex.test(phone)) {
-        throw new Error("Phone number must be between 8 digits.");
+        throw new Error("The phone number must be between 10 and 15 digits long.");
     }
 
     if (password.length < 6) {
@@ -47,35 +34,23 @@ export const registerUser = async ({
     }
 
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+        const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
         await setDoc(doc(db, "doctors", user.uid), {
-            // uid: user.uid,
+            ...registerData,
             email: user.email,
-            gender,
-            hospitalIds,
-            name,
-            phone,
-            specificationIds,
-            surname,
             birthdate: dayjs(birthdate).toDate(),
             createdAt: new Date(),
         });
-    return user;
 
-    } catch (error: any) {
-        if (error.code === "auth/email-already-in-use") {
-            throw new Error("The email address is already in use.");
-        } else if (error.code === "auth/invalid-email") {
-            throw new Error("Invalid email address.");
-        } else if (error.code === "auth/weak-password") {
-            throw new Error("Password is too weak.");
+        return user;
+    } catch (error) {
+        if(error instanceof FirebaseError) {
+            throw new Error(authValidator[error.code] ?? authValidator.default)
         } else {
-            throw new Error("Registration failed. Please try again.");
+            throw new Error("An unexpected error occurred during registration.");
         }
     }
-    
 };
 
 interface LoginUserParams {
@@ -92,8 +67,8 @@ export const loginUser = async ({email, password, rememberMe}: LoginUserParams) 
     if(rememberMe) {
         await setPersistence(auth, browserLocalPersistence);
     }
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
+
+    return (await signInWithEmailAndPassword(auth, email, password)).user;
 };
   
 export const logoutUser = async () => {
