@@ -12,6 +12,10 @@
   --bg-content-color: rgba(255, 255, 255, 0.87);
 }
 
+.main-body {
+  background: #dbe1e8;
+}
+
 .dark {
   --bg-color: #242424;
   --bg-content-color: #141414;

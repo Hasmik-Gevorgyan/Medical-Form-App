@@ -1,9 +1,9 @@
 import { Card, Avatar } from "antd";
 import { Link } from "react-router";
-import { ROUTE_PATHS } from "../../routes/paths.ts";
+import { ROUTE_PATHS } from "../../../routes/paths.ts";
 import type {FC} from "react";
-import type {DoctorCardProps} from "../../models/doctor.model.ts";
-import {getSpecializationByIds} from "../../utils/getSpecializationById.ts";
+import type {DoctorCardProps} from "../../../models/doctor.model.ts";
+import {getNamesByIds} from "../../../utils/getSpecializationById.ts";
 import {useMemo} from "react";
 
 const DoctorCard: FC<DoctorCardProps> = ({
@@ -14,7 +14,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
 
     const doctorSpecializations = useMemo(() => {
         return doctor.specificationIds
-            ? getSpecializationByIds(doctor.specificationIds, specifications)
+            ? getNamesByIds(doctor.specificationIds, specifications)
             : [];
     }, [doctor.specificationIds, specifications]);
 

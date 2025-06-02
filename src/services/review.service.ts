@@ -29,7 +29,7 @@ export const ReviewService = () => {
                 collection(db, COLLECTIONS.REVIEWS),
                 {
                     ...review,
-                    createdAt: new Date()
+                    createdAt: new Date().toISOString()
                 }
             );
 

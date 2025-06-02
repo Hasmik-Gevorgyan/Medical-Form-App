@@ -39,16 +39,16 @@ export interface PaginatedDoctorsResponse {
 }
 
 export interface EducationModel {
-    place: string;
-    startDate: string;
-    endDate: string;
+    institution: string;
+    startYear: string;
+    endYear: string;
     profession: string;
 }
 
 export interface ActivityModel {
-    place: string;
-    startDate: string;
-    endDate: string;
+    organization: string;
+    startYear: string;
+    endYear: string;
     profession: string;
 }
 

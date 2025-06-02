@@ -33,6 +33,8 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // console.log('initialData.birthdate:', initialData.birthdate);
+
     SpecificationService()
       .getSpecifications()
       .then((data) => {
@@ -51,8 +53,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
 
     if (initialData) {
       form.setFieldsValue({
-        ...initialData,
-        birthdate: initialData.birthdate ? dayjs(initialData.birthdate) : null,
+        ...initialData,birthdate: initialData.birthdate
+  ? initialData.birthdate.toDate
+    ? dayjs(initialData.birthdate.toDate())
+    : dayjs(initialData.birthdate) // если строка или Date
+  : null,
+
         education:
           initialData.education?.map((e: any) => ({
             ...e,
@@ -157,13 +163,28 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           <Option value="Female">Female</Option>
         </Select>
       </Form.Item>
-      <Form.Item
-        label="Birthdate"
-        name="birthdate"
-        rules={[{ required: true }]}
-      >
-        <DatePicker style={{ width: '100%' }} />
-      </Form.Item>
+
+<Form.Item
+  label="Birthdate"
+  name="birthdate"
+  rules={[{ required: true, message: 'Please select your birthdate' }]}
+>
+  <DatePicker
+    format="YYYY-MM-DD"
+    style={{ width: '100%' }}
+    placeholder="Select your birthdate"
+    // Ограничение: только от 100 до 18 лет назад
+    disabledDate={(current) => {
+      const today = dayjs();
+      return (
+        current > today.subtract(18, 'year') ||
+        current < today.subtract(100, 'year')
+      );
+    }}
+    // Открывать сразу на дате 18 лет назад (чтобы не листать)
+    defaultPickerValue={dayjs().subtract(18, 'year')}
+  />
+</Form.Item>
 
       <Form.List name="education">
         {(fields, { add, remove }) => (
@@ -219,7 +240,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
         rules={[{ required: true }]}
       >
         <Select
-          mode="multiple"
+            mode="multiple"
+    showSearch
+    optionFilterProp="label" // чтобы фильтровать по label
+    filterOption={(input, option) =>
+      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+    }
           options={
             Array.isArray(hospitals)
               ? hospitals.map((h) => ({
@@ -236,7 +262,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
         rules={[{ required: true }]}
       >
         <Select
-          mode="multiple"
+           mode="multiple"
+    showSearch
+    optionFilterProp="label" // чтобы фильтровать по label
+    filterOption={(input, option) =>
+      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+    }
           options={
             Array.isArray(specs)
               ? specs.map((s) => ({

@@ -1,5 +1,5 @@
 import { LoginOutlined, LogoutOutlined, MenuOutlined, MoonOutlined, SunOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Drawer, Button, type MenuProps, Space, Avatar, Dropdown, Divider, Typography } from 'antd';
+import { Layout, Menu, Drawer, Button, type MenuProps, Space, Avatar, Dropdown, Divider, Typography, Skeleton } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
@@ -8,6 +8,8 @@ import { logoutUser } from '@/services/auth.service';
 import { toggleTheme } from '@/features/themeSlice';
 import useAuth from '@/hooks/useAuth';
 import  '@/assets/styles/header.scss';
+import { fetchUser } from '@/features/authSlice';
+import { ROUTE_PATHS } from '@/routes/paths';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -34,7 +36,7 @@ const pageLinks: ProfileMenuItem[] = [
     { key: 'home', label: <Link to="/"> Home</Link> },
     { key: 'doctors', label: <Link to="/doctors">Doctors</Link> },
     { key: 'articles', label: <Link to="/articles">Articles</Link> },
-    { key: 'session', label: <Link to="/session">Register A Session</Link> },
+    { key: 'session', label: <Link to={ROUTE_PATHS.REQUEST}>Register A Session</Link> },
 ];
 
 const guestLinks: ProfileMenuItem[] = [
@@ -49,7 +51,7 @@ const guestLinks: ProfileMenuItem[] = [
 const MainHeader: React.FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
-    const { user } = useAuth()
+    const { isLoading, isLoggedIn } = useAuth()
 
     const theme = useSelector((state: RootState) => state.theme.mode);
     
@@ -60,6 +62,7 @@ const MainHeader: React.FC = () => {
     const handleMenuClick = ({ key }: { key: string }) => {
         if (key === 'logout') {
             logoutUser();
+            dispatch(fetchUser(undefined));
             window.location.reload();
         }
     };
@@ -88,7 +91,13 @@ const MainHeader: React.FC = () => {
                     icon={theme === 'dark' ? <MoonOutlined /> : <SunOutlined />}
                     onClick={() => dispatch(toggleTheme())}
                 />
-                {user ? (
+                {isLoading ?  
+                    <div className='desktop-menu'>
+                        <Space><Skeleton.Avatar active shape="circle" prefixCls=''/>
+                        </Space>
+                    </div>
+                : 
+                isLoggedIn ? (
                     <Dropdown menu={{ items: profileMenu, onClick: handleMenuClick }} placement="bottomRight">
                         <Avatar className='profile-avatar' icon={<UserOutlined />} />
                     </Dropdown>
@@ -116,7 +125,7 @@ const MainHeader: React.FC = () => {
                     items={pageLinks}
                 />
                     <div style={{ flexGrow: 1 }} />
-                    {!user &&
+                    {!isLoggedIn &&
                         <Space className='guest-links'>
                             {guestLinks.map((item) => (
                                 <div key={item?.key}>{item?.label}</div>
