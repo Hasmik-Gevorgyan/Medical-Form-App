@@ -9,11 +9,11 @@ import {
     query,
     startAfter,
     where
-
 } from "firebase/firestore";
 import {db} from "../firebase/config.ts";
 import type {DoctorInfoModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
 import {COLLECTIONS} from "../constants/collections.ts";
+import {convertFirestoreTimestampToDate} from "@/utils/dateFormatting.ts";
 
 export const DoctorService = () => {
     const DOCTOR_COLLECTION = collection(db, COLLECTIONS.DOCTORS);
@@ -61,7 +61,7 @@ export const DoctorService = () => {
                 orderBy(NAME),
                 ...(cursor ? [startAfter(cursor)] : []),
                 limit(DOCTOR_PAGE_SIZE),
-            ]
+            ];
 
             const countQuery = query(DOCTOR_COLLECTION, ...filters);
 
@@ -70,14 +70,15 @@ export const DoctorService = () => {
                 getCountFromServer(countQuery),
             ]);
 
-            const doctors = snapshot.docs.map((doc) => {
+            const doctors: DoctorInfoModel[] = snapshot.docs.map((doc) => {
                 const data = doc.data();
                 return {
                     id: doc.id,
                     ...data,
-                    createdAt: data.createdAt?.toDate().toISOString(),
-                }
-            })
+                    birthdate: convertFirestoreTimestampToDate(data.birthdate, true),
+                    createdAt: convertFirestoreTimestampToDate(data.createdAt, true),
+                } as DoctorInfoModel;
+            });
 
             // Save cursor for next page
             if (snapshot.docs.length > 0) {
@@ -87,7 +88,7 @@ export const DoctorService = () => {
             return {
                 total: countSnapshot.data().count,
                 doctors,
-            }
+            };
         } catch {
             throw new Error("Failed to fetch doctors");
         }
@@ -99,7 +100,12 @@ export const DoctorService = () => {
             const snapshot = await getDoc(doctorRef);
 
             return snapshot.exists()
-                ? {id: snapshot.id, ...snapshot.data()} as DoctorInfoModel
+                ? {
+                    id: snapshot.id,
+                    ...snapshot.data(),
+                    birthdate: convertFirestoreTimestampToDate(snapshot.data().birthdate, true),
+                    createdAt: convertFirestoreTimestampToDate(snapshot.data().createdAt, true),
+                } as DoctorInfoModel
                 : null;
         } catch (error) {
             throw new Error(`Failed to fetch doctor with ID ${id}`);
@@ -109,7 +115,7 @@ export const DoctorService = () => {
     return {
         getDoctors,
         getDoctor,
-        getDoctorsByPage,
+        getDoctorsByPage
     };
 }
 

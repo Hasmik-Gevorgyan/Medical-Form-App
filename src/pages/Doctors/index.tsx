@@ -4,10 +4,11 @@ import {getDoctorsByPage, setFilter, setSearchQuery} from "@/features/doctorSlic
 import {Col, Pagination, Row, Input} from "antd";
 import {renderStatus} from "../../utils/checkStateStatus.tsx";
 import Specifications from "../../components/Specifications";
-import DoctorCard from "../../components/DoctorCard";
+import DoctorCard from "../../components/doctors/DoctorCard";
 import type {AppDispatch, RootState} from "@/app/store.ts";
 import type {DoctorInfoModel, DoctorStateModel} from "@/models/doctor.model.ts";
 import type {SpecificationStateModel} from "@/models/specification.model.ts";
+import { stringToColor } from '@/utils/colorUtils';
 
 const Doctors = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -48,25 +49,9 @@ const Doctors = () => {
         setCurrentPage(page);
     }
 
-    const stringToColor = (str: string) => {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-
-        let color = '#';
-        for (let i = 0; i < 3; i++) {
-            const value = (hash >> (i * 8)) & 0xff;
-            color += ('00' + value.toString(16)).slice(-2);
-        }
-
-        return color;
-    }
-
     if (stateStatus) {
         return stateStatus;
     }
-
 
     return (
         <Row gutter={[24, 24]} style={{width: '100%', margin: 0}}>

@@ -21,6 +21,8 @@ const DoctorProfileView: React.FC = () => {
   const [hospitals, setHospitals] = useState<any[]>([]);
   // const doctorId = 'test';
   const { userId:doctorId,  } = useAuth();
+  console.log('Doctor ID:', doctorId);
+  
   // const {id: doctorId} = useSelector((state: any) => state.auth.user);
   // const {user} = useSelector((state: any) => state.auth);
 
