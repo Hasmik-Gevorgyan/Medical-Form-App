@@ -187,52 +187,48 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
 </Form.Item>
 
       <Form.List name="education">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name, ...restField }) => (
-              <Space
-                key={key}
-                style={{ display: 'flex', marginBottom: 8 }}
-                align="baseline"
-              >
-                <Form.Item
-                  {...restField}
-                  name={[name, 'institution']}
-                  rules={[
-                    { required: true, message: 'Please input institution' },
-                  ]}
-                >
-                  <Input placeholder="University" />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, 'dateFrom']}
-                  rules={[
-                    { required: true, message: 'Start date required' },
-                  ]}
-                >
-                  <DatePicker placeholder="Start Date" />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, 'dateTo']}
-                  rules={[{ required: true, message: 'End date required'}]}
-                >
-                  <DatePicker placeholder="End Date (optional)" />
-                </Form.Item>
-                <Button onClick={() => remove(name)} danger>
-                  Delete
-                </Button>
-              </Space>
-            ))}
-            <Form.Item>
-              <Button type="dashed" onClick={() => add()} block>
-                Add Education
-              </Button>
-            </Form.Item>
-          </>
-        )}
-      </Form.List>
+  {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, name, ...restField }) => (
+        <Space
+          key={key}
+          style={{ display: 'flex', marginBottom: 8 }}
+          align="baseline"
+        >
+          <Form.Item
+            {...restField}
+            name={[name, 'institution']}
+            rules={[{ required: true, message: 'Please input institution' }]}
+          >
+            <Input placeholder="University" />
+          </Form.Item>
+          <Form.Item
+            {...restField}
+            name={[name, 'dateFrom']}
+            rules={[{ required: true, message: 'Start year required' }]}
+          >
+            <DatePicker picker="year" placeholder="Start Year" />
+          </Form.Item>
+          <Form.Item
+            {...restField}
+            name={[name, 'dateTo']}
+            rules={[{ required: true, message: 'End year required' }]}
+          >
+            <DatePicker picker="year" placeholder="End Year" />
+          </Form.Item>
+          <Button onClick={() => remove(name)} danger>
+            Delete
+          </Button>
+        </Space>
+      ))}
+      <Form.Item>
+        <Button type="dashed" onClick={() => add()} block>
+          Add Education
+        </Button>
+      </Form.Item>
+    </>
+  )}
+</Form.List>
 
       <Form.Item
         label="Hospitals"
