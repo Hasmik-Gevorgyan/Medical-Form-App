@@ -323,7 +323,7 @@ const DoctorInfo = () => {
                         </div>
                     )}
                     <ReviewModal isModalVisible={isReviewModalVisible}
-                                 setIsModalVisible={setIsReviewModalVisible} doctorId={id}/>
+                                 setIsModalVisible={setIsReviewModalVisible} doctorId={id ?? ''}/>
                 </TabPane>
             </Tabs>
 
