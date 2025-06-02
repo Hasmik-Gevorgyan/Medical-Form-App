@@ -4,7 +4,7 @@ import {getDoctorsByPage, setFilter, setSearchQuery} from "@/features/doctorSlic
 import {Col, Pagination, Row, Input} from "antd";
 import {renderStatus} from "../../utils/checkStateStatus.tsx";
 import Specifications from "../../components/Specifications";
-import DoctorCard from "../../components/DoctorCard";
+import DoctorCard from "../../components/doctors/DoctorCard";
 import type {AppDispatch, RootState} from "@/app/store.ts";
 import type {DoctorInfoModel, DoctorStateModel} from "@/models/doctor.model.ts";
 import type {SpecificationStateModel} from "@/models/specification.model.ts";

@@ -1,8 +1,8 @@
-import type {SpecificationModel} from "../models/specification.model.ts";
-
-
-export const getSpecializationByIds = (ids: string[], specs: SpecificationModel[]): string[] => {
+export const getNamesByIds = <T extends { id: string; name: string }>(
+    ids: string[],
+    items: T[]
+): string[] => {
     return ids
-        ?.map(id => specs.find((s: SpecificationModel) => s.id === id)?.name)
-        .filter((name): name is string => name != null);
+        ?.map(id => items.find((item: T) => item.id === id)?.name)
+        .filter(name => name != null);
 };
