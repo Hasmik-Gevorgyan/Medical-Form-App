@@ -7,19 +7,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --bg-color: rgba(255, 255, 255, 0.87);
-  --text-color: #242424;
-  --bg-content-color: rgba(255, 255, 255, 0.87);
 }
 
 .main-body {
   background: #dbe1e8;
-}
-
-.dark {
-  --bg-color: #242424;
-  --bg-content-color: #141414;
-  --text-color: rgba(255, 255, 255, 0.87);
 }
 
 a {
@@ -37,19 +28,19 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 .layout-header {
-  background-color: var(--bg-color) !important;
-  color: var(--text-color) !important;
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
 }
 
 .layout-content {
   padding: 1em;
-  background-color: var(--bg-content-color) !important;
-  color: var(--text-color) !important;
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
 }
 
 h1 {
