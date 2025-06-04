@@ -109,8 +109,8 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
     {doctor.education.map((edu: any, idx: number) => (
       <div key={idx} className={styles.educationItem}>
         🎓 {edu.institution} (
-        {dayjs(edu.dateFrom).format('YYYY')} –{' '}
-        {edu.dateTo ? dayjs(edu.dateTo).format('YYYY') : 'Present'})
+        {dayjs(edu.startYear).format('YYYY')} –{' '}
+        {edu.endYear ? dayjs(edu.endYear).format('YYYY') : 'Present'})
       </div>
     ))}
   </Descriptions.Item>

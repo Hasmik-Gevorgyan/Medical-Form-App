@@ -62,8 +62,8 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
         education:
           initialData.education?.map((e: any) => ({
             ...e,
-            dateFrom: e.dateFrom ? dayjs(e.dateFrom) : null,
-            dateTo: e.dateTo ? dayjs(e.dateTo) : null,
+            startYear: e.startYear ? dayjs(e.startYear) : null,
+            endYear: e.endYear ? dayjs(e.endYear) : null,
           })) || [],
       });
     }
@@ -92,14 +92,14 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           .map((e: any) => {
             const entry: any = {
               institution: e.institution?.trim(),
-              dateFrom: e.dateFrom?.toDate()?.toISOString(),
+              startYear: e.startYear?.toDate()?.toISOString(),
             };
-            if (e.dateTo) {
-              entry.dateTo = e.dateTo.toDate().toISOString();
+            if (e.endYear) {
+              entry.endYear = e.endYear.toDate().toISOString();
             }
             return entry;
           })
-          .filter((e: any) => e.institution && e.dateFrom),
+          .filter((e: any) => e.institution && e.startYear),
       };
 
       if (
@@ -204,14 +204,14 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           </Form.Item>
           <Form.Item
             {...restField}
-            name={[name, 'dateFrom']}
+            name={[name, 'startYear']}
             rules={[{ required: true, message: 'Start year required' }]}
           >
             <DatePicker picker="year" placeholder="Start Year" />
           </Form.Item>
           <Form.Item
             {...restField}
-            name={[name, 'dateTo']}
+            name={[name, 'endYear']}
             rules={[{ required: true, message: 'End year required' }]}
           >
             <DatePicker picker="year" placeholder="End Year" />
