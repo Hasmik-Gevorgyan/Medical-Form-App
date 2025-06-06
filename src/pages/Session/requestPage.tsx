@@ -2,16 +2,18 @@
 import { useNavigate} from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/firebase/config';
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useSearchParams } from 'react-router-dom';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { getDoctors } from '@/features/doctorSlice';
-import { Steps, Button, Form, Input, Select, DatePicker, Upload,Typography, Spin, Avatar, message, Flex, TimePicker } from 'antd';
+import { Steps, Button, Form, Input, Select, DatePicker, Upload,Typography, Spin, Avatar, message, Flex, TimePicker, Modal } from 'antd';
 import { CheckCircleOutlined, ClockCircleOutlined, IdcardOutlined, LeftOutlined, LoadingOutlined, PushpinOutlined, RightOutlined, UploadOutlined } from '@ant-design/icons';
-import "@/pages/style.css"
+import "@/pages/Session/style.css"
 import { UserOutlined, MailOutlined } from '@ant-design/icons';
 import type { AppDispatch } from '@/app/store';
+import emailjs from '@emailjs/browser'; // Importing emailjs for sending emails
+import e from 'cors';
 const { Title } = Typography;
 const { Step } = Steps;
 
@@ -24,6 +26,8 @@ type FormValues = {
 	about?: string;
 	date: any; // YYYY-MM-DD
 	file?: File;
+	fromTime?: any; // HH:mm
+	toTime?: any; // HH:mm
 };
 
 
@@ -38,7 +42,6 @@ const getDoctorUnavailableDates = async (doctorId: string): Promise<string[]> =>
 	  const data = docSnap.data();
 	  return data.unavailableDates || [];
 	} else {
-	  console.error('Документ врача не найден');
 	  return [];
 	}
 };
@@ -48,8 +51,8 @@ const addRequestToFirestore = async (doctorId: string, values: any) => {
 	
 	// if there is a file, upload it to Firebase Storage and get the URL
 	if (values.file) {
-		let k = values.file.fileList[0].originFileObj;
-		const storageRef = ref(storage, `files/${k.name}`);
+		let k = values.file[0].originFileObj;
+		const storageRef = ref(storage, `files/${k?.name}`);
 		await uploadBytes(storageRef, k);
 		fileUrl = await getDownloadURL(storageRef);
 	}
@@ -62,7 +65,11 @@ const addRequestToFirestore = async (doctorId: string, values: any) => {
 			surname: values.surname,
 			email: values.email,
 			about: values.about || '',
-			date: values.date.format("YYYY-MM-DD"), // format date to string
+			date: {
+				day: values.date.format('YYYY-MM-DD'), // formatted date
+				fromTime: values.fromTime, // formatted from time
+				toTime: values.toTime, // formatted to time
+			},
 			fileUrl, // URL of the uploaded file
 		}, // request object with user data
 		response : {}, // empty response object
@@ -70,6 +77,15 @@ const addRequestToFirestore = async (doctorId: string, values: any) => {
 		createdAt: serverTimestamp(), // timestamp of request creation
 	});
 };
+
+const generateTimeOptions = () => {
+	const options = [];
+	for (let hour = 8; hour <= 20; hour++) {
+	  options.push({ value: `${hour}:00`, label: `${hour}:00` });
+	  options.push({ value: `${hour}:30`, label: `${hour}:30` });
+	}
+	return options;
+  };
 
 const updateDoctorUnavailableDates = async (doctorId: string, selectedDate: any) => {
 	// getting document from doctors by id in url param
@@ -85,7 +101,10 @@ const updateDoctorUnavailableDates = async (doctorId: string, selectedDate: any)
   
 	// getting existing unavailable dates and adding the new one
 	const existingDates = doctorSnap.data().unavailableDates || [];
-	const updatedDates = Array.from(new Set([...existingDates, selectedDate.format("YYYY-MM-DD")])); // avoid duplicates and format date to string
+	const updatedDates = [...existingDates, selectedDate];
+
+	console.log('Updated unavailable dates:', updatedDates);
+
   
 	// updating the document with new unavailable dates
 	await updateDoc(doctorRef, {
@@ -104,7 +123,9 @@ export const RequestPage = () => {
 	// using useNavigate to navigate after form submission
 	const navigate = useNavigate();
 	// Array to store unavailable dates of the doctor
-	let undates : string[] = [];
+
+	const undates = useRef<Array<{ day: string; fromTime: string; toTime: string }>>([]);
+
 
 	
 	// Getting unavailable days of doctor by array
@@ -117,32 +138,69 @@ export const RequestPage = () => {
 
 	useEffect(() => {
 		if (!doctorId) return;
-		getDoctorUnavailableDates(doctorId).then((d) =>{ console.log(d); undates = d });
+		getDoctorUnavailableDates(doctorId).then((d) => {
+			undates.current = d.map((date : any) => ({
+				day: date.day,
+				fromTime: date.fromTime,
+				toTime: date.toTime,
+			}));
+		});
+		console.log('Unavailable dates for doctor:', undates.current);
 	}, [doctorId]);
 
 	// util function for antd DatePicker to check each date for availability
 	const disabledDate = (current: any): boolean => {
-		return undates.includes(current.format('YYYY-MM-DD')) || current < new Date(); // disable dates that are in the unavailable dates array or in the past
+		return  current < new Date(); // disable dates that are in the unavailable dates array or in the past
 	};
 
+	
 
 	// asynchron Function for backend after submitting
 	const onFinish = async (values: FormValues) => {
-		console.log('Form values:', values);
-		setLoading(true);
+
+		console.log(doctors.find((doc: any) => doc.id === doctorId));
+		const date = {
+			day : values.date.format('YYYY-MM-DD'),
+			fromTime: values.fromTime || '',
+			toTime: values.toTime || '',
+		}
+
+		const toSend = {
+			doctorId,
+			request: {
+				name: values.name,
+				surname: values.surname,
+				email: values.email,
+				about: values.about || '',
+				date, // date object with formatted date and times
+				fileUrl: values.file, // file URL if exists
+				createdAt: serverTimestamp(),
+			},
+		}
+
+
 		// if doctorId is not provided, do nothing
 		if (!doctorId) return;
-		// if date is not selected, show error message
 		try {
-		  await updateDoctorUnavailableDates(doctorId, values.date);
-		  await addRequestToFirestore(doctorId, values);
-		  message.success('Request submitted successfully!');
-			setTimeout(() => {
-		  		navigate('/');
-			}
-		  , 1000);
+			const doctor = doctors.find((doc: any) => doc.id === doctorId);
+		  	await updateDoctorUnavailableDates(doctorId, date);
+			await addRequestToFirestore(doctorId, values);
+			await emailjs.send(
+				'service_bb7nlek',
+				'template_9lcfm4f',
+				{
+					name : values.name,
+					day : date.day,
+					fromTime: date.fromTime,
+					toTime: date.toTime,
+					email : values.email,
+					doctor : doctor.name + ' ' + doctor.surname,
+					logo : '@/assets/logo.png',
+				},
+				'ooOyDWjTfU7j0PLn-'
+			);
+			message.success('Request submitted successfully!');
 		} catch (error) {
-		  // if there is an error, log it and show error message	
 		  console.error('Error submitting request:', error);
 		  message.error('Failed to submit request.');
 		}
@@ -160,31 +218,61 @@ function getInitials(name: string, surname: string) {
 
 // Function to handle step change
 const handleStepChange = async (step: number, action : number) => {
-	if (step < 0 || step > 2) return; // Ensure step is within bounds
+	if (step < 0 || step > 4) return; // Ensure step is within bounds
 
 	// Validate the current step's form fields before proceeding
 	if (action != -1) { 
 	try {
 		if (step === 0) 
-			await form.validateFields(['doctorId', 'name', 'surname', 'email']);
-		else if (step === 1)
+			await form.validateFields(['doctorId']);
+		if (step === 1)
+			await form.validateFields(['name', 'surname', 'email']);
+		else if (step === 2)
 			await form.validateFields(['about', 'date']);
 		else if (step === 2) 
 			await form.validateFields();
 	}
 
 	catch (error) {
-		message.error('Please fill in all required fields before proceeding.');
 		return;
 	}
 }
 	setCurrentStep(step + action);
 }
 
-const [fromHour, setFromHour] = useState<number | null>(null);
+const timeOptions = () => {
+	const selectedDate = form.getFieldValue('date');
+	const selectedDateStr = selectedDate?.format('YYYY-MM-DD');
+  
 
+	const isTimeDisabled = (time: string): boolean => {
+	  return undates.current.some((d) =>{
+		return d.day === selectedDateStr && time >= d.fromTime && time <= d.toTime
+	});
+	};
 
+	const options = [];
+	for (let h = 8; h <= 18; h++) {
+	  for (let m of [0, 30]) {
+		const label = `${String(h).padStart(2, '0')}:${m === 0 ? '00' : '30'}`;
+		options.push({
+		  label,
+		  value: label,
+		  disabled: isTimeDisabled(label),
+		});
+	  }
+	}
+	return options;
+};
 
+const [isAboutModalVisible, setIsAboutModalVisible] = useState(false);
+const aboutText = form.getFieldValue('about');
+const ABOUT_PREVIEW_LIMIT = 150;
+
+const handleReadMore = () => setIsAboutModalVisible(true);
+const handleClose = () => setIsAboutModalVisible(false);
+
+const [_, forceUpdate] = useState(0);
 // Render the component
 return (
 	<>
@@ -203,8 +291,11 @@ return (
 			{/* Steps */}
 		  <Steps current={currentStep}>
 			<Step title="Select Doctor" />
+			<Step title="Personal Info" />
 			<Step title="Fill Details" />
-			<Step title="Review & Submit" />
+			<Step title="Review" />
+			<Step title="Payment details" />
+			<Step title="Token" />
 		  </Steps>
 
 			{/* The main form */}
@@ -242,38 +333,41 @@ return (
 							})}
 						</Select>
 					</Form.Item>
+					</div>
 					
-					{/* Name */}
-					<Form.Item  name="name" label={
-						<span>
-							<UserOutlined style={{ marginRight: 8, color: '#1890ff' }} />
-							Your Name
-					  </span>
-					} rules={[{ required: true, message: 'Please enter your name!' }]}>
-						<Input placeholder="Enter your name" />
-					</Form.Item>
-					{/* Surname */}
-					<Form.Item name="surname" label={
-						<span>
-							<UserOutlined style={{ marginRight: 8, color: '#1890ff' }} />
-							Your Surname
-					  	</span>
-					} rules={[{ required: true, message: 'Please enter your surname!' }]}>
-						<Input placeholder="Enter your surname" />
-					</Form.Item>
-					{/* Email */}
-					<Form.Item name="email" label={
-						<span>
-							<MailOutlined style={{ marginRight: 8, color: '#1890ff' }} />
-							Your Email
-					  </span>
-					}  rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
-						<Input placeholder="Enter your email" />
-					</Form.Item>
+					{/* Step 2 : personal Info */}
+					<div className='personal-data' style={{display : currentStep === 1 ? 'block' : 'none'}}>
+						{/* Name */}
+						<Form.Item  name="name" label={
+							<span>
+								<UserOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+								Your Name
+						  </span>
+						} rules={[{ required: true, message: 'Please enter your name!' }]}>
+							<Input placeholder="Enter your name" />
+						</Form.Item>
+						{/* Surname */}
+						<Form.Item name="surname" label={
+							<span>
+								<UserOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+								Your Surname
+						  	</span>
+						} rules={[{ required: true, message: 'Please enter your surname!' }]}>
+							<Input placeholder="Enter your surname" />
+						</Form.Item>
+						{/* Email */}
+						<Form.Item name="email" label={
+							<span>
+								<MailOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+								Your Email
+						  </span>
+						}  rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
+							<Input placeholder="Enter your email" />
+						</Form.Item>
 				</div>
 
-				{/* Step 2: Fill Details, date and about */}
-				<div style={{display : currentStep === 1 ? 'block' : 'none'}}>
+				{/* Step 3: Fill Details, date and about */}
+				<div style={{display : currentStep === 2 ? 'block' : 'none'}}>
 					{/* About our Sympthomes */}
 					<Form.Item name="about" label={
 						<span>
@@ -292,8 +386,13 @@ return (
 					  </span>
 					} rules={[{ required: true, message: 'Please select a date!' }]}>
 						<DatePicker 
+							className="flat-date-picker"
 							style={{ width: '100%' }} 
-							disabledDate={disabledDate} 
+							disabledDate={disabledDate}
+							onChange={() => {
+								form.setFieldsValue({ fromTime: null, toTime: null });
+								forceUpdate((prev) => prev + 1); // Force update to re-render time options
+							}}
 							format="YYYY-MM-DD" 
 							placeholder="Select a date" 
 						/>
@@ -304,25 +403,18 @@ return (
 					  name="fromTime"
 					  label={
 					    <span>
-					      <ClockCircleOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+					      <ClockCircleOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 18 }} />
 					      From Time
 					    </span>
 					  }
 					  rules={[{ required: true, message: 'Please select a starting time!' }]}
 					>
-						<TimePicker
-							format="HH"
-							className="custom-picker"
-							minuteStep={15}
-							placeholder="Start time"
-							onChange={(time) => {
-							  if (time) {
-								setFromHour(time.hour());
-							  } else {
-								setFromHour(null);
-							  }
-							}}
-  						/>
+					  <Select
+					    placeholder="Start time"
+					    className="flat-time-picker"
+					    options={timeOptions()}
+					    dropdownClassName="flat-dropdown"
+					  />
 					</Form.Item>
 					
 					{/* To Time Picker */}
@@ -330,21 +422,96 @@ return (
 					  name="toTime"
 					  label={
 					    <span>
-					      <ClockCircleOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+					      <ClockCircleOutlined style={{ marginRight: 8, color: '#1890ff', fontSize: 18 }} />
 					      To Time
 					    </span>
 					  }
-					  rules={[{ required: true, message: 'Please select an ending time!' }]}>
-						  <TimePicker
-    						format="HH"
-    						className="custom-picker"
-    						minuteStep={15}
-    						placeholder="End time"
-  						/>
+					  rules={[{ required: true, message: 'Please select a starting time!' }]}
+					>
+					  <Select
+					    placeholder="End time"
+					    className="flat-time-picker"
+					    options={timeOptions()}
+					    dropdownClassName="flat-dropdown"
+					  />
 					</Form.Item>
-
+					<Form.Item
+					  name="file"
+					  label="Upload File"
+					  valuePropName="file"
+					  getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+					>
+					  <Upload
+					    beforeUpload={() => false}
+					    maxCount={1}
+					    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+					  >
+					    <Button icon={<UploadOutlined />}>Select File</Button>
+					  </Upload>
+					</Form.Item>
 				</div>
 
+				{/* Step 3 */}
+				<div className="modern-review-container" style={{display : currentStep === 3 ? 'block' : 'none'}}>
+				  <h2 className="review-title">
+					<IdcardOutlined style={{ marginRight: 8, color: '#1890ff',fontSize:'80px' }} />
+				  </h2>
+				  <div className="review-grid">
+					<div className="review-item">
+					  <strong>Doctor: </strong>
+					  <span>{doctors.find((doc: any) => doc.id === doctorId)?.name} {doctors.find((doc: any) => doc.id === doctorId)?.surname}</span>
+					</div>
+					<div className="review-item">
+					  <strong>Name: </strong>
+					  <span>{form.getFieldValue('name')}</span>
+					</div>
+					<div className="review-item">
+					  <strong>Surname: </strong>
+					  <span>{form.getFieldValue('surname')}</span>
+					</div>
+					<div className="review-item">
+					  <strong>Email: </strong>
+					  <span>{form.getFieldValue('email')}</span>
+					</div>
+					<div className="review-item about">
+						<strong>About:</strong>
+						<span>
+						  {form.getFieldValue('about')?.length > ABOUT_PREVIEW_LIMIT
+						    ? (
+						      <>
+						        {aboutText.slice(0, ABOUT_PREVIEW_LIMIT)}...
+						        <span className="read-more" onClick={handleReadMore}> Read more</span>
+						      </>
+						    )
+						    : aboutText}
+						</span>
+						
+						<Modal
+						  title="About"
+						  visible={isAboutModalVisible}
+						  onCancel={handleClose}
+						  footer={null}
+						>
+						  <p style={{ whiteSpace: 'pre-wrap' }}>{aboutText}</p>
+						</Modal>
+					</div>
+					<div className="review-item date-group">
+					  <div className="date-box">
+					    <strong>Date:</strong>
+					    <span>{form.getFieldValue('date')?.format("YYYY.MM.DD")}</span>
+					  </div>
+					  <div className="date-box">
+					    <strong>From Time:</strong>
+					    <span>{form.getFieldValue('fromTime')}</span>
+					  </div>
+					  <div className="date-box">
+					    <strong>To Time:</strong>
+					    <span>{form.getFieldValue('toTime')}</span>
+					  </div>
+					</div>
+					
+				  </div>
+				</div>
 
 				{/* Buttons for back next submitting */}
 				<Form.Item>
@@ -353,22 +520,20 @@ return (
 					    <Button
 					      onClick={() => handleStepChange(currentStep, -1)}
 					      icon={<LeftOutlined />}
+						  className='arrow-btn'
 					    >
-					      Back
 					    </Button>
 					  )}
-					  {currentStep < 3 ? (
+					  {currentStep < 4 ? (
 					    <Button
 
 					      onClick={() => handleStepChange(currentStep, 1)}
 					      icon={<RightOutlined />}
+						  className='arrow-btn'
 					    >
-					      Next
 					    </Button>
 					  ) : (
-					    <Button htmlType="submit" icon={<CheckCircleOutlined />}>
-					      Submit
-					    </Button>
+					    <Button htmlType="submit" icon={<CheckCircleOutlined />} className='arrow-btn'> </Button>
 					  )}
 					</div>
 				</Form.Item>

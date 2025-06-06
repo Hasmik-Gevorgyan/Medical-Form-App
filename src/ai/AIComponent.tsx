@@ -6,6 +6,8 @@ import { getJSONFromFirebase } from './getFirebasedata';
 import { CloseOutlined, RobotOutlined, SendOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
+const send = await getJSONFromFirebase();
+
 const AIChatModal = () => {
   const faqs = [
 	'What are the symptoms of diabetes?',
@@ -19,17 +21,15 @@ const AIChatModal = () => {
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
-	const send = await getJSONFromFirebase();
-    if (!userInput.trim()) return;
-
-
     setUserInput('');
-    const userMessage = { sender: 'You', text: userInput };
-    setChatLog((prev) => [...prev, userMessage]); // Add user message
+	setChatLog((prev) => [...prev, userMessage]); // Add user message
     setLoading(true);
 
+    if (!userInput.trim()) return;
+    const userMessage = { sender: 'You', text: userInput };
+
     try {
-      const res = await fetch('https://askgpt-d2hus5cjwa-uc.a.run.app/', {
+      const res = await fetch('https://us-central1-medical-project-2ba5d.cloudfunctions.net/askGpt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: "Youre our medical assistant give response to our patients depends the provided data . this is the message :" + userInput + "this is our data ." + JSON.stringify(send) }),
@@ -37,6 +37,7 @@ const AIChatModal = () => {
 
       const data = await res.json();
 
+	  console.log(data);
       const aiReply = {
         sender: 'AI',
         text: data.reply || 'Sorry, I did not understand that.',
