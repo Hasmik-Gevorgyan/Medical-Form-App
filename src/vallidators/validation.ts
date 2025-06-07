@@ -18,3 +18,11 @@ export function validateReviewFields(data: Omit<ReviewModel, 'id' | 'createdAt'>
 
     return Object.keys(errors).length > 0 ? errors : null;
 }
+
+export const authValidator: {[key: string]: string} = {
+    "auth/email-already-in-use": "The email address is already in use.",
+    "auth/invalid-email": "Invalid email address.",
+    "auth/weak-password": "Password is too weak.",
+    "auth/operation-not-allowed": "Email/password accounts are not enabled. Please enable them in the Firebase console.",
+    default: "Process has been failed. Please try again."
+}
