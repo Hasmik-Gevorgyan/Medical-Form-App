@@ -387,7 +387,8 @@
   }
   
   .review-item.about {
-	grid-column: span 2;
+	display: flex;
+	flex-wrap: wrap;
 	position: relative;
   }
 
@@ -438,4 +439,93 @@
   .date-box span {
 	color: #333;
 	font-weight: 500;
+  }
+
+  .chat-box-wrapper {
+	display: flex;
+	flex-direction: column;
+	margin: auto;
+	width: 50%;
+	max-width: 100%;
+	padding: 1rem;
+	box-sizing: border-box;
+	gap: 1rem;
+  }
+  .chat-message {
+	display: flex;
+	flex-direction: column;
+	max-width: 75%;
+	margin: 12px 0;
+	padding: 12px 16px;
+	border-radius: 16px;
+	word-wrap: break-word;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	font-size: 15px;
+  }
+
+  .chat-message .name {
+	font-weight: 600;
+	margin-bottom: 6px;
+	font-size: 13px;
+	color: var(--name-color);
+  }
+  .chat-message.patient {
+	align-self: flex-start;
+	background-color: var(--patient-bg);
+	color: var(--patient-text);
+  }
+  
+  .chat-body {
+	flex: 1;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-bottom: 1rem;
+  }
+
+  .chat-message.doctor {
+	align-self: flex-end;
+	background-color: var(--doctor-bg);
+	color: var(--doctor-text);
+  }
+    
+  .timestamp {
+	font-size: 0.75rem;
+	color: var(--timestamp);
+	margin-top: 6px;
+	text-align: right;
+  }
+  
+  .chat-input {
+	display: flex;
+	gap: 8px;
+	padding-top: 8px;
+  }
+  
+  /* Light mode */
+  :root {
+	--bg: #ffffff;
+	--text: #1f1f1f;
+	--bubble-bg: #f0f0f0;
+	--sender: #333;
+	--timestamp: #888;
+  }
+  
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+	:root {
+	  --bg: #1a1a1a;
+	  --text: #f0f0f0;
+	  --bubble-bg: #2b2b2b;
+	  --sender: #ccc;
+	  --timestamp: #999;
+	}
+  
+	.ant-input,
+	.ant-btn {
+	  background-color: #2a2a2a !important;
+	  color: #f0f0f0 !important;
+	  border-color: #444 !important;
+	}
   }

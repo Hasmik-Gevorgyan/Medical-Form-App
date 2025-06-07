@@ -14,6 +14,7 @@ import { UserOutlined, MailOutlined } from '@ant-design/icons';
 import type { AppDispatch } from '@/app/store';
 import emailjs from '@emailjs/browser'; // Importing emailjs for sending emails
 import e from 'cors';
+import { wrap } from 'framer-motion';
 const { Title } = Typography;
 const { Step } = Steps;
 
@@ -58,21 +59,24 @@ const addRequestToFirestore = async (doctorId: string, values: any) => {
 	}
 	// adding request to Firestore
 
+
 	await addDoc(collection(db, 'queries'), {
 		doctorId, // doctorId from url param
-		request : {
-			name: values.name,
-			surname: values.surname,
-			email: values.email,
-			about: values.about || '',
-			date: {
-				day: values.date.format('YYYY-MM-DD'), // formatted date
-				fromTime: values.fromTime, // formatted from time
-				toTime: values.toTime, // formatted to time
-			},
-			fileUrl, // URL of the uploaded file
-		}, // request object with user data
-		response : {}, // empty response object
+		messages : [
+				{
+					sender : 'patient', // sender of the request
+					name: values.name,
+					surname: values.surname,
+					email: values.email,
+					about: values.about || '',
+					date: {
+						day: values.date.format('YYYY-MM-DD'), // formatted date
+						fromTime: values.fromTime, // formatted from time
+						toTime: values.toTime, // formatted to time
+					},
+					fileUrl, // URL of the uploaded file
+				},
+		],
 		status : 'new', // status of the request
 		createdAt: serverTimestamp(), // timestamp of request creation
 	});
@@ -475,17 +479,19 @@ return (
 					</div>
 					<div className="review-item about">
 						<strong>About:</strong>
-						<span>
+						<p style={{
+								display: 'flex',
+							}
+						}>
 						  {form.getFieldValue('about')?.length > ABOUT_PREVIEW_LIMIT
 						    ? (
-						      <>
+								<>
 						        {aboutText.slice(0, ABOUT_PREVIEW_LIMIT)}...
 						        <span className="read-more" onClick={handleReadMore}> Read more</span>
-						      </>
-						    )
-						    : aboutText}
-						</span>
-						
+								</>
+							)
+						    : aboutText}						
+						</p>
 						<Modal
 						  title="About"
 						  visible={isAboutModalVisible}
