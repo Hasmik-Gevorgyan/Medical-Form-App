@@ -9,7 +9,9 @@ import type { AppDispatch, RootState } from '@/app/store';
 import { getHospitals } from '@/features/hospitalsSlice';
 import { fetchUser } from '@/features/authSlice';
 import { router } from "@/routes";
-import '@/App.css'
+import { applyCSSVariables} from "@/theme/applyTheme"
+import  {themes} from '@/theme/theme';
+import '@/App.css';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,11 +21,14 @@ function App() {
 
   useEffect(() => {
     dispatch(getSpecifications());
+    dispatch(getHospitals());
+
   }, []);
 
   useEffect(() => {
-    dispatch(getHospitals());
-  }, []);
+    document.documentElement.setAttribute('data-theme', mode);
+    applyCSSVariables(themes[mode].cssVars);
+  }, [mode]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -39,7 +44,7 @@ function App() {
   }, [mode]);
 
   return (
-      <ConfigProvider theme={{ algorithm: antdThemeAlgorithm }}>
+      <ConfigProvider theme={{ token: themes[mode].antd, algorithm: antdThemeAlgorithm }}>
         <RouterProvider router={router} />
       </ConfigProvider>
   )

@@ -6,12 +6,11 @@ import dayjs from 'dayjs';
 import DrProfileEdit from './DrProfileEdit';
 import SpecificationService from '@/services/specification.service';
 import HospitalService from '@/services/hospitals.service';
-import { useNavigate } from 'react-router-dom';
+
 import DoctorQueriesTable from './DoctorQueriesTable';
 import { UserOutlined } from '@ant-design/icons';
 import useAuth from '@/hooks/useAuth';
-import DoctorArticles from "@/pages/Profile/DoctorArticles.tsx";
-
+import styles from './DoctorProfileView.module.css'; // Assuming you have a CSS module for styles
 
 const DoctorProfileView: React.FC = () => {
   const [doctor, setDoctor] = useState<any>(null);
@@ -19,13 +18,9 @@ const DoctorProfileView: React.FC = () => {
   const [editVisible, setEditVisible] = useState(false);
   const [specs, setSpecs] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
-  const navigate = useNavigate();
-
-
-    // const doctorId = 'test';
+  // const doctorId = 'test';
   const { userId:doctorId,  } = useAuth();
   console.log('Doctor ID:', doctorId);
-  
   // const {id: doctorId} = useSelector((state: any) => state.auth.user);
   // const {user} = useSelector((state: any) => state.auth);
 
@@ -69,9 +64,9 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
         bordered
         column={1}
         extra={
-          <Button type="primary" onClick={() => setEditVisible(true)}>
-            Edit
-          </Button>
+          <Button className={styles.editButton} onClick={() => setEditVisible(true)}>
+      Edit
+    </Button>
         }
       >
        <Descriptions.Item label="Photo">
@@ -91,9 +86,15 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
         <Descriptions.Item label="Email">{doctor?.email}</Descriptions.Item>
         <Descriptions.Item label="Phone">{doctor?.phone}</Descriptions.Item>
         <Descriptions.Item label="Gender">{doctor?.gender}</Descriptions.Item>
-        <Descriptions.Item label="Birthdate">
-          {doctor?.birthdate ? dayjs(doctor.birthdate).format('YYYY-MM-DD') : ''}
-        </Descriptions.Item>
+       <Descriptions.Item label="Birthdate">
+  {doctor?.birthdate
+    ? dayjs(
+        doctor.birthdate.seconds
+          ? new Date(doctor.birthdate.seconds * 1000)
+          : doctor.birthdate
+      ).format('YYYY-MM-DD')
+    : ''}
+</Descriptions.Item>
         <Descriptions.Item label="Hospitals">
           {getHospitalNames(doctor?.hospitalIds || [])}
         </Descriptions.Item>
@@ -106,10 +107,10 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
        {doctor?.education && doctor.education.length > 0 && (
   <Descriptions.Item label="Education">
     {doctor.education.map((edu: any, idx: number) => (
-      <div key={idx}>
+      <div key={idx} className={styles.educationItem}>
         🎓 {edu.institution} (
-        {dayjs(edu.dateFrom).format('YYYY-MM')} –{' '}
-        {edu.dateTo ? dayjs(edu.dateTo).format('YYYY-MM') : 'Present'})
+        {dayjs(edu.dateFrom).format('YYYY')} –{' '}
+        {edu.dateTo ? dayjs(edu.dateTo).format('YYYY') : 'Present'})
       </div>
     ))}
   </Descriptions.Item>
@@ -137,19 +138,8 @@ const docSnap = await getDoc(doc(db, 'doctors', doctorId!))
         />
       </Drawer>
       <br />
-        {/*//////////////*/}
-        <DoctorArticles doctorId={doctorId} />
-
-        <DoctorQueriesTable doctorId={doctorId} />
-
-        <Button
-            type="primary"
-            style={{ marginTop: 24 }}
-            onClick={() => navigate('/add-article')}
-        >
-            Add New Article
-        </Button>
-
+      <DoctorQueriesTable doctorId={doctorId} />
+ 
     </>
   );
 };

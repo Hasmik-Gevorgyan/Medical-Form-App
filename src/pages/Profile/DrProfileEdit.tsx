@@ -33,6 +33,8 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // console.log('initialData.birthdate:', initialData.birthdate);
+
     SpecificationService()
       .getSpecifications()
       .then((data) => {
@@ -51,8 +53,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
 
     if (initialData) {
       form.setFieldsValue({
-        ...initialData,
-        birthdate: initialData.birthdate ? dayjs(initialData.birthdate) : null,
+        ...initialData,birthdate: initialData.birthdate
+  ? initialData.birthdate.toDate
+    ? dayjs(initialData.birthdate.toDate())
+    : dayjs(initialData.birthdate) // если строка или Date
+  : null,
+
         education:
           initialData.education?.map((e: any) => ({
             ...e,
@@ -157,61 +163,72 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           <Option value="Female">Female</Option>
         </Select>
       </Form.Item>
-      <Form.Item
-        label="Birthdate"
-        name="birthdate"
-        rules={[{ required: true }]}
-      >
-        <DatePicker style={{ width: '100%' }} />
-      </Form.Item>
+
+<Form.Item
+  label="Birthdate"
+  name="birthdate"
+  rules={[{ required: true, message: 'Please select your birthdate' }]}
+>
+  <DatePicker
+    format="YYYY-MM-DD"
+    style={{ width: '100%' }}
+    placeholder="Select your birthdate"
+    // Ограничение: только от 100 до 18 лет назад
+    disabledDate={(current) => {
+      const today = dayjs();
+      return (
+        current > today.subtract(18, 'year') ||
+        current < today.subtract(100, 'year')
+      );
+    }}
+    // Открывать сразу на дате 18 лет назад (чтобы не листать)
+    defaultPickerValue={dayjs().subtract(18, 'year')}
+  />
+</Form.Item>
 
       <Form.List name="education">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name, ...restField }) => (
-              <Space
-                key={key}
-                style={{ display: 'flex', marginBottom: 8 }}
-                align="baseline"
-              >
-                <Form.Item
-                  {...restField}
-                  name={[name, 'institution']}
-                  rules={[
-                    { required: true, message: 'Please input institution' },
-                  ]}
-                >
-                  <Input placeholder="University" />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, 'dateFrom']}
-                  rules={[
-                    { required: true, message: 'Start date required' },
-                  ]}
-                >
-                  <DatePicker placeholder="Start Date" />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, 'dateTo']}
-                  rules={[{ required: true, message: 'End date required'}]}
-                >
-                  <DatePicker placeholder="End Date (optional)" />
-                </Form.Item>
-                <Button onClick={() => remove(name)} danger>
-                  Delete
-                </Button>
-              </Space>
-            ))}
-            <Form.Item>
-              <Button type="dashed" onClick={() => add()} block>
-                Add Education
-              </Button>
-            </Form.Item>
-          </>
-        )}
-      </Form.List>
+  {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, name, ...restField }) => (
+        <Space
+          key={key}
+          style={{ display: 'flex', marginBottom: 8 }}
+          align="baseline"
+        >
+          <Form.Item
+            {...restField}
+            name={[name, 'institution']}
+            rules={[{ required: true, message: 'Please input institution' }]}
+          >
+            <Input placeholder="University" />
+          </Form.Item>
+          <Form.Item
+            {...restField}
+            name={[name, 'dateFrom']}
+            rules={[{ required: true, message: 'Start year required' }]}
+          >
+            <DatePicker picker="year" placeholder="Start Year" />
+          </Form.Item>
+          <Form.Item
+            {...restField}
+            name={[name, 'dateTo']}
+            rules={[{ required: true, message: 'End year required' }]}
+          >
+            <DatePicker picker="year" placeholder="End Year" />
+          </Form.Item>
+          <Button onClick={() => remove(name)} danger>
+            Delete
+          </Button>
+        </Space>
+      ))}
+      <Form.Item>
+        <Button type="dashed" onClick={() => add()} block>
+          Add Education
+        </Button>
+      </Form.Item>
+    </>
+  )}
+</Form.List>
 
       <Form.Item
         label="Hospitals"
@@ -219,7 +236,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
         rules={[{ required: true }]}
       >
         <Select
-          mode="multiple"
+            mode="multiple"
+    showSearch
+    optionFilterProp="label" // чтобы фильтровать по label
+    filterOption={(input, option) =>
+      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+    }
           options={
             Array.isArray(hospitals)
               ? hospitals.map((h) => ({
@@ -236,7 +258,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
         rules={[{ required: true }]}
       >
         <Select
-          mode="multiple"
+           mode="multiple"
+    showSearch
+    optionFilterProp="label" // чтобы фильтровать по label
+    filterOption={(input, option) =>
+      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+    }
           options={
             Array.isArray(specs)
               ? specs.map((s) => ({
