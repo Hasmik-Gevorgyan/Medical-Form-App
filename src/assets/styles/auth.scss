@@ -1,0 +1,43 @@
+.login-card {
+    width: 100%;
+    height: 100vh;
+    border: none;
+    padding-top: 2rem;
+    text-align: center;
+    border-radius: initial;
+
+    @media screen and (min-width: 576px) {
+        width: 28rem;
+        height: 100%;
+        padding: 0;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        margin: 0 auto;
+    }
+
+    .login-title {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+}
+
+.register-card {
+    max-width: 44rem;
+    width: 100%;
+    border-radius: initial;
+    border: none;
+    margin: 0;
+
+    @media screen and (min-width: 576px) {
+        height: 100%;
+        padding: 0;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin: 2rem auto;
+    }
+
+    .register-title {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+}

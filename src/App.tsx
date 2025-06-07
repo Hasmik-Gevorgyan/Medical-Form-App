@@ -1,53 +1,59 @@
-import { useDispatch, useSelector } from "react-redux";
-import { RouterProvider } from 'react-router-dom';
 import { useEffect } from 'react';
-import { ConfigProvider, theme } from 'antd';
+import { useDispatch } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
+import { ConfigProvider, theme as antdTheme } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
+
 import { auth } from '@/firebase/config';
-import { getSpecifications } from '@/features/specificationSlice';
-import type { AppDispatch, RootState } from '@/app/store';
-import { getHospitals } from '@/features/hospitalsSlice';
 import { fetchUser } from '@/features/authSlice';
-import { router } from "@/routes";
-import { applyCSSVariables} from "@/theme/applyTheme"
-import  {themes} from '@/theme/theme';
+import { getHospitals } from '@/features/hospitalsSlice';
+import { getSpecifications } from '@/features/specificationSlice';
+import { applyCSSVariables } from '@/theme/applyTheme';
+import { themes } from '@/theme/theme';
+import { router } from '@/routes';
+import type { AppDispatch } from '@/app/store';
+import useThemeMode from '@/hooks/useThemeMode';
+
 import '@/App.css';
 
-function App() {
+const App = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const mode = useSelector((state: RootState) => state.theme.mode);
+  const { theme } = useThemeMode();
 
-  const antdThemeAlgorithm = mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
+  const algorithm = theme === 'dark'
+    ? antdTheme.darkAlgorithm
+    : antdTheme.defaultAlgorithm;
 
+  // Fetch hospitals and specifications on mount
   useEffect(() => {
-    dispatch(getSpecifications());
     dispatch(getHospitals());
+    dispatch(getSpecifications());
+  }, [dispatch]);
 
-  }, []);
-
+  // Sync theme variables with custom CSS
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', mode);
-    applyCSSVariables(themes[mode].cssVars);
-  }, [mode]);
+    document.documentElement.setAttribute('data-theme', theme);
+    applyCSSVariables(themes[theme].cssVars);
+  }, [theme]);
 
+  // Watch auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       dispatch(fetchUser(user?.uid));
     });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(mode);
-  }, [mode]);
+    return unsubscribe;
+  }, [dispatch]);
 
   return (
-      <ConfigProvider theme={{ token: themes[mode].antd, algorithm: antdThemeAlgorithm }}>
-        <RouterProvider router={router} />
-      </ConfigProvider>
-  )
-}
+    <ConfigProvider
+      theme={{
+        token: themes[theme].antd,
+        algorithm,
+      }}
+    >
+      <RouterProvider router={router} />
+    </ConfigProvider>
+  );
+};
 
-export default App
+export default App;
