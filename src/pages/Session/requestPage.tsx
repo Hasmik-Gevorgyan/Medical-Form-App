@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { getDoctors } from '@/features/doctorSlice';
-import { Steps, Button, Form, Input, Select, DatePicker, Upload,Typography, Spin, Avatar, message, Flex, TimePicker, Modal } from 'antd';
+import { Steps, Button, Form, Input, Select, DatePicker, Upload,Typography, Spin, message, Modal } from 'antd';
 import { CheckCircleOutlined, ClockCircleOutlined, IdcardOutlined, LeftOutlined, LoadingOutlined, PushpinOutlined, RightOutlined, UploadOutlined } from '@ant-design/icons';
 import "@/pages/Session/style.css"
 import { UserOutlined, MailOutlined } from '@ant-design/icons';
