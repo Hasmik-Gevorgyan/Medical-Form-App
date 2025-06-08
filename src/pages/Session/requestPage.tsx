@@ -294,7 +294,7 @@ return (
 
 			{/* Steps */}
 		  <Steps current={currentStep}>
-			<Step title="Select Doctor" />
+			<Step title="Select Doctor"/>
 			<Step title="Personal Info" />
 			<Step title="Fill Details" />
 			<Step title="Review" />
