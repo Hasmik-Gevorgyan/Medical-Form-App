@@ -48,7 +48,7 @@ const ResponsePage = () => {
   const [m,setm] = useState('');
 
   // mail handler for sending response and updating the response object with status and response 
-  const handleFinish = async (values : any) => {
+  const handleFinish = async () => {
   
 	try {
 		// Getting the patient data from the request
