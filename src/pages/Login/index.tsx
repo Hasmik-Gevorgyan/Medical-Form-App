@@ -8,6 +8,7 @@ import { fetchUser } from "@/features/authSlice";
 import type { AppDispatch } from '@/app/store';
 import { useState } from 'react';
 import type { User } from 'firebase/auth';
+import '@/assets/styles/auth.scss';
 
 const { Title, Text } = Typography;
 
@@ -51,16 +52,13 @@ const Login = () => {
   };
 
   return (
-    <Card
-      style={{ width: 400, borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", margin: '0 auto' }}
-    >
-      <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
+    <Card className='login-card'>
+      <Title className='login-title' level={2}>
         Login
       </Title>
       <Form
         name="login"
         initialValues={{ remember: true }}
-        style={{ maxWidth: 360 }}
         onFinish={onFinish}
         form={form}
         onValuesChange={() => {

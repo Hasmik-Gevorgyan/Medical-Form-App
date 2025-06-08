@@ -4,14 +4,14 @@ import useAuth from '@/hooks/useAuth';
 import { Modal } from 'antd';
 
 const PrivateRoute = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const modalShownRef = useRef(false);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn || isLoading) {
       return;
     }
 
@@ -21,6 +21,7 @@ const PrivateRoute = () => {
       Modal.confirm({
         title: 'Login Required',
         content: 'You must be logged in to view this page. Do you want to go to the login page?',
+        icon: null,
         okText: 'Login',
         cancelText: 'Cancel',
         onOk: () => {
@@ -34,7 +35,7 @@ const PrivateRoute = () => {
         },
       });
     }
-  }, [isLoggedIn, location.pathname, navigate]);
+  }, [isLoggedIn, isLoading, location.pathname, navigate]);
 
   return isLoggedIn ? <Outlet /> : null;
 };
