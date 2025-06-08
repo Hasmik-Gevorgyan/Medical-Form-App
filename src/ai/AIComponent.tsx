@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tooltip} from 'antd';
 import { Modal, Button, Input, List} from 'antd';
 
@@ -6,10 +6,11 @@ import { getJSONFromFirebase } from './getFirebasedata';
 import { CloseOutlined, RobotOutlined, SendOutlined} from '@ant-design/icons';
 const { TextArea } = Input;
 
-const send = await getJSONFromFirebase();
+
 
 const AIChatModal = () => {
-  const faqs = [
+
+const faqs = [
 	'What are the symptoms of diabetes?',
 	'How can I manage my blood pressure?',
 	'What should I do if I have a headache?',
@@ -19,6 +20,7 @@ const AIChatModal = () => {
   const [chatLog, setChatLog] = useState<{ sender: string; text: string }[]>([]);
   const [userInput, setUserInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const send = useRef<any>(null); // Using useRef to store fetched data
 
   const handleSend = async () => {
     setUserInput('');
@@ -53,6 +55,19 @@ const AIChatModal = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+
+	const fetchData = async () => {
+		try {
+			const data = await getJSONFromFirebase();
+			send.current = data; // Store fetched data in useRef
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	};
+
+	fetchData();} ,[]);
 
   return (
     <>
