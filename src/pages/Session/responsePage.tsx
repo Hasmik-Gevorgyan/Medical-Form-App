@@ -4,12 +4,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Checkbox, message, Space } from 'antd';
 import { db } from '@/firebase/config'; // Importing Firestore configuration
 import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
-import { Typography, Descriptions, Alert, Spin, Form, Input, Button } from 'antd';
-import { CloseCircleFilled } from '@ant-design/icons';
+import { Typography, Spin,  Input, Button } from 'antd';
 import emailjs from '@emailjs/browser' // Importing emailjs for sending emails
 import useAuth from '@/hooks/useAuth';
-import { time } from 'framer-motion';
-const { Title } = Typography;
 
 const ResponsePage = () => {
 	const [searchParams] = useSearchParams(); // Using search params to get doctorId from URL

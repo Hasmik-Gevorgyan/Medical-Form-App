@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Tooltip} from 'antd';
-import { Modal, Button, Input, List, Typography } from 'antd';
+import { Modal, Button, Input, List} from 'antd';
 
 import { getJSONFromFirebase } from './getFirebasedata';
-import { CloseOutlined, RobotOutlined, SendOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
+import { CloseOutlined, RobotOutlined, SendOutlined} from '@ant-design/icons';
 const { TextArea } = Input;
 
 const send = await getJSONFromFirebase();

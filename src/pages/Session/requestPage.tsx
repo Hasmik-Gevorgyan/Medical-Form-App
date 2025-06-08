@@ -1,8 +1,7 @@
 // Imports
-import { useNavigate} from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db, storage } from '@/firebase/config';
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import { useSearchParams } from 'react-router-dom';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,8 +12,6 @@ import "@/pages/Session/style.css"
 import { UserOutlined, MailOutlined } from '@ant-design/icons';
 import type { AppDispatch } from '@/app/store';
 import emailjs from '@emailjs/browser'; // Importing emailjs for sending emails
-import e from 'cors';
-import { wrap } from 'framer-motion';
 const { Title } = Typography;
 const { Step } = Steps;
 
@@ -82,15 +79,6 @@ const addRequestToFirestore = async (doctorId: string, values: any) => {
 	});
 };
 
-const generateTimeOptions = () => {
-	const options = [];
-	for (let hour = 8; hour <= 20; hour++) {
-	  options.push({ value: `${hour}:00`, label: `${hour}:00` });
-	  options.push({ value: `${hour}:30`, label: `${hour}:30` });
-	}
-	return options;
-  };
-
 const updateDoctorUnavailableDates = async (doctorId: string, selectedDate: any) => {
 	// getting document from doctors by id in url param
 	const doctorRef = doc(db, 'doctors', doctorId);
@@ -125,7 +113,6 @@ export const RequestPage = () => {
 	// using useParams to get doctorId from the URL
 	const [doctorId,setDoctorID] = useState(() => searchParams.get('doctorId') || '');
 	// using useNavigate to navigate after form submission
-	const navigate = useNavigate();
 	// Array to store unavailable dates of the doctor
 
 	const undates = useRef<Array<{ day: string; fromTime: string; toTime: string }>>([]);
@@ -162,26 +149,12 @@ export const RequestPage = () => {
 	// asynchron Function for backend after submitting
 	const onFinish = async (values: FormValues) => {
 
-		console.log(doctors.find((doc: any) => doc.id === doctorId));
+		setLoading(true);
 		const date = {
 			day : values.date.format('YYYY-MM-DD'),
 			fromTime: values.fromTime || '',
 			toTime: values.toTime || '',
 		}
-
-		const toSend = {
-			doctorId,
-			request: {
-				name: values.name,
-				surname: values.surname,
-				email: values.email,
-				about: values.about || '',
-				date, // date object with formatted date and times
-				fileUrl: values.file, // file URL if exists
-				createdAt: serverTimestamp(),
-			},
-		}
-
 
 		// if doctorId is not provided, do nothing
 		if (!doctorId) return;
@@ -294,7 +267,7 @@ return (
 
 			{/* Steps */}
 		  <Steps current={currentStep}>
-			<Step title="Select Doctor"/>
+			<Step title="Select Doctor" />
 			<Step title="Personal Info" />
 			<Step title="Fill Details" />
 			<Step title="Review" />
