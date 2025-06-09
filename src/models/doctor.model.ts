@@ -12,11 +12,13 @@ export interface DoctorModel {
     gender: string;
     specificationIds: string[];
     hospitalIds: string[];
+    certified?: boolean
 }
 
 export interface DoctorInfoModel extends Partial<DoctorModel> {
     about?: string;
     photoUrl?: string;
+    consultationPrice?: string,
     unavailableDates?: Date[],
     education?: EducationModel[];
     activity?: ActivityModel[];
