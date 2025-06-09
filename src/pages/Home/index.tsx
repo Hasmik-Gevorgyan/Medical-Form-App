@@ -26,7 +26,7 @@ const Home = () =>{
       dispatch(getDoctorsByPage({ page: 1, specificationId: '' }));
     }
     if(!articles.length) {
-      dispatch(fetchArticles());
+      dispatch(fetchArticles({ limit: 10, page: 1 }));
     }
   }, []);
 

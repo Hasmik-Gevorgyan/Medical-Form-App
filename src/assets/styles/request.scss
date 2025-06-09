@@ -1,0 +1,33 @@
+.request-page {
+    max-width: 52rem;
+
+    .title-heading {
+        margin-top: 0;
+        margin-bottom: 2rem;
+    }
+    .form-container {
+        padding: 0;
+    }
+    .step-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+    .review-table {
+        margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 576px) {
+        .ant-steps-item-active {
+            min-width: 12rem;
+        }
+    }
+}
+.card-input {
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}

@@ -2,7 +2,8 @@ export interface Article {
     id?: string;
     title: string;
     content: string;
-    authorId: string;
+    imageUrl?: string;
     createdAt: string;
-    imageUrl?: string
+    authorId: string;
+    authorName: string;
 }
