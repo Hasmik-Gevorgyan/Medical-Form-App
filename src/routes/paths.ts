@@ -11,5 +11,6 @@ export const ROUTE_PATHS = {
     ARTICLE_DETAIL: "articles/:id",
     EDIT_ARTICLE: "/articles/edit/:id",
     DOCTOR_PROFILE: "profile",
-    MY_ARTICLES: "my-articles"
+    MY_ARTICLES: "my-articles",
+    DOCTOR_QUERIES: "doctor-queries",
 };

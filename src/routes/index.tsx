@@ -16,6 +16,7 @@ import ResponsePage from '@/pages/Session/responsePage.tsx';
 import { RequestPage } from '@/pages/Session/requestPage.tsx';
 import EditArticle from "@/components/EditArticle";
 import MyArticles from "@/pages/MyArticles";
+import DoctorQueriesPage from "@/pages/Profile/DoctorQueriesPage.tsx";
 
 
 export const router = createBrowserRouter([
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
             path: ROUTE_PATHS.MY_ARTICLES,
             element: <MyArticles/>
           },
+          {
+            path: ROUTE_PATHS.DOCTOR_QUERIES,
+            element:<DoctorQueriesPage />
+          }
         ]
       },
     ],
