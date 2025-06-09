@@ -33,6 +33,7 @@ import HospitalService from '@/services/hospitals.service';
 import DrProfileEdit from './DrProfileEdit';
 import styles from './DoctorProfileView.module.css';
 import { useNavigate } from 'react-router';
+import CertificateUpload from "@/components/CertificateUploader";
 
 const { Title, Text } = Typography;
 
@@ -43,6 +44,7 @@ const DoctorProfileView: React.FC = () => {
   const [editVisible, setEditVisible] = useState(false);
   const [specs, setSpecs] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
+  const [isCertificationModalVisible, setIsCertificationModalVisible] = useState(false);
   const { userId: doctorId } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -103,6 +105,10 @@ const DoctorProfileView: React.FC = () => {
     );
   }
 
+  const showCertificationModal = () => {
+    setIsCertificationModalVisible(true);
+  }
+
   return (
     <div
       className={`${styles.profileContainer} ${mode === 'dark' ? styles.dark : ''}`}
@@ -131,10 +137,14 @@ const DoctorProfileView: React.FC = () => {
             </Button>
             <Button
               type="default"
-              onClick={() => console.log('Verification clicked')}
+              onClick={showCertificationModal}
             >
               Verification
             </Button>
+            <CertificateUpload
+                isCertificationModalVisible={isCertificationModalVisible}
+                setIsCertificationModalVisible={setIsCertificationModalVisible}
+            />
           </div>
         </div>
       </div>
