@@ -1,14 +1,12 @@
 // Importing necessary libraries and components
 import {useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Checkbox, message } from 'antd';
+import { Checkbox, message, Space } from 'antd';
 import { db } from '@/firebase/config'; // Importing Firestore configuration
 import { getDoc, doc,updateDoc, serverTimestamp, } from 'firebase/firestore';
-import { Typography, Descriptions, Alert, Spin, Form, Input, Button } from 'antd';
-import { CloseCircleFilled } from '@ant-design/icons';
+import { Typography, Spin,  Input, Button } from 'antd';
 import emailjs from '@emailjs/browser' // Importing emailjs for sending emails
 import useAuth from '@/hooks/useAuth';
-const { Title } = Typography;
 
 const ResponsePage = () => {
 	const [searchParams] = useSearchParams(); // Using search params to get doctorId from URL
@@ -17,9 +15,8 @@ const ResponsePage = () => {
   const requestId = searchParams.get('requestId'); // Getting requestId from URL
   const [isValid, setIsValid] : any = useState(null);
   const [patientData,setPatientData] : any = useState(null); // состояние для хранения данных пациента, если нужно
-  const [isRejected, setIsRejected] = useState(false);
-  const [form] = Form.useForm();
   const { user,userId: doctorId, isLoading } = useAuth(); // Getting the current user from the auth context
+  const [completed, setCompleted] = useState(false); // состояние чекбокса
 
 
   useEffect(() => {
@@ -35,7 +32,8 @@ const ResponsePage = () => {
 			// If the doctorId from the request matches the one in the Request, set isValid to true
 			if (data.doctorId === doctorId) {
 				setIsValid(true);
-				setPatientData(data.request); 
+				console.log('Request data:', data);
+				setPatientData(data); 
 			} else {
 				// If the doctorId does not match, set isValid to false
 				setIsValid(false);
@@ -47,23 +45,40 @@ const ResponsePage = () => {
 	})
   }, [doctorId, requestId, isLoading]);
 
+  const [m,setm] = useState('');
+
   // mail handler for sending response and updating the response object with status and response 
-  const handleFinish = async (values : any) => {
+  const handleFinish = async () => {
   
 	try {
 		// Getting the patient data from the request
 	  setIsValid(true); // setting isValid to true to allow response
 	  const queryDocRef = doc(db, 'queries', requestId || '');
-	  const status = isRejected ? 'rejected' : 'responded'; // setting status based on isRejected state
+	  const status = completed ? 'completed' : 'in_progress'; // Setting status based on checkbox
 
 	  //   Updating the response in Firestore
-	  await updateDoc(queryDocRef, {
-		response: {
-		  message : values.message,
-		  replyTime: serverTimestamp(),
-		},
-		status: status,
+	  const docSnap = await getDoc(queryDocRef);
+
+	  let ms = [];
+	if (docSnap.exists()) {
+		const data = docSnap.data();
+		ms = data.messages; // ← this gets the `messages` field
+	} 
+
+	ms.push({
+		sender: 'doctor',
+		about: m,
 	  });
+
+	  //   Updating the document with the new message and status
+	  await updateDoc(queryDocRef, {
+		doctorId: doctorId,
+		status: status,
+		timestamp: serverTimestamp(),
+		messages : ms,
+	})
+
+
 
 	//   Sending an email to the patient using emailjs
 	  await emailjs.send(
@@ -71,12 +86,12 @@ const ResponsePage = () => {
 		'template_vrnbuod',
 		{
 		  title : 'Response to your request',
-		  name : patientData.name,
-		  time : patientData.date,
-		  email: patientData.email,
+		  name : ms[0].name, // Assuming the first message contains the patient's name
+		  time : ms[0].timestamp?.toDate ? new Date(ms[0].timestamp.toDate()).toLocaleString() : '',
+		  email: ms[0].email, // Assuming the first message contains the patient's email
 		  doctor_name : `${user?.name} ${user?.surname}`, // Assuming user object has name and surname
 		  status : status,
-		  message: values.message,
+		  message: ms[ms.length - 1].about, // The last message is the doctor's response
 		  replyTime: new Date().toLocaleString(),
 		},
 		'ooOyDWjTfU7j0PLn-'
@@ -84,7 +99,7 @@ const ResponsePage = () => {
 
 	//   Displaying success message and redirecting to home page
 	  message.success('Response sent and saved successfully!');
-	  navigate('/'); // Redirecting to home page after successful response
+	   // Redirecting to home page after successful response
 	} catch (error) {
 		// Handling errors during the update and email sending process
 	  console.error('Error updating response:', error);
@@ -92,6 +107,7 @@ const ResponsePage = () => {
 	}
   };
 
+  const { Text } = Typography;
   
   if (isValid === null) {
 	return (
@@ -106,69 +122,46 @@ const ResponsePage = () => {
 	navigate("/"); // redirecting to home page if not valid
   }
 
-return (
-    <div style={{ padding: '24px' }}>
-      <Title level={2}>Response to Request</Title>
-	{/* Patient Info */}
-      {patientData ? (
-        <Descriptions bordered column={1} style={{ marginBottom: 24 }}>
-          <Descriptions.Item label="First Name">{patientData.name}</Descriptions.Item>
-          <Descriptions.Item label="Last Name">{patientData.surname}</Descriptions.Item>
-          <Descriptions.Item label="Email">{patientData.email}</Descriptions.Item>
-          <Descriptions.Item label="Request Date">{patientData.date}</Descriptions.Item>
-          <Descriptions.Item label="Additional Info">{patientData.about || 'None'}</Descriptions.Item>
-          {patientData.fileUrl && (
-            <Descriptions.Item label="File">
-              <a href={patientData.fileUrl} target="_blank" rel="noopener noreferrer">
-                Download File
-              </a>
-            </Descriptions.Item>
-          )}
-        </Descriptions>
-      ) : (
-        <Alert type="warning" message="Patient data not found." />
-      )}
+return (<div className="chat-box-wrapper">
+	<div className="chat-box">
+	  {/* Chat part*/}
+	  {patientData?.messages?.map((msg : any, index : number) => (
+		  <div
+		    key={index}
+		    className={`chat-message ${msg.sender === 'doctor' ? 'doctor' : 'patient'}`}
+		  >
+		    <Text className="name">
+		      {msg.sender === 'doctor' ? 'You:' : 'Patient:'}
+		    </Text>
+		    <div className="bubble">{msg.about}</div>
+		    <div className="timestamp">
+		      {msg.timestamp?.toDate ? new Date(msg.timestamp.toDate()).toLocaleString() : ''}
+		    </div>
+		  </div>
+	))}
 
-	  {/* Response part */}
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleFinish}
-      style={{ maxWidth: 600, margin: '0 auto', paddingTop: '2rem' }}
-    >
-		{/* Message part by status */}
-      <Form.Item
-        label="Your Message"
-        name="message"
-        rules={[{ required: !isRejected, message: 'Please enter your response message' }]}
+
+	{/* Input Area */}
+	{patientData.status !== 'completed' && <Space.Compact className="chat-input" style={{ width: '100%' }}>
+	  <Input
+		placeholder="Type your message..."
+		value={m}
+		onChange={(e) => setm(e.target.value)}
+		onPressEnter={handleFinish}
+	  />
+	  <Button type="primary" onClick={handleFinish}>
+		Send
+	  </Button>
+	  <Checkbox 
+        checked={completed} 
+        onChange={(e) => setCompleted(e.target.checked)}
+        style={{ marginBottom: 12 }}
       >
-        <Input.TextArea
-          rows={5}
-          placeholder={isRejected ? 'No message needed if rejected' : 'Type your response here...'}
-        />
-      </Form.Item>
-
-	  {/* Checkbox to mark as rejected */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={isRejected}
-          onChange={(e) => setIsRejected(e.target.checked)}
-          style={{ fontWeight: 500 }}
-        >
-          <CloseCircleFilled style={{ color: '#ff4d4f', marginRight: 6 }} />
-          Mark as Rejected
-        </Checkbox>
-      </div>
-
-	  {/* Value for buttons */}
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          {isRejected ? 'Reject' : 'Send Response'}
-        </Button>
-      </Form.Item>
-    </Form>
-	</div>	
-  );
+        Completed
+      </Checkbox>
+	</Space.Compact> }
+  </div>
+  </div>)
 };
 
 export default ResponsePage;

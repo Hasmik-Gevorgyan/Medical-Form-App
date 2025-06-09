@@ -12,9 +12,10 @@ import ArticleForm from '@/pages/ArticleForm/index.tsx';
 import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
 import PrivateRoute from "@/components/PrivateRoute";
 import Profile from '@/pages/Profile/index.tsx';
-import ResponsePage from '@/pages/responsePage.tsx';
-import { RequestPage } from '@/pages/requestPage.tsx';
 import DoctorQueriesPage from '@/pages/Profile/DoctorQueriesPage.tsx';
+import ResponsePage from '@/pages/Session/responsePage.tsx';
+import { RequestPage } from '@/pages/Session/requestPage.tsx';
+
 export const router = createBrowserRouter([
   {
     path: '/',
