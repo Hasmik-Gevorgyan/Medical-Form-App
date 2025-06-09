@@ -389,7 +389,7 @@ const DoctorInfo = () => {
                                                 <div style={{position: "absolute", top: "10px", right: "20px"}}>
                                                     <Rate
                                                         disabled
-                                                        defaultValue={5}
+                                                        defaultValue={review.rating}
                                                         style={{fontSize: "16px", color: "#FFAF00"}}
                                                     />
                                                 </div>
