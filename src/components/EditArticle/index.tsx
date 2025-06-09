@@ -29,9 +29,11 @@ const EditArticle: React.FC = () => {
         }
 
         try {
+            //stex zgush
             await dispatch(updateArticle({ id: id!, title, content, imageUrl: article?.imageUrl })).unwrap();
             message.success('Article updated!');
            // navigate('/articles'); // Redirect back to articles list or detail
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             message.error('Failed to update article');
         }

@@ -2,14 +2,36 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
     a {
         color: inherit;
         text-decoration: none;
     }
     .logo-title {
+        color: inherit;
         text-align: center;
         margin: 0;
+        a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: max-content;
+        }
+
+        .logo-image {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        &:hover {
+            color: inherit;
+            
+            .logo-text {
+                color: var(--header-text);
+                opacity: 0.7;
+            }
+        }
     }
     .profile-avatar {
         background-color: '#1677ff'
@@ -19,6 +41,102 @@
         align-items: center;
         line-height: normal;
     }
+    .theme-toggle-button {
+        color: inherit;
+        border: none;
+        background: none;
+        &:active, &:focus {
+            outline: none;
+        }
+    }
+    .skeleton-avatar {
+        display: flex;
+    }
+    .profile-dropdown-container {
+        display: flex;
+        align-items: center;
+    }
+    .ant-menu {
+        background-color: inherit !important;
+        border-bottom: none;
+        color: inherit;
+
+        .ant-menu-item {
+            cursor: pointer;
+
+            span {
+                height: 100%;
+                display: flex;
+                position: relative;
+                color: var(--header-text);
+                text-decoration: none;
+                opacity: 1;
+                transition: opacity 0.3s ease-in-out;
+                &::after {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    bottom: 1rem;
+                    width: 100%;
+                    height: 1px;
+                    background-color: var(--header-text);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.3s ease;
+                }
+            }
+            &:hover {
+                span {
+                    opacity: 0.7;
+                    &::after {
+                        transform: scaleX(1);
+                        content: '';
+                        position: absolute;
+                        bottom: 1rem;
+                        left: 0;
+                        width: 100%;
+                        height: 1px;
+                        background-color: var(--header-text);
+                    }
+                }
+            }
+            &::after {
+                content: none;
+            }
+        }
+        .ant-menu-item-selected {
+            span {
+                position: relative;
+                opacity: 0.7;
+
+                &::after {
+                    content: '';
+                    opacity: 0.7;
+                    position: absolute;
+                    bottom: 1rem;
+                    left: 0;
+                    width: 100%;
+                    height: 1px;
+                    background-color: var(--header-text);
+                    transform: scaleX(1);
+                }
+            }
+            &::after {
+                content: none;
+            }
+        }
+    }
+    .menu-page-links{
+        width: 80%;
+        padding-right: 1rem;
+        .ant-menu {
+            justify-content: flex-end;
+        }
+    }
+}
+
+.profile-dropdown .ant-dropdown-menu {
+    min-width: 12rem; 
 }
 
 .mobile-drawer {

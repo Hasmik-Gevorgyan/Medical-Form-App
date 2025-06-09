@@ -12,9 +12,12 @@ import ArticleForm from '@/pages/ArticleForm/index.tsx';
 import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
 import PrivateRoute from "@/components/PrivateRoute";
 import Profile from '@/pages/Profile/index.tsx';
-import ResponsePage from '@/pages/responsePage.tsx';
-import { RequestPage } from '@/pages/requestPage.tsx';
+import ResponsePage from '@/pages/Session/responsePage.tsx';
+import { RequestPage } from '@/pages/Session/requestPage.tsx';
 import EditArticle from "@/components/EditArticle";
+import MyArticles from "@/pages/MyArticles";
+
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -62,6 +65,10 @@ export const router = createBrowserRouter([
           {
             path: ROUTE_PATHS.EDIT_ARTICLE,
             element: <EditArticle/>
+          },
+          {
+            path: ROUTE_PATHS.MY_ARTICLES,
+            element: <MyArticles/>
           },
         ]
       },

@@ -1,4 +1,4 @@
-import { LoginOutlined, LogoutOutlined, MenuOutlined, MoonOutlined, SunOutlined, UserOutlined } from '@ant-design/icons';
+import {FileTextOutlined, LoginOutlined, LogoutOutlined, MenuOutlined, MoonOutlined, SunOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Drawer, Button, type MenuProps, Space, Avatar, Dropdown, Divider, Typography, Skeleton } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -30,6 +30,11 @@ const profileMenu: ProfileMenuItem[] = [
       icon: <LogoutOutlined />,
       label: 'Logout',
     },
+    {
+        key: 'my-articles',
+        icon: <FileTextOutlined />,
+        label: <Link to="/my-articles">My articles</Link>,
+    }
 ];
 
 const pageLinks: ProfileMenuItem[] = [
