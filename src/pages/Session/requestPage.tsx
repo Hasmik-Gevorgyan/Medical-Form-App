@@ -44,9 +44,8 @@ const getDoctorUnavailableDates = async (doctorId: string): Promise<string[]> =>
 	}
 };
 
-const addRequestToFirestore = async (doctorId: string, values: any) => {
+const addRequestToFirestore = async (doctorName : string, doctorSurname : string, doctorId: string, values: any) => {
 	let fileUrl = '';
-	
 	// if there is a file, upload it to Firebase Storage and get the URL
 	if (values.file) {
 		let k = values.file[0].originFileObj;
@@ -56,9 +55,11 @@ const addRequestToFirestore = async (doctorId: string, values: any) => {
 	}
 	// adding request to Firestore
 
-
+	doctorId = values.doctorId
 	await addDoc(collection(db, 'queries'), {
-		doctorId, // doctorId from url param
+		doctorId, // id of the doctor
+		doctorName, // name of the doctor
+		doctorSurname, // surname of the doctor
 		messages : [
 				{
 					sender : 'patient', // sender of the request
@@ -110,16 +111,9 @@ export const RequestPage = () => {
 	const [form] = Form.useForm();
 	const dispatch : AppDispatch = useDispatch();
 	const doctors = useSelector((state: any) => state.doctors.doctors);
-	// using useParams to get doctorId from the URL
 	const [doctorId,setDoctorID] = useState(() => searchParams.get('doctorId') || '');
-	// using useNavigate to navigate after form submission
-	// Array to store unavailable dates of the doctor
-
 	const undates = useRef<Array<{ day: string; fromTime: string; toTime: string }>>([]);
 
-
-	
-	// Getting unavailable days of doctor by array
 
 	useEffect(() => {
 		if (!doctors.length) {
@@ -158,10 +152,14 @@ export const RequestPage = () => {
 
 		// if doctorId is not provided, do nothing
 		if (!doctorId) return;
+
+		const doctorName = doctors.find((doc: any) => doc.id === doctorId)?.name || '';
+		const doctorSurname = doctors.find((doc: any) => doc.id === doctorId)?.surname || '';
+		
 		try {
 			const doctor = doctors.find((doc: any) => doc.id === doctorId);
 		  	await updateDoctorUnavailableDates(doctorId, date);
-			await addRequestToFirestore(doctorId, values);
+			await addRequestToFirestore(doctorName, doctorSurname, doctorId, values);
 			await emailjs.send(
 				'service_bb7nlek',
 				'template_9lcfm4f',
