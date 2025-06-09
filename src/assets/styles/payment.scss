@@ -1,0 +1,28 @@
+.payment-container {
+    position: relative;
+    max-width: 32rem;
+    margin: auto;
+
+    .payment-card {
+        margin: auto;
+        padding: 24;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border-radius: 0.5rem;
+    }
+
+    .success-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(var(--color-bg), 0.5);
+        background-color: color-mix(in srgb, var(--color-bg) 80%, transparent);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0.5rem;
+        z-index: 999;
+    }
+}
