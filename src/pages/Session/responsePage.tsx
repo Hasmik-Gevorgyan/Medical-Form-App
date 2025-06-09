@@ -1,49 +1,52 @@
 // ResponsePage.tsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Checkbox, message, Space, Typography, Spin, Input, Button, Card, Avatar } from 'antd';
-import { db } from '@/firebase/config';
+import { Checkbox, message, Typography, Spin, Input, Button, Card, Avatar, Upload } from 'antd';
+import { db, storage } from '@/firebase/config';
 import { getDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import emailjs from '@emailjs/browser';
 import useAuth from '@/hooks/useAuth';
-import { UserOutlined, MedicineBoxOutlined, SendOutlined } from '@ant-design/icons';
+import { UserOutlined, MedicineBoxOutlined, SendOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 const { Title, Text } = Typography;
 
 interface Message {
-  sender: 'doctor' | 'patient';
-  about: string;
-  timestamp: any; // Consider using Firebase Timestamp or Date for better type safety
-  name?: string;
-  email?: string;
-  surname?: string;
+	fileUrl?: string; // Optional for messages that don't have files
+	sender: 'doctor' | 'patient';
+	about: string;
+	timestamp: any; // Consider using Firebase Timestamp or Date for better type safety
+	name?: string;
+	email?: string;
+	surname?: string;
 }
 
 interface ChatData {
-  doctorId: string;
-  userId: string;
-  status: string;
-  messages: Message[];
-  doctorName: string;
-  doctorSurname: string;
+	userId: string;
+	status: string;
+	messages: Message[];
+	doctorName: string;
+	doctorSurname: string;
+	doctorId: string;
 }
 
+
+
 export const ResponsePage = () => {
+
+	// HOOKS
   const [searchParams] = useSearchParams();
   const requestId = searchParams.get('requestId');
   const navigate = useNavigate();
-  const { user, userId, isLoading } = useAuth();
-
+  const { user, userId, isLoading,  } = useAuth();
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [chatData, setChatData] = useState<ChatData | null>(null);
   const [completed, setCompleted] = useState(false);
   const [messageInput, setMessageInput] = useState('');
+  const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
-
-  console.log('user ID:', userId);
-  console.log('request ID:', requestId);
-  console.log('isLoading:', isLoading);
+	// EFFECTS
   useEffect(() => {
     if (isLoading || !requestId) return;
 
@@ -76,10 +79,14 @@ export const ResponsePage = () => {
     fetchData();
   }, [userId, requestId, isLoading]);
 
+//   FINAL
   const handleFinish = async () => {
     if (!requestId || !messageInput.trim()) return;
 
     try {
+
+		setMessageInput(''); // Clear input after sending
+		setSelectedFile(null); // Clear selected file after sending
       const queryDocRef = doc(db, 'queries', requestId);
       const status = completed ? 'completed' : 'in_progress';
 
@@ -91,10 +98,27 @@ export const ResponsePage = () => {
         messages = data.messages || [];
       }
 
+	  let fileUrl = '';
+
+	  if (selectedFile) {
+			const storageRef = ref(storage, `files/${selectedFile.name}`);
+			await uploadBytes(storageRef, selectedFile);
+			fileUrl = await getDownloadURL(storageRef);
+			console.log('File uploaded successfully:', fileUrl);
+	}
+
       messages.push({
+		fileUrl,
         sender: userId === chatData?.doctorId ? 'doctor' : 'patient',
         about: messageInput,
         timestamp: new Date(),
+      });
+
+
+	  await updateDoc(queryDocRef, {
+        status,
+        timestamp: serverTimestamp(),
+        messages,
       });
 
 
@@ -103,14 +127,6 @@ export const ResponsePage = () => {
         messages: [...messages],
         status,
       }));
-
-	  setMessageInput(''); // Clear input after sending
-      
-	  await updateDoc(queryDocRef, {
-        status,
-        timestamp: serverTimestamp(),
-        messages,
-      });
 
 
 
@@ -160,17 +176,21 @@ export const ResponsePage = () => {
     return null;
   }
 
+  const handleFileChange = (file : any) => {
+		setSelectedFile(file?.fileList[0].originFileObj);
+	};
+
  
   const headingName = userId
     ? `${chatData?.messages[0]?.name} ${chatData?.messages[0]?.surname || ''}`
-    : `${chatData?.doctorName} ${chatData?.doctorSurname}`;
+    : `${chatData?.doctorName} ${chatData?.doctorSurname || ''}`;
 
   return (
-    <div style={{ maxWidth: '60vw', margin: '0 auto', maxHeight: '80vh' }}>
-      <Title level={2} style={{ textAlign: 'center', marginBottom: 24 }}>
+    <div style={{width:'60vw', maxWidth: '100vw', margin: 'auto', maxHeight: '100vh' }} className='ll'>
+      <Title level={2} style={{ textAlign: 'center', marginBottom: 5, }}>
         {userId ? `Patient ${headingName}` : `Doctor ${headingName}`}
       </Title>
-      <Card style={{ borderRadius: 8, height: '100%', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  maxHeight: '100vh', overflowY: 'auto' }}>
+      <Card style={{maxWidth : '80vw', borderRadius: 8, boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'}} className='ss'>
         <div className='ocean-scroll' style={{padding: 16, maxHeight: '55vh', overflowY: 'auto', scrollBehavior: 'smooth',}}>
           {chatData?.messages?.map((msg, idx) => (
             <div
@@ -184,7 +204,13 @@ export const ResponsePage = () => {
               }}
             >
               <Avatar
-                size="large"
+          		onClick={() => {
+					if (msg.sender === 'doctor') {
+						navigate(`/doctors/${chatData?.doctorId}`);
+					}
+				}}
+				className='oceanic-avatar'
+				size="large"
                 icon={msg.sender === 'doctor' ? <MedicineBoxOutlined type='primary' /> : <UserOutlined type='primary' />}
 			  	style={{backgroundColor: msg.sender === 'doctor' ? '#1890ff' : 'rgba(100, 149, 237, 1)'	,
 					color: '#fff',
@@ -193,7 +219,7 @@ export const ResponsePage = () => {
               <div style={{ flex: 1 }}>
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>
                   {msg.sender === 'doctor'
-                    ? `${chatData.doctorName} ${chatData.doctorSurname}`
+                    ? `${chatData.doctorName} ${chatData.doctorSurname || ''}`
                     : `${chatData.messages[0].name || 'Patient'} ${chatData.messages[0].surname || ''}`}
                 </Text>
                 <div
@@ -204,7 +230,16 @@ export const ResponsePage = () => {
 					boxShadow: msg.sender === 'doctor' ? '0 2px 4px rgba(145, 213, 255, 0.6)' : '0 2px 4px rgba(100, 149, 237, 0.6)'
                   }}
                 >
-                  <Text style={{ display: 'block', marginBottom: 4 }}>{msg.about}</Text>
+                  <Text style={{ display: 'block', marginBottom: 4 }}>{msg.about}
+				  {msg.fileUrl && <a
+    				href={msg.fileUrl}
+    				rel="noopener noreferrer"
+					className='oceanic-link'
+					>
+						    <PaperClipOutlined style={{ fontSize: 16 }} />
+    							View Attached File
+					</a>}
+				  </Text>
                   <Text type="secondary" style={{ fontSize: 12 }}>
                     {msg.timestamp?.toDate?.()
                       ? msg.timestamp.toDate().toLocaleString()
@@ -217,7 +252,8 @@ export const ResponsePage = () => {
         </div>
 
         {!isButtonDisabled && (
-          <Space direction="vertical" size="middle" style={{ padding: 2, width: '100%', maxHeight: '16vh' }}>
+			<>
+			<div style={{ display: 'flex',flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', marginTop: 8, }}>
             <Input.TextArea
               rows={1}
               value={messageInput}
@@ -228,24 +264,42 @@ export const ResponsePage = () => {
               aria-label="Message input"
 			  onPressEnter={handleFinish}
             />
-            {userId && (
-              <Checkbox
-                checked={completed}
-                onChange={(e) => setCompleted(e.target.checked)}
-              >
-                Mark as completed
-              </Checkbox>
-            )}
-            <Button
-              onClick={handleFinish}
-              disabled={isButtonDisabled || !messageInput.trim()} // Disable after submission if completed
-			  className='oceanic-button'
-			  aria-label="Send response"
-            >
-              <SendOutlined />
-            </Button>
-          </Space>
-        )}
+				<Button
+            	  onClick={handleFinish}
+            	  disabled={isButtonDisabled || !messageInput.trim()} // Disable after submission if completed
+				  className='oceanic-button'
+				  aria-label="Send response"
+            	>
+            	<SendOutlined />
+            	</Button>
+			</div>
+			<div className='ff'>
+            	{userId && (
+            	  <Checkbox
+            	    checked={completed}
+            	    onChange={(e) => setCompleted(e.target.checked)}
+					className='oceanic-checkbox'
+            	  >
+            	    Completed
+            	  </Checkbox>
+            	)}
+				<Upload
+				  beforeUpload={() => false} // prevent auto-upload
+				  onChange={handleFileChange}
+				  fileList={selectedFile ? [selectedFile] : []}
+				  showUploadList={true}
+				  multiple={false}
+				  maxCount={1}
+				>
+				  <Button
+				    className='send-button'
+					icon={<PaperClipOutlined />}
+				  >
+				    Attach File
+				  </Button>
+				</Upload>
+			</div>
+			</>)}
       </Card>
     </div>
   );

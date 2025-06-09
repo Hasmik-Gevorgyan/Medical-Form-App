@@ -538,7 +538,8 @@
 
   .oceanic-button {
 	width: 20%;
-	height: 44px;
+	height: 37px;
+	margin-left: 10px;
 	border: none;
 	border-radius: 6px;
 	background: linear-gradient(90deg, #1890ff, rgba(100, 149, 237, 1)); /* oceanic gradient */
@@ -555,12 +556,18 @@
 	box-shadow: 0 6px 15px rgba(145, 213, 255, 0.9); /* stronger blue glow */
   }
 
+  .oceanic-avatar:hover {
+	cursor: pointer	 !important;
+	transition: transform 0.3s ease;
+	transform: scale(1.05);
+  }
+
   .oceanic-textarea {
 	border: 1px solid rgba(100, 149, 237, 0.6); /* soft oceanic border */
 	border-radius: 6px; /* slightly rounded */
 	color: #4082bf; /* light oceanic text */
 	font-size: 15px;
-	padding: 10px;
+	height: 37px !important;
 	background-color: transparent; /* keep your existing background */
 	resize: vertical;
 	box-shadow: 0 2px 4px rgba(90, 130, 204, 0.2); /* subtle glow */
@@ -572,3 +579,112 @@
 	outline: none;
 	box-shadow: 0 0 6px rgba(105, 122, 195, 0.5);
   }
+
+  .oceanic-checkbox {
+	border-radius: 6px; /* slightly rounded */
+}
+
+.oceanic-checkbox .ant-checkbox-inner {
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(100, 149, 237, 0.8);
+	border-radius: 4px;
+	transition: all 0.3s ease;
+  }
+  
+  .oceanic-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+	background-color: rgba(100, 149, 237, 1); /* Checked color */
+	border-color: #6495ed;
+  }
+  
+  .oceanic-checkbox .ant-checkbox-inner::after {
+	border-color: white; /* Checkmark color */
+  }
+
+  .oceanic-link {
+	color: #1890ff; /* Oceanic blue */
+	text-decoration: none;
+	transition: color 0.3s ease;
+	margin-left: 20px;
+  }
+
+  .oceanic-textarea::-webkit-scrollbar {
+	width: 8px;
+	border: #000;
+  }
+
+  .oceanic-checkbox:hover {
+	color: #1890ff;
+	transition: color 0.3s ease;
+  }
+
+  .send-button {
+	border : none;
+	box-shadow: 0 0px 0px ; /* subtle blue glow shadow */
+}
+
+@media (max-width: 768px) {
+	.ll {
+		max-height: 100vh !important;
+	}
+    .ocean-scroll {
+      padding: 12px !important;
+      max-height: 60vh !important;
+    }
+    
+    .ant-avatar {
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 32px !important;
+    }
+    
+    .ant-avatar > .anticon {
+      font-size: 16px !important;
+    }
+    
+    .ant-typography strong {
+      font-size: 14px !important;
+    }
+    
+    .ant-typography {
+      font-size: 14px !important;
+    }
+  }
+  
+  .ff {
+	margin-top: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+  }
+
+  @media (max-width: 480px) {
+	.ll {
+		width: 100% !important;
+		font-size: 8px !important;
+		max-height: 100% !important;
+	}
+	.ff {
+		flex-wrap: wrap;
+	}
+    .ocean-scroll {
+      padding: 8px !important;
+      max-height: 65vh !important;
+    }
+	.ss {
+		width: 100% !important;
+		height: 100;
+	}
+    
+    .ant-card {
+      border-radius: 0 !important;
+    }
+    
+    .message-container {
+      gap: 8px !important;
+      margin-bottom: 12px !important;
+    }
+	.ff {
+		width: 30px !important;
+	}
+}

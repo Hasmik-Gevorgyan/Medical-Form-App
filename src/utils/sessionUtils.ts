@@ -18,46 +18,46 @@ export const getDoctorUnavailableDates = async (doctorId: string): Promise<strin
     }
 };
 
-export const addRequestToFirestore = async (doctorId: string, values: any) => {
-    let fileUrl = "";
-  
-    // Upload file if it exists
-    if (values.file) {
-      const file = values.file[0].originFileObj;
-      const storageRef = ref(storage, `files/${file.name}`);
-      await uploadBytes(storageRef, file);
-      fileUrl = await getDownloadURL(storageRef);
-    }
-  
-    const requestData = {
-      doctorId,
-      messages: [
-        {
-          sender: "patient",
-          name: values.name,
-          surname: values.surname,
-          email: values.email,
-          about: values.about || "",
-          date: {
-            day: values.date.format("YYYY-MM-DD"),
-            fromTime: values.fromTime,
-            toTime: values.toTime,
-          },
-          fileUrl,
-        },
-      ],
-      status: "new",
-      createdAt: serverTimestamp(),
-    };
-  
-    // Add document and return the ID + data
-    const docRef = await addDoc(collection(db, "queries"), requestData);
-  
-    return {
-      id: docRef.id,     // Firestore document ID
-      ...requestData,    // Request data
-    };
-  };
+export const addRequestToFirestore = async (doctorName : string, doctorSurname : string, doctorId: string, values: any) => {
+	let fileUrl = '';
+	// if there is a file, upload it to Firebase Storage and get the URL
+	if (values.file) {
+		let k = values.file[0].originFileObj;
+		const storageRef = ref(storage, `files/${k?.name}`);
+		await uploadBytes(storageRef, k);
+		fileUrl = await getDownloadURL(storageRef);
+	}
+	// adding request to Firestore
+
+	doctorId = values.doctorId
+	const data = await addDoc(collection(db, 'queries'), {
+		doctorId, // id of the doctor
+		doctorName, // name of the doctor
+		doctorSurname, // surname of the doctor
+		messages : [
+				{
+					sender : 'patient', // sender of the request
+					name: values.name,
+					surname: values.surname,
+					email: values.email,
+					about: values.about || '',
+					date: {
+						day: values.date.format('YYYY-MM-DD'), // formatted date
+						fromTime: values.fromTime, // formatted from time
+						toTime: values.toTime, // formatted to time
+					},
+					fileUrl, // URL of the uploaded file
+				},
+		],
+		status : 'new', // status of the request
+		createdAt: serverTimestamp(), // timestamp of request creation
+	});
+
+	return {
+		id: data.id, // id of the request
+		doctorId, // id of the doctor
+	}
+};
   
 
 export const updateDoctorUnavailableDates = async (doctorId: string, selectedDate: any) => {
