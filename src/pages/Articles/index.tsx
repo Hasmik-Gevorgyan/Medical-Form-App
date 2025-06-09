@@ -4,11 +4,7 @@ import usePaginatedArticles from '@/hooks/usePaginatedArticles';
 import SearchArticles from '@/components/SearchArticles';
 import SortArticles from '@/components/SortArticles';
 import ArticleCard from '@/components/ArticleCard';
-
-
 const { Title, Paragraph } = Typography;
-
-
 
 const Articles = () => {
 
