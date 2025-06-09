@@ -7,13 +7,15 @@ const { Title } = Typography;
 const { Content } = Layout;
 import {storage} from "@/firebase/config.ts"
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import useAuth from '@/hooks/useAuth';
 
 
 const ArticleForm: React.FC = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [image, setImage] = useState<File | null>(null);
-    //const [loading, setLoading] = useState(false);
+    const { user, userId } = useAuth();
+
     const dispatch = useAppDispatch();
 
     const handleSubmit = async() => {
@@ -29,13 +31,15 @@ const ArticleForm: React.FC = () => {
 
             dispatch(
                 addArticle({
-                    title,
+                    authorId: userId || '',
+                    authorName: `${user?.name || ''} ${user?.surname || ''}`,
                     content,
-                    authorId: 'user-id-placeholder',
                     createdAt: new Date().toISOString(),
-                    imageUrl,
+                    imageUrl: imageUrl || '',
+                    title,
                 })
             );
+
 
             message.success('Article submitted successfully');
             setTitle('');

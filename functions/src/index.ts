@@ -1,14 +1,11 @@
-// Getting Started with Firebase Functions
 import { onRequest } from "firebase-functions/v2/https";
-// Secrets are used to store sensitive information like API keys
 import { defineSecret } from "firebase-functions/params";
-// Importing OpenAI SDK for making requests to the OpenAI API
 import { OpenAI } from "openai";
-// Importing CORS middleware to handle cross-origin requests
 import cors from "cors";
 
-// Getting the OpenAI API key from Firebase Functions secrets
 const OPENAI_KEY = defineSecret("OPENAPI_KEY");
+
+const STRIPE_SECRET = defineSecret("STRIPE_SECRET");
 
 // Setting up CORS to allow requests from a specific origin
 const corsHandler = cors({
@@ -17,46 +14,95 @@ const corsHandler = cors({
 
 // Exporting the askGpt function as a Firebase Cloud Function
 export const askGpt = onRequest(
-  {
-    secrets: [OPENAI_KEY],
-  },
-//   Part of the code that handles incoming requests
+  { secrets: [OPENAI_KEY] },
   async (req, res) => {
-    
-	// Using the CORS handler to manage cross-origin requests
-	corsHandler(req, res, async () => {
-	  // Check if the request method is POST
-      if (req.method !== "POST") {
-        res.status(405).send("Method Not Allowed");
-        return;
-      }
-	  // Check if the request body contains a prompt
-      const prompt = req.body.prompt;
-      if (!prompt) {
-        res.status(400).json({ error: "Give the prompt" });
-        return;
-      }
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "https://your-production-domain.com" // Добавь свой продакшен-домен
+    ];
 
-	//   Initializing the OpenAI client with the API key
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAPI_KEY,
+    const origin = req.headers.origin || "";
+    if (allowedOrigins.includes(origin)) {
+      res.set("Access-Control-Allow-Origin", origin);
+    }
+    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+
+    // Обработка preflight запроса
+    if (req.method === "OPTIONS") {
+      res.status(204).send(""); // Нет контента — ок для CORS
+      return;
+    }
+
+    // Только POST-запросы
+    if (req.method !== "POST") {
+      res.status(405).send("Method Not Allowed");
+      return;
+    }
+
+    // Проверка prompt
+    const prompt = req.body.prompt;
+    if (!prompt) {
+      res.status(400).json({ error: "Prompt is required." });
+      return;
+    }
+
+    // Инициализация OpenAI
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAPI_KEY,
+    });
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
       });
 
-	//   Sending a chat completion request to OpenAI with the provided prompt
+      const reply = completion.choices[0]?.message?.content || "";
+      res.status(200).json({ reply });
+    } catch (error) {
+      console.error("OpenAI error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+import * as functions from "firebase-functions/v2";
+import Stripe from "stripe";
+
+// const stripe = new Stripe(functions.config().stripe.secret, {
+//   apiVersion: "2022-11-15" as any,
+// });
+
+export const createPaymentIntent = functions.https.onRequest(
+  {
+    region: "us-central1",
+    memory: "256MiB",
+    secrets: [STRIPE_SECRET], // 🔑 declare dependency
+  },
+  (req, res) => {
+    corsHandler(req, res, async () => {
       try {
-        const completion = await openai.chat.completions.create({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: prompt }],
+        const stripe = new Stripe(STRIPE_SECRET.value(), {
+          apiVersion: "2022-11-15" as any,
         });
 
-        const reply = completion.choices[0]?.message?.content || "";
-        res.status(200).json({ reply });
-      } catch (error) {
-		// Log the error and send a 500 response
-        console.error(error);
-        res.status(500).json({ error: error});
+        const amount = req.body.amount;
+        if (!amount) {
+          res.status(400).send("Amount must be provided");
+          return;
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount,
+          currency: "usd",
+        });
+
+        res.json({ clientSecret: paymentIntent.client_secret });
+      } catch (error: any) {
+        console.error("Payment error:", error);
+        res.status(500).send(error.message || "Failed to create payment intent");
       }
     });
   }
 );
-

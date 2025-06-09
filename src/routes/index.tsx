@@ -12,9 +12,13 @@ import ArticleForm from '@/pages/ArticleForm/index.tsx';
 import ArticleDetail from "@/pages/ArticleDetail/index.tsx";
 import PrivateRoute from "@/components/PrivateRoute";
 import Profile from '@/pages/Profile/index.tsx';
-import ResponsePage from '@/pages/responsePage.tsx';
-import { RequestPage } from '@/pages/requestPage.tsx';
-import DoctorQueriesPage from '@/pages/Profile/DoctorQueriesPage.tsx';
+import ResponsePage from '@/pages/Session/responsePage.tsx';
+import { RequestPage } from '@/pages/Session/requestPage.tsx';
+import EditArticle from "@/components/EditArticle";
+import MyArticles from "@/pages/MyArticles";
+import DoctorQueriesPage from "@/pages/Profile/DoctorQueriesPage.tsx";
+
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -33,8 +37,8 @@ export const router = createBrowserRouter([
         element: <DoctorInfo />
       },
 	  {
-		path: ROUTE_PATHS.REQUEST,
-		element: <RequestPage />
+      path: ROUTE_PATHS.REQUEST,
+      element: <RequestPage />
 	  },
 	  {
 		path: ROUTE_PATHS.RESPONSE,
@@ -58,6 +62,14 @@ export const router = createBrowserRouter([
           {
             path: ROUTE_PATHS.DOCTOR_PROFILE,
             element:<Profile />
+          },
+          {
+            path: ROUTE_PATHS.EDIT_ARTICLE,
+            element: <EditArticle/>
+          },
+          {
+            path: ROUTE_PATHS.MY_ARTICLES,
+            element: <MyArticles/>
           },
           {
             path: ROUTE_PATHS.DOCTOR_QUERIES,

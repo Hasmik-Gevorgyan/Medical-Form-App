@@ -1,44 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/app/hooks.ts';
-import { fetchArticles } from '@/features/articleSlice.ts';
-import SortArticles from "@/components/SortArticles";
-import SearchArticles from "@/components/SearchArticles";
-import { Row, Col, Card, Typography, Spin, Space, Divider, Pagination } from 'antd';
-
+// src/pages/Articles.tsx
+import {Pagination, Typography, Row, Col, Spin, Space, Divider} from 'antd';
+import usePaginatedArticles from '@/hooks/usePaginatedArticles';
+import SearchArticles from '@/components/SearchArticles';
+import SortArticles from '@/components/SortArticles';
+import ArticleCard from '@/components/ArticleCard';
 const { Title, Paragraph } = Typography;
 
 const Articles = () => {
-    const dispatch = useAppDispatch();
-    const { articles, loading } = useAppSelector(state => state.articles);
 
-    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 4;
-
-    useEffect(() => {
-        dispatch(fetchArticles());
-    }, [dispatch]);
-
-    const sortedArticles = [...articles].sort((a, b) => {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-    });
-
-    const filteredArticles = sortedArticles.filter(article =>
-        article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        article.content.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedArticles = filteredArticles.slice(startIndex, startIndex + pageSize);
-
-    if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 100 }} />;
+    const {
+        articles,
+        loading,
+        currentPage,
+        total,
+        setCurrentPage,
+        setSortOrder,
+        setSearchTerm,
+    } = usePaginatedArticles();
 
     return (
-        <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '2rem' }}>
+        <div style={{ minHeight: '100vh', padding: '2rem' }}>
             <Title level={2}>Articles</Title>
 
             <Space style={{ marginBottom: 24 }} direction="horizontal" size="middle">
@@ -48,46 +29,36 @@ const Articles = () => {
 
             <Divider />
 
-            <Row gutter={[16, 16]}>
-                {paginatedArticles.length > 0 ? (
-                    paginatedArticles.map(article => (
-                        <Col xs={24} sm={12} key={article.id}>
-                            <Link to={`/articles/${article.id}`}>
-                                <Card title={article.title} hoverable>
-                                    {article.imageUrl && (
-                                        <img
-                                            src={article.imageUrl}
-                                            alt={article.title}
-                                            style={{
-                                                width: '100%',
-                                                height: '150px',
-                                                objectFit: 'cover',
-                                                marginBottom: '10px',
-                                                borderRadius: '4px'
-                                            }}
-                                        />
-                                    )}
-                                    <Paragraph ellipsis={{ rows: 3 }}>{article.content}</Paragraph>
-                                </Card>
-                            </Link>
-                        </Col>
-                    ))
-                ) : (
-                    <Col span={24}>
-                        <Paragraph>No articles match your search.</Paragraph>
-                    </Col>
-                )}
-            </Row>
+            {loading && articles.length === 0 ? (
+                <Spin size="large" style={{ display: 'block', marginTop: 100 }} />
+            ) : (
+                <>
+                    <Row gutter={[16, 16]}>
+                        {articles.length > 0 ? (
+                            articles.map(article => (
+                                <Col xs={24} sm={12} key={article.id}>
+                                    <ArticleCard article={article} />
+                                </Col>
+                            ))
+                        ) : (
+                            <Col span={24}>
+                                <Paragraph>No articles match your search.</Paragraph>
+                            </Col>
+                        )}
+                    </Row>
 
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                <Pagination
-                    current={currentPage}
-                    pageSize={pageSize}
-                    total={filteredArticles.length}
-                    onChange={page => setCurrentPage(page)}
-                    showSizeChanger={false}
-                />
-            </div>
+
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                        <Pagination
+                            current={currentPage}
+                            pageSize={4}
+                            total={total}
+                            showSizeChanger={false}
+                            onChange={setCurrentPage}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     );
 };
