@@ -1,9 +1,18 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { OpenAI } from "openai";
+import cors from "cors";
 
 const OPENAI_KEY = defineSecret("OPENAPI_KEY");
 
+const STRIPE_SECRET = defineSecret("STRIPE_SECRET");
+
+// Setting up CORS to allow requests from a specific origin
+const corsHandler = cors({
+  origin: "http://localhost:5173",
+});
+
+// Exporting the askGpt function as a Firebase Cloud Function
 export const askGpt = onRequest(
   { secrets: [OPENAI_KEY] },
   async (req, res) => {
@@ -55,5 +64,45 @@ export const askGpt = onRequest(
       console.error("OpenAI error:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
+  }
+);
+
+import * as functions from "firebase-functions/v2";
+import Stripe from "stripe";
+
+// const stripe = new Stripe(functions.config().stripe.secret, {
+//   apiVersion: "2022-11-15" as any,
+// });
+
+export const createPaymentIntent = functions.https.onRequest(
+  {
+    region: "us-central1",
+    memory: "256MiB",
+    secrets: [STRIPE_SECRET], // 🔑 declare dependency
+  },
+  (req, res) => {
+    corsHandler(req, res, async () => {
+      try {
+        const stripe = new Stripe(STRIPE_SECRET.value(), {
+          apiVersion: "2022-11-15" as any,
+        });
+
+        const amount = req.body.amount;
+        if (!amount) {
+          res.status(400).send("Amount must be provided");
+          return;
+        }
+
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount,
+          currency: "usd",
+        });
+
+        res.json({ clientSecret: paymentIntent.client_secret });
+      } catch (error: any) {
+        console.error("Payment error:", error);
+        res.status(500).send(error.message || "Failed to create payment intent");
+      }
+    });
   }
 );

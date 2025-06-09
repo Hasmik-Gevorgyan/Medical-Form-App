@@ -37,8 +37,8 @@ export const router = createBrowserRouter([
         element: <DoctorInfo />
       },
 	  {
-		path: ROUTE_PATHS.REQUEST,
-		element: <RequestPage />
+      path: ROUTE_PATHS.REQUEST,
+      element: <RequestPage />
 	  },
 	  {
 		path: ROUTE_PATHS.RESPONSE,
