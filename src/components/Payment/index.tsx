@@ -172,14 +172,6 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
   );
 };
 
-const cardInputStyle = {
-  border: "1px solid #d9d9d9",
-  borderRadius: 6,
-  padding: 10,
-  marginBottom: 16,
-  color: "var(--color-text)"
-};
-
 interface IPaymentComponentProps {
   onPayment: () => void
 }

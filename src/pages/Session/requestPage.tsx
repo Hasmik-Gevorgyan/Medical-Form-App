@@ -51,7 +51,6 @@ export const RequestPage = () => {
 	const [requestId, setrRquestId] = useState<null | string>(null);
 	const { isMobile } = useResponsive();
 	
-	const ABOUT_PREVIEW_LIMIT = 150;
 	const spinnerIcon = <LoadingOutlined style={{ fontSize: 48, color: '#1890ff' }} spin />;
 	// const handleReadMore = () => setIsAboutModalVisible(true);
 	// const handleClose = () => setIsAboutModalVisible(false);

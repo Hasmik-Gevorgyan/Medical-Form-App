@@ -10,12 +10,12 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/routes/paths';
 
 export const pageLinks = [
-  { key: 'dashboard', label: <Link to="/dashboard">Dashboard</Link> },
+  { key: 'dashboard', label: <Link to={ROUTE_PATHS.DOCTOR_QUERIES}>Dashboard</Link> },
   // { key: 'home', label: <Link to="/">Home</Link> },
-  { key: 'doctors', label: <Link to="/doctors">Doctors</Link> },
-  { key: 'articles', label: <Link to="/articles">Articles</Link> },
-  { key: 'session', label: <Link to={ROUTE_PATHS.REQUEST}>Book A Session</Link> },
-  { key: 'appointment', label: 'Appointment'},
+  { key: 'doctors', label: <Link to={ROUTE_PATHS.DOCTORS}>Doctors</Link> },
+  { key: 'articles', label: <Link to={ROUTE_PATHS.ARTICLES}>Articles</Link> },
+  { key: 'session', label: <Link to={ROUTE_PATHS.REQUEST}>Book An Appointment</Link> },
+  { key: 'appointment', label: 'My Appointment'},
 ];
   
 export const guestLinks = [
