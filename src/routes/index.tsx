@@ -14,6 +14,7 @@ import PrivateRoute from "@/components/PrivateRoute";
 import Profile from '@/pages/Profile/index.tsx';
 import ResponsePage from '@/pages/responsePage.tsx';
 import { RequestPage } from '@/pages/requestPage.tsx';
+import DoctorQueriesPage from '@/pages/Profile/DoctorQueriesPage.tsx';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
           {
             path: ROUTE_PATHS.DOCTOR_PROFILE,
             element:<Profile />
+          },
+          {
+            path: ROUTE_PATHS.DOCTOR_QUERIES,
+            element:<DoctorQueriesPage />
           }
         ]
       },

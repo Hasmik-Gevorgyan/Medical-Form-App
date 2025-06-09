@@ -12,7 +12,7 @@ import {
 import { UploadOutlined } from '@ant-design/icons';
 import { db, storage } from '@/firebase/config';
 import { doc, updateDoc } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage';
 import SpecificationService from '@/services/specification.service';
 import HospitalService from '@/services/hospitals.service';
 import dayjs from 'dayjs';
@@ -31,6 +31,7 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     SpecificationService()
@@ -50,25 +51,48 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
       });
 
     if (initialData) {
+      if (initialData.photoUrl) setCurrentPhotoUrl(initialData.photoUrl);
+
       form.setFieldsValue({
         ...initialData,
-        birthdate: initialData.birthdate ? dayjs(initialData.birthdate) : null,
+        birthdate: initialData.birthdate
+          ? initialData.birthdate.toDate
+            ? dayjs(initialData.birthdate.toDate())
+            : dayjs(initialData.birthdate)
+          : null,
         education:
           initialData.education?.map((e: any) => ({
             ...e,
-            dateFrom: e.dateFrom ? dayjs(e.dateFrom) : null,
-            dateTo: e.dateTo ? dayjs(e.dateTo) : null,
+            startYear: e.startYear ? dayjs(e.startYear) : null,
+            endYear: e.endYear ? dayjs(e.endYear) : null,
           })) || [],
       });
     }
   }, [initialData, form]);
 
-  const handleSave = async (values: any) => {
+  const handleDeletePhoto = async () => {
+    if (!doctorId || !currentPhotoUrl) return;
 
-      if (!doctorId) {
-    message.error('Doctor ID is missing');
-    return;
-  }
+    try {
+      const photoRef = ref(storage, currentPhotoUrl);
+      await deleteObject(photoRef);
+      await updateDoc(doc(db, 'doctors', doctorId), {
+        photoUrl: '',
+      });
+      message.success('Photo deleted');
+      setCurrentPhotoUrl(null);
+    } catch (err) {
+      console.error(err);
+      message.error('Failed to delete photo');
+    }
+  };
+
+  const handleSave = async (values: any) => {
+    if (!doctorId) {
+      message.error('Doctor ID is missing');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -86,14 +110,14 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           .map((e: any) => {
             const entry: any = {
               institution: e.institution?.trim(),
-              dateFrom: e.dateFrom?.toDate()?.toISOString(),
+              startYear: e.startYear?.toDate()?.toISOString(),
             };
-            if (e.dateTo) {
-              entry.dateTo = e.dateTo.toDate().toISOString();
+            if (e.endYear) {
+              entry.endYear = e.endYear.toDate().toISOString();
             }
             return entry;
           })
-          .filter((e: any) => e.institution && e.dateFrom),
+          .filter((e: any) => e.institution && e.startYear),
       };
 
       if (
@@ -157,12 +181,25 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           <Option value="Female">Female</Option>
         </Select>
       </Form.Item>
+
       <Form.Item
         label="Birthdate"
         name="birthdate"
-        rules={[{ required: true }]}
+        rules={[{ required: true, message: 'Please select your birthdate' }]}
       >
-        <DatePicker style={{ width: '100%' }} />
+        <DatePicker
+          format="YYYY-MM-DD"
+          style={{ width: '100%' }}
+          placeholder="Select your birthdate"
+          disabledDate={(current) => {
+            const today = dayjs();
+            return (
+              current > today.subtract(18, 'year') ||
+              current < today.subtract(100, 'year')
+            );
+          }}
+          defaultPickerValue={dayjs().subtract(18, 'year')}
+        />
       </Form.Item>
 
       <Form.List name="education">
@@ -177,27 +214,23 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
                 <Form.Item
                   {...restField}
                   name={[name, 'institution']}
-                  rules={[
-                    { required: true, message: 'Please input institution' },
-                  ]}
+                  rules={[{ required: true, message: 'Please input institution' }]}
                 >
                   <Input placeholder="University" />
                 </Form.Item>
                 <Form.Item
                   {...restField}
-                  name={[name, 'dateFrom']}
-                  rules={[
-                    { required: true, message: 'Start date required' },
-                  ]}
+                  name={[name, 'startYear']}
+                  rules={[{ required: true, message: 'Start year required' }]}
                 >
-                  <DatePicker placeholder="Start Date" />
+                  <DatePicker picker="year" placeholder="Start Year" />
                 </Form.Item>
                 <Form.Item
                   {...restField}
-                  name={[name, 'dateTo']}
-                  rules={[{ required: true, message: 'End date required'}]}
+                  name={[name, 'endYear']}
+                  rules={[{ required: true, message: 'End year required' }]}
                 >
-                  <DatePicker placeholder="End Date (optional)" />
+                  <DatePicker picker="year" placeholder="End Year" />
                 </Form.Item>
                 <Button onClick={() => remove(name)} danger>
                   Delete
@@ -220,6 +253,11 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
       >
         <Select
           mode="multiple"
+          showSearch
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
           options={
             Array.isArray(hospitals)
               ? hospitals.map((h) => ({
@@ -230,6 +268,7 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           }
         />
       </Form.Item>
+
       <Form.Item
         label="Specifications"
         name="specificationIds"
@@ -237,6 +276,11 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
       >
         <Select
           mode="multiple"
+          showSearch
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+          }
           options={
             Array.isArray(specs)
               ? specs.map((s) => ({
@@ -247,29 +291,41 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
           }
         />
       </Form.Item>
+
       <Form.Item label="About" name="about">
         <Input.TextArea rows={3} />
       </Form.Item>
-     <Form.Item label="Upload Photo">
-      <Upload
-        beforeUpload={(file) => {
-          // Проверяем тип файла — HEIC
-          if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
-            message.error('HEIC files are not supported');
-            // Запрещаем загрузку файла
-            return Upload.LIST_IGNORE;
-          }
-          // Разрешаем загрузку, сохраняем файл в состояние
-          setPhotoFile(file);
-          return false; // Чтобы не загружать автоматически, а управлять вручную
-        }}
-        showUploadList={{ showRemoveIcon: true }}
-        maxCount={1}
-        onRemove={() => setPhotoFile(null)}
-      >
-        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-      </Upload>
-    </Form.Item>
+
+      <Form.Item label="Upload Photo">
+        <Upload
+          beforeUpload={(file) => {
+            if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
+              message.error('HEIC files are not supported');
+              return Upload.LIST_IGNORE;
+            }
+            setPhotoFile(file);
+            return false;
+          }}
+          showUploadList={{ showRemoveIcon: true }}
+          maxCount={1}
+          onRemove={() => setPhotoFile(null)}
+        >
+          <Button icon={<UploadOutlined />}>Click to Upload</Button>
+        </Upload>
+        {currentPhotoUrl && (
+          <div style={{ marginTop: 8 }}>
+            <img
+              src={currentPhotoUrl}
+              alt="Current"
+              style={{ width: 100, marginRight: 16 }}
+            />
+            <Button danger onClick={handleDeletePhoto}>
+              Delete Photo
+            </Button>
+          </div>
+        )}
+      </Form.Item>
+
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading} block>
           Save

@@ -1,48 +1,59 @@
-import { useDispatch, useSelector } from "react-redux";
-import { RouterProvider } from 'react-router-dom';
 import { useEffect } from 'react';
-import { ConfigProvider, theme } from 'antd';
+import { useDispatch } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
+import { ConfigProvider, theme as antdTheme } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
+
 import { auth } from '@/firebase/config';
-import { getSpecifications } from '@/features/specificationSlice';
-import type { AppDispatch, RootState } from '@/app/store';
-import { getHospitals } from '@/features/hospitalsSlice';
 import { fetchUser } from '@/features/authSlice';
-import { router } from "@/routes";
-import '@/App.css'
+import { getHospitals } from '@/features/hospitalsSlice';
+import { getSpecifications } from '@/features/specificationSlice';
+import { applyCSSVariables } from '@/theme/applyTheme';
+import { themes } from '@/theme/theme';
+import { router } from '@/routes';
+import type { AppDispatch } from '@/app/store';
+import useThemeMode from '@/hooks/useThemeMode';
 
-function App() {
+import '@/App.css';
+
+const App = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const mode = useSelector((state: RootState) => state.theme.mode);
+  const { theme } = useThemeMode();
 
-  const antdThemeAlgorithm = mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
+  const algorithm = theme === 'dark'
+    ? antdTheme.darkAlgorithm
+    : antdTheme.defaultAlgorithm;
 
-  useEffect(() => {
-    dispatch(getSpecifications());
-  }, []);
-
+  // Fetch hospitals and specifications on mount
   useEffect(() => {
     dispatch(getHospitals());
-  }, []);
+    dispatch(getSpecifications());
+  }, [dispatch]);
 
+  // Sync theme variables with custom CSS
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    applyCSSVariables(themes[theme].cssVars);
+  }, [theme]);
+
+  // Watch auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       dispatch(fetchUser(user?.uid));
     });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(mode);
-  }, [mode]);
+    return unsubscribe;
+  }, [dispatch]);
 
   return (
-      <ConfigProvider theme={{ algorithm: antdThemeAlgorithm }}>
-        <RouterProvider router={router} />
-      </ConfigProvider>
-  )
-}
+    <ConfigProvider
+      theme={{
+        token: themes[theme].antd,
+        algorithm,
+      }}
+    >
+      <RouterProvider router={router} />
+    </ConfigProvider>
+  );
+};
 
-export default App
+export default App;
