@@ -46,7 +46,7 @@ export const profileMenu = [
   {
     key: 'my-articles',
     icon: <UnorderedListOutlined />,
-    label: <Link to={ROUTE_PATHS.ADD_ARTICLE}>My Articles</Link>,
+    label: <Link to={ROUTE_PATHS.MY_ARTICLES}>My Articles</Link>,
   },
   {
     type: 'divider',
