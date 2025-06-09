@@ -140,6 +140,7 @@ const ArticleCard = ({ article, editable = false, onEdit, onDelete }: ArticleCar
                 backgroundColor: 'var(--color-bg-container)',
                 color: 'var(--color-text)',
             }}
+
             extra={
                 editable && (
                     <Space>
