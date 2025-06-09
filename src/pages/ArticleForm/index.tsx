@@ -31,14 +31,15 @@ const ArticleForm: React.FC = () => {
 
             dispatch(
                 addArticle({
-                    authorId: userId,
+                    authorId: userId || '',
                     authorName: `${user?.name || ''} ${user?.surname || ''}`,
                     content,
                     createdAt: new Date().toISOString(),
-                    imageUrl,
+                    imageUrl: imageUrl || '',
                     title,
                 })
             );
+
 
             message.success('Article submitted successfully');
             setTitle('');

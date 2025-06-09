@@ -6,7 +6,9 @@ import { useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import dayjs from 'dayjs';
-import { fetchArticles } from "@/features/articleSlice.ts";
+//import { fetchArticles } from "@/features/articleSlice.ts";
+import { fetchArticleById } from '@/features/articleSlice.ts'; // Add this
+
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -17,14 +19,18 @@ const ArticleDetail = () => {
     const articleRef = useRef<HTMLDivElement>(null);
 
     const { articles, loading } = useAppSelector(state => state.articles);
-    const article = articles.find(article => article.id === id);
+
+    const articleFromList = articles.find(article => article.id === id);
+    const currentArticle = useAppSelector(state => state.articles.currentArticle);
+    const article = articleFromList || currentArticle;
+
 
     useEffect(() => {
-        const articleExists = articles.some(a => a.id === id);
-        if (!loading && !articleExists) {
-            dispatch(fetchArticles());
+        if (id && !articleFromList) {
+            dispatch(fetchArticleById(id));
         }
-    }, [id, articles, loading, dispatch]);
+    }, [id, articleFromList, dispatch]);
+
 
     if (!article && loading) {
         return (
