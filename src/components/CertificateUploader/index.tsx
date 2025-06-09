@@ -4,10 +4,10 @@ import { UploadOutlined } from '@ant-design/icons';
 import type {FC} from 'react';
 import type { UploadProps } from 'antd';
 import type { RcFile } from 'antd/es/upload';
+import type {AppDispatch} from "@/app/store.ts";
 import { CertificateService } from '@/services/certificate.service.ts';
 import {Status} from "@/constants/enums.ts";
 import {useDispatch} from "react-redux";
-import type {AppDispatch} from "@/app/store.ts";
 import {updateConsultationPrice} from "@/features/doctorSlice.ts";
 import useAuth from "@/hooks/useAuth.ts";
 import "@/assets/styles/doctors/certificateUploader.scss"
