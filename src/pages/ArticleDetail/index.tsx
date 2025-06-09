@@ -6,8 +6,8 @@ import { useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import dayjs from 'dayjs';
-//import { fetchArticles } from "@/features/articleSlice.ts";
-import { fetchArticleById } from '@/features/articleSlice.ts'; // Add this
+import { fetchArticleById } from '@/features/articleSlice.ts';
+import "@/assets/styles/articles.scss"
 
 
 const { Title, Paragraph, Text } = Typography;
@@ -79,37 +79,26 @@ const ArticleDetail = () => {
     };
 
     return (
-        <div style={{ padding: '2rem', backgroundColor: '#fff' }}>
-            {/* not in PDF */}
+        <div className="article-detail">
             <Button
                 type="link"
                 icon={<ArrowLeftOutlined />}
                 onClick={() => navigate(-1)}
-                style={{ marginBottom: '1rem' }}
+                className="back-button"
             >
                 Back to Articles
             </Button>
 
-            {/* in PDF */}
             <div ref={articleRef}>
-                <Title>{article.title}</Title>
+                <Title level={2} className="article-title">{article.title}</Title>
 
                 {article.imageUrl && (
-                    <img
-                        src={article.imageUrl}
-                        alt="Article"
-                        style={{
-                            maxWidth: '100%',
-                            height: 'auto',
-                            marginBottom: '1rem',
-                            borderRadius: 8,
-                        }}
-                    />
+                    <img src={article.imageUrl} alt="Article" className="article-image" />
                 )}
 
-                <Paragraph>{article.content}</Paragraph>
+                <Paragraph className="article-content">{article.content}</Paragraph>
 
-                <div style={{ marginTop: 24 }}>
+                <div className="article-meta">
                     <Text type="secondary">
                         By <strong>{article.authorName}</strong> •{' '}
                         {dayjs(article.createdAt).format('MMMM D, YYYY')}
@@ -117,12 +106,11 @@ const ArticleDetail = () => {
                 </div>
             </div>
 
-            {/* not in PDF */}
             <Button
                 type="primary"
                 icon={<DownloadOutlined />}
                 onClick={handleDownloadPDF}
-                style={{ marginTop: '1rem' }}
+                className="download-button"
             >
                 Download as PDF
             </Button>
