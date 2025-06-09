@@ -8,6 +8,7 @@ import {
     orderBy,
     query,
     startAfter,
+    updateDoc,
     where
 } from "firebase/firestore";
 import {db} from "../firebase/config.ts";
@@ -18,7 +19,7 @@ import {convertFirestoreTimestampToDate} from "@/utils/dateFormatting.ts";
 export const DoctorService = () => {
     const DOCTOR_COLLECTION = collection(db, COLLECTIONS.DOCTORS);
     const NAME = "name";
-    const DOCTOR_PAGE_SIZE = 5;
+    const DOCTOR_PAGE_SIZE = 8;
     const doctorPageCursors: any[] = [];
 
     const getDoctors = async (): Promise<DoctorInfoModel[]> => {
@@ -112,10 +113,36 @@ export const DoctorService = () => {
         }
     }
 
+    const updateConsultationPrice = async (
+        doctorId: string,
+        price: string
+    ): Promise<DoctorInfoModel | null> => {
+        try {
+            const doctorRef = doc(DOCTOR_COLLECTION, doctorId);
+
+            await updateDoc(doctorRef, {
+                consultationPrice: price
+            });
+
+            const updatedDoc = await getDoc(doctorRef);
+
+            if (!updatedDoc.exists()) return null;
+
+            return {
+                id: updatedDoc.id,
+                ...updatedDoc.data(),
+                createdAt: convertFirestoreTimestampToDate(updatedDoc.data().createdAt, true)
+            } as DoctorInfoModel;
+        } catch (error) {
+            throw new Error(`Failed to update consultation price for doctor`);
+        }
+    };
+
     return {
         getDoctors,
         getDoctor,
-        getDoctorsByPage
+        getDoctorsByPage,
+        updateConsultationPrice
     };
 }
 
