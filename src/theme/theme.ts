@@ -8,6 +8,7 @@ export const themes = {
         '--color-bg-container': '#FFFFFF',
         '--header-bg': '#20468D', //'#0077B6' // or #004E8C	
         '--header-text': '#FFFFFF',
+
       },
       antd: {
         colorPrimary: '#3772FF',
