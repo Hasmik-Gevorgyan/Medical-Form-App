@@ -44,6 +44,8 @@ const App = () => {
     return unsubscribe;
   }, [dispatch]);
 
+  console.log('Current theme:', theme);
+
   return (
     <ConfigProvider
       theme={{
