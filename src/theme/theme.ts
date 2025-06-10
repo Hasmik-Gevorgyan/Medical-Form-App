@@ -18,7 +18,8 @@ export const themes = {
         colorTextBase: '#283353',
         colorBgBase: '#EAF1FF',
         colorBgContainer: '#FFFFFF',
-        colorBgLayout: '#EAF1FF'
+        colorBgLayout: '#EAF1FF',
+        fontFamily: "'Lato', 'Segoe UI', sans-serif",
       },
     },
     dark: {
@@ -39,7 +40,8 @@ export const themes = {
             colorTextBase: '#A3B1C2',
             colorBgBase: '#151D2B',
             colorBgContainer: '#1F2A3D',
-            colorBgLayout: '#151D2B'
+            colorBgLayout: '#151D2B',
+            fontFamily: "'Lato', 'Segoe UI', sans-serif",
         },
     },
   };
