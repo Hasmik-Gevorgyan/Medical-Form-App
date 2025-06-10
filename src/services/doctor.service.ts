@@ -11,10 +11,11 @@ import {
     updateDoc,
     where
 } from "firebase/firestore";
-import {db} from "../firebase/config.ts";
+import {db, storage} from "../firebase/config.ts";
 import type {DoctorInfoModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
 import {COLLECTIONS} from "../constants/collections.ts";
 import {convertFirestoreTimestampToDate} from "@/utils/dateFormatting.ts";
+import {getDownloadURL, listAll, ref} from "firebase/storage";
 
 export const DoctorService = () => {
     const DOCTOR_COLLECTION = collection(db, COLLECTIONS.DOCTORS);
@@ -148,12 +149,21 @@ export const DoctorService = () => {
         }
     };
 
+    const getDoctorCertificates = async (doctorId: string): Promise<string[]> => {
+        const certFolderRef = ref(storage, `certificates/${doctorId}/`);
+        const listResult = await listAll(certFolderRef);
+
+        return await Promise.all(
+            listResult.items.map((itemRef) => getDownloadURL(itemRef))
+        );
+    }
 
     return {
         getDoctors,
         getDoctor,
         getDoctorsByPage,
-        updateConsultationPrice
+        updateConsultationPrice,
+        getDoctorCertificates
     };
 }
 

@@ -110,7 +110,6 @@ const CertificateUpload: FC<
                         status: Status.FAILED,
                     },
                 }));
-                message.error("An error occurred during certificate verification.");
             }
         }
 
@@ -147,7 +146,7 @@ const CertificateUpload: FC<
                 return rest;
             });
         },
-        accept: ".pdf",
+        accept: "pdf,.jpg,.jpeg,.png",
     }
 
     const isFileVerifying = Object.values(statusMap).some((s) => s.verifying);
