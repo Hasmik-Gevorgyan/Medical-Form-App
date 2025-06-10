@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {getDoctor} from "@/features/doctorSlice.ts";
+import {getDoctor, getDoctorCertificates} from "@/features/doctorSlice.ts";
 import {Button, Card, Col, Rate, Row, Space, Tabs, Typography} from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 import {MessageOutlined, LeftOutlined, RightOutlined, PhoneOutlined} from "@ant-design/icons";
@@ -16,9 +16,8 @@ import type {ReviewStateModel} from "@/models/review.model.ts";
 import {getReviews} from "@/features/reviewSlice.ts";
 import type {HospitalStateModel} from "@/models/hospitals.model.ts";
 import useThemeMode from "@/hooks/useThemeMode.ts";
-import "@/assets/styles/doctors/doctorInfo.scss";
-
 const {Title, Text} = Typography;
+import "@/assets/styles/doctors/doctorInfo.scss";
 
 const DoctorInfo = () => {
     const {id} = useParams<{ id: string }>();
@@ -26,6 +25,9 @@ const DoctorInfo = () => {
     const [isReviewModalVisible, setIsReviewModalVisible] = useState<boolean>(false);
     const dispatch: AppDispatch = useDispatch<AppDispatch>();
     const {doctor, status, error} = useSelector<RootState, DoctorStateModel>(
+        (state: RootState) => state.doctors
+    );
+    const {certificates} = useSelector<RootState, DoctorStateModel>(
         (state: RootState) => state.doctors
     );
     const {reviews} = useSelector<RootState, ReviewStateModel>(
@@ -53,6 +55,12 @@ const DoctorInfo = () => {
         }
     }, [id]);
 
+    useEffect(() => {
+        if (id) {
+            dispatch(getDoctorCertificates(id));
+        }
+    }, [id])
+
     const averageRating = useMemo(() => {
         if (reviews.length === 0) return 0;
         const total = reviews.reduce((sum, review) => sum + review.rating, 0);
@@ -77,6 +85,7 @@ const DoctorInfo = () => {
     if (stateStatus) {
         return stateStatus;
     }
+    console.log(certificates)
 
     return (
         <div style={{padding: "20px"}}>
@@ -104,7 +113,7 @@ const DoctorInfo = () => {
                                         }}
                                     />
                                 }
-                                className="card-image"
+                                className="card-info card-image"
                             >
                             </Card>
                         ) : (
@@ -216,6 +225,7 @@ const DoctorInfo = () => {
                                 padding: "16px 20px",
                                 background: "transparent"
                             }}
+                            className="card-info"
                         >
                             {doctor.education?.map((education: EducationModel, index) => (
                                 <div
@@ -291,8 +301,13 @@ const DoctorInfo = () => {
                                 </>
                             ))}
                         </Card>) : ''}
-
+                    {certificates.map((cert, index) => (
+                        <div key={index} style={{ marginBottom: '10px' }}>
+                            <img src={cert.url} alt="" width="400"/>
+                        </div>
+                    ))}
                 </TabPane>
+
                 <TabPane tab="Reviews" key="3" style={{position: 'relative'}}>
                     <Row justify="end" style={{margin: '20px'}}>
                         <Button type="primary" size="large" onClick={showModal} ghost>
@@ -348,7 +363,7 @@ const DoctorInfo = () => {
                                                     flex: 1,
                                                     padding: "30px 25px",
                                                     borderRadius: "10px",
-                                                    backgroundColor: theme==="dark" ? "#1F2A3D" : "rgba(226,237,246,0.5)",
+                                                    backgroundColor: theme === "dark" ? "#1F2A3D" : "rgba(226,237,246,0.5)",
                                                     fontFamily: "Segoe UI, sans-serif",
                                                     transition: "all 0.4s ease",
                                                     display: "flex",
@@ -456,7 +471,7 @@ const DoctorInfo = () => {
                         navigate(`/request/doctor?doctorId=${doctor.id}`)
                     }}
                 >
-                   Question to doctor
+                    Question to doctor
                 </Button>
             </div>
         </div>

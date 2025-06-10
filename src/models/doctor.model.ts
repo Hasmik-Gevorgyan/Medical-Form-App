@@ -29,10 +29,15 @@ export interface DoctorStateModel {
     doctors: DoctorInfoModel[],
     doctorsByPage: PaginatedDoctorsResponse,
     doctor: DoctorInfoModel,
+    certificates: CertificateModel[],
     selectedSpecificationId: string,
     searchQuery: string;
     status: Status,
     error: string | null
+}
+
+export interface CertificateModel {
+    url: string;
 }
 
 export interface PaginatedDoctorsResponse {
