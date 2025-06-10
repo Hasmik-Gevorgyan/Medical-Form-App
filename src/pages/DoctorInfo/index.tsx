@@ -16,7 +16,7 @@ import type {ReviewStateModel} from "@/models/review.model.ts";
 import {getReviews} from "@/features/reviewSlice.ts";
 import type {HospitalStateModel} from "@/models/hospitals.model.ts";
 import useThemeMode from "@/hooks/useThemeMode.ts";
-import "./style.css";
+import "@/assets/styles/doctors/doctorInfo.scss";
 
 const {Title, Text} = Typography;
 
@@ -104,12 +104,7 @@ const DoctorInfo = () => {
                                         }}
                                     />
                                 }
-                                style={{
-                                    width: '100%',
-                                    maxWidth: '350px',
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                }}
+                                className="card-image"
                             >
                             </Card>
                         ) : (
