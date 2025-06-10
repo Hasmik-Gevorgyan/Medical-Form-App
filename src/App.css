@@ -60,7 +60,29 @@
 
 .layout-content {
   width: 100%;
-  padding: 24px;
-  min-height: calc(100vh - 64px);
+  padding: 1.5rem;
+  min-height: calc(100vh - 4rem);
   background-color: #f0f2f5;
+  max-width: 82rem;
+  margin: 0 auto;
+
+  @media (max-width: 1399px) {
+    max-width: 1140px;
+  }
+
+  @media (max-width: 1199px) {
+    max-width: 60rem;
+  }
+
+  @media (max-width: 991px) {
+    max-width: 45rem;
+  }
+
+  @media (max-width: 767px) {
+    max-width: 34rem;
+  }
+
+  @media (max-width: 575px) {
+    max-width: 100%;
+  }
 }

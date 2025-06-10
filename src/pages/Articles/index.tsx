@@ -4,6 +4,7 @@ import SearchArticles from '@/components/SearchArticles';
 import SortArticles from '@/components/SortArticles';
 import ArticleCard from '@/components/ArticleCard';
 import { motion } from 'framer-motion';
+import "@/assets/styles/articles.scss"
 
 const { Title, Paragraph } = Typography;
 
