@@ -117,6 +117,16 @@ export const DoctorService = () => {
         doctorId: string,
         price: string
     ): Promise<DoctorInfoModel | null> => {
+        const numericPrice = parseFloat(price.replace(/[^0-9.-]/g, ''));
+
+        if (isNaN(numericPrice) || numericPrice <= 0) {
+            throw new Error('Consultation price must be a number');
+        }
+
+        if (!/^\$?\d+(\.\d{1,2})?$/.test(price.trim())) {
+            throw new Error('Consultation price must be a number with up to 2 decimal places');
+        }
+
         try {
             const doctorRef = doc(DOCTOR_COLLECTION, doctorId);
 
@@ -134,9 +144,10 @@ export const DoctorService = () => {
                 createdAt: convertFirestoreTimestampToDate(updatedDoc.data().createdAt, true)
             } as DoctorInfoModel;
         } catch (error) {
-            throw new Error(`Failed to update consultation price for doctor`);
+            throw new Error('Failed to update consultation price for doctor');
         }
     };
+
 
     return {
         getDoctors,
