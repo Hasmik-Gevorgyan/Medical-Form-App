@@ -20,6 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
       - name: Create .env file from GitHub Secrets
         run: |
           echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env
@@ -34,5 +35,8 @@ jobs:
       - name: Build Vite app
         run: npm run build
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Deploy to Firebase Hosting
-        run: npx firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}"
+        run: firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}"
