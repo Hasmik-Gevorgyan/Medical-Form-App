@@ -55,10 +55,6 @@ npm install
 
 ## Environment Variables
 ```
-git clone https://github.com/Hasmik-Gevorgyan/Medical-Form-App
-cd Medical-Form-App
-npm install
-```
 VITE_FIREBASE_API_KEY
 VITE_FIREBASE_PROJECT_ID
 VITE_FIREBASE_AUTH_DOMAIN
@@ -68,6 +64,7 @@ VITE_FIREBASE_APP_ID
 VITE_MEASUREMENT_ID
 VITE_STRIPE_PUBLIC_KEY
 OPENAI_KEY 
+```
 
 ## Run locally
 ```
