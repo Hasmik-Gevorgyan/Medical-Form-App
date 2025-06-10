@@ -84,8 +84,11 @@ export const RequestPage = () => {
 
 		try {
 			const doctor = doctors.find((doc: any) => doc.id === doctorId);
+			const doctorName = doctor?.name || '';
+			const doctorSurname = doctor?.surname || '';
+			
 			await updateDoctorUnavailableDates(doctorId, date);
-			const result = await addRequestToFirestore(doctorId, values);
+			const result = await addRequestToFirestore(doctorName, doctorSurname, doctorId,values);
 
 			setrRquestId(result.id);
 			await emailjs.send(
@@ -168,14 +171,6 @@ export const RequestPage = () => {
 							<Step key={index} title={isMobile || index === currentStep ? title : ""} />
 						))}
 					</Steps>
-					{/* <Steps current={currentStep}>
-						<Step title="Select Doctor" />
-						<Step title="Personal Info" />
-						<Step title="Fill Details" />
-						<Step title="Review" />
-						<Step title="Payment details" />
-						<Step title="Token" />
-					</Steps> */}
 					<div className='form-container'>
 						<Form requiredMark={false} form={form} layout="vertical" onFinish={onFinish} initialValues={{ doctorId }}>
 							<div style={{display : currentStep === 0 ? 'block' : 'none'}}>
@@ -293,7 +288,7 @@ export const RequestPage = () => {
 							
 							{currentStep === 4 &&
 								<div>
-									<PaymentComponent onPayment={onPayment}/>
+									<PaymentComponent onPayment={onPayment} consultationPrice={doctors.find((doc: any) => doc.id === form.getFieldValue("doctorId"))?.consultationPrice}/>
 								</div>
 							}
 							{currentStep === 5 &&

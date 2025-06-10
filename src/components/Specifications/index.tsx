@@ -1,5 +1,5 @@
 import type {FC} from "react";
-import type {SpecificationsProps} from "../../models/specification.model.ts";
+import type {SpecificationsProps} from "@/models/specification.model.ts";
 import {Button, List} from "antd";
 
 const Specifications: FC<SpecificationsProps> = ({
@@ -16,34 +16,38 @@ const Specifications: FC<SpecificationsProps> = ({
     return (
         <div
             style={{
-                padding: "20px",
-                border: "1px solid #ddd",
-                borderRadius: "12px",
-                backgroundColor: "#fff",
+                padding: "20px 0",
                 position: "sticky",
-                top: "20px",
+                top: "40px",
             }}
         >
-            <h3 style={{textAlign: "center", marginBottom: "16px"}}>Specifications</h3>
+            <h3 style={{textAlign: "left", margin: "10px 0"}}>Specifications</h3>
 
             <List
                 size="small"
-                bordered
+                bordered={false}
                 dataSource={visibleSpecifications}
                 renderItem={(spec) => (
                     <List.Item
                         onClick={() => onSpecificationClick(spec.id)}
                         style={{
                             cursor: "pointer",
-                            backgroundColor: spec.id === selectedSpecificationId ? "#e6f7ff" : "#fff",
-                            transition: "background-color 0.3s",
+                            padding: "8px 12px",
+                            backgroundColor:
+                                spec.id === selectedSpecificationId
+                                    ? "#f0f5fc"
+                                    : spec.id === null && selectedSpecificationId === null
+                                        ? "#f0f5fc"
+                                        : "transparent",
+                            marginBottom: "6px",
+                            transition: "background 0.3s",
                         }}
                     >
                         {spec.name}
                     </List.Item>
+
                 )}
             />
-
             {specifications.length > 10 && (
                 <div style={{textAlign: "center", marginTop: "10px"}}>
                     <Button type="link" onClick={onToggleShowAll}>

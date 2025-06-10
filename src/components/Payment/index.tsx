@@ -27,9 +27,7 @@ const { Title, Text } = Typography;
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-
-
-const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
+const CheckoutForm = ({onPayment, consultationPrice}:IPaymentComponentProps) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -42,23 +40,32 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
   const handlePayment = async () => {
     setProcessing(true);
     setError(null);
-
+  
     if (!stripe || !elements) {
       setError("Stripe.js has not loaded yet.");
       setProcessing(false);
       return;
     }
-
-    const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement) {
-      setError("Card Number Element not found.");
+  
+    if (!cardholderName.trim()) {
+      setError("Cardholder name is required.");
       setProcessing(false);
       return;
     }
-
+  
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    const cardExpiryElement = elements.getElement(CardExpiryElement);
+    const cardCvcElement = elements.getElement(CardCvcElement);
+  
+    if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
+      setError("Please complete all card fields.");
+      setProcessing(false);
+      return;
+    }
+  
     try {
       const clientSecret = await createPaymentIntent(5000); // $50.00
-
+  
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardNumberElement,
@@ -67,13 +74,13 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
           },
         },
       });
-
+  
       if (result.error) {
         console.error("Payment error:", result.error.message);
         setError(result.error.message || "Payment failed.");
       } else if (result.paymentIntent?.status === "succeeded") {
-        setPaymentSuccess(true)
-        onPayment()
+        setPaymentSuccess(true);
+        onPayment();
       }
     } catch (err: any) {
       setError(err.message || "Payment error");
@@ -81,7 +88,7 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
       setProcessing(false);
     }
   };
-
+  
 
   const CARD_ELEMENT_OPTIONS = {
     style: {
@@ -144,7 +151,7 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
             <Text strong>Total Amount</Text>
           </Col>
           <Col span={12} style={{ textAlign: "right" }}>
-            <Text strong>$7.61</Text>
+            <Text strong>${consultationPrice || 0}</Text>
           </Col>
         </Row>
 
@@ -154,7 +161,7 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
           onClick={handlePayment}
           style={{ marginTop: 24 }}
           loading={processing}
-          disabled={processing}
+          disabled={processing || !cardholderName.trim()}
         >
           Checkout
         </Button>
@@ -173,11 +180,12 @@ const CheckoutForm = ({onPayment}:IPaymentComponentProps) => {
 };
 
 interface IPaymentComponentProps {
-  onPayment: () => void
+  onPayment: () => void;
+  consultationPrice: number;
 }
-const PaymentComponent = ({onPayment}:IPaymentComponentProps) => (
+const PaymentComponent = ({onPayment, consultationPrice}:IPaymentComponentProps) => (
   <Elements stripe={stripePromise}>
-    <CheckoutForm  onPayment={onPayment}/>
+    <CheckoutForm  onPayment={onPayment} consultationPrice={consultationPrice}/>
   </Elements>
 );
 

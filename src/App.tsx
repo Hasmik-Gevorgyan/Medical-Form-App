@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { App as AntdApp,ConfigProvider, theme as antdTheme } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import { auth } from '@/firebase/config';
@@ -44,6 +44,8 @@ const App = () => {
     return unsubscribe;
   }, [dispatch]);
 
+  console.log('Current theme:', theme);
+
   return (
     <ConfigProvider
       theme={{
@@ -51,7 +53,9 @@ const App = () => {
         algorithm,
       }}
     >
-      <RouterProvider router={router} />
+      <AntdApp>
+        <RouterProvider router={router} />
+      </AntdApp>
     </ConfigProvider>
   );
 };

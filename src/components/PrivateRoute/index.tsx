@@ -31,7 +31,7 @@ const PrivateRoute = () => {
           });
         },
         onCancel: () => {
-          navigate(-1);
+          navigate('/');
         },
       });
     }

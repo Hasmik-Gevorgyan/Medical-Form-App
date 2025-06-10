@@ -34,6 +34,7 @@ const CodeModal: React.FC<Props> = ({ open, onClose }) => {
 
         setError('');
         onClose();
+        setCode('')
         navigate(`/${ROUTE_PATHS.RESPONSE}?requestId=${trimmedCode}`);
       } else {
         setError('Invalid appointment code. Please try again.');

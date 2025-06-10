@@ -5,13 +5,20 @@ import {useDispatch, useSelector} from "react-redux";
 import {addReview, clearFieldError, clearFieldErrors} from "@/features/reviewSlice.ts";
 import {Button, Form, Input, message, Modal, Rate} from "antd";
 import {useEffect, useState} from "react";
+import useThemeMode from "@/hooks/useThemeMode.ts";
 import {Status} from "@/constants/enums.ts";
+import {
+    UserOutlined,
+    StarFilled
+} from '@ant-design/icons';
+
 
 const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, doctorId}) => {
     const [isFormValid, setIsFormValid] = useState(false);
     const [reviewForm] = Form.useForm();
     const {fieldErrors, status} = useSelector((state: RootState) => state.reviews);
     const dispatch: AppDispatch = useDispatch();
+    const {theme} = useThemeMode();
     const NAME = "name";
     const SURNAME = "surname";
     const COMMENT = "comment";
@@ -54,28 +61,39 @@ const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, d
 
     return (
         <Modal
-            title="Leave a Review"
+            title="💬 Leave a Review"
             open={isModalVisible}
             onCancel={handleReviewCancel}
-            onOk={() => setIsModalVisible(false)}
             footer={null}
             destroyOnHidden
+            centered
+            maskClosable={false}
         >
-            <Form form={reviewForm} layout="vertical"
-                  onFieldsChange={updateInputStateChanges}
-                  onFinish={handleReviewSubmit}>
+            <Form
+                form={reviewForm}
+                layout="vertical"
+                onFieldsChange={updateInputStateChanges}
+                onFinish={handleReviewSubmit}
+            >
                 <Form.Item
                     label="Name"
                     name="name"
                     rules={[
-                        {required: true, message: "Name is required"},
-                        {min: 2, message: "Name must be at least 2 characters"}
+                        { required: true, message: "Name is required" },
+                        { min: 2, message: "Name must be at least 2 characters" }
                     ]}
                     help={fieldErrors.name}
                     validateStatus={fieldErrors.name ? 'error' : undefined}
                 >
-                    <Input onChange={() => dispatch(clearFieldError(NAME))}
-                           placeholder="Name"
+                    <Input
+                        prefix={<UserOutlined />}
+                        placeholder="Enter your first name"
+                        onChange={() => dispatch(clearFieldError(NAME))}
+                        style={{
+                            borderRadius: 8,
+                            height: 45,
+                            paddingLeft: 12,
+                        }}
                     />
                 </Form.Item>
 
@@ -83,50 +101,80 @@ const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, d
                     label="Surname"
                     name="surname"
                     rules={[
-                        {required: true, message: "Surname is required"},
-                        {min: 2, message: "Surname must be at least 2 characters"}
+                        { required: true, message: "Surname is required" },
+                        { min: 2, message: "Surname must be at least 2 characters" }
                     ]}
                     help={fieldErrors.surname}
                     validateStatus={fieldErrors.surname ? 'error' : undefined}
                 >
                     <Input
+                        prefix={<UserOutlined />}
+                        placeholder="Enter your last name"
                         onChange={() => dispatch(clearFieldError(SURNAME))}
-                        placeholder="Surname"/>
+                        style={{
+                            borderRadius: 8,
+                            height: 45,
+                            paddingLeft: 12,
+                        }}
+                    />
                 </Form.Item>
 
                 <Form.Item
                     label="Comment"
                     name="comment"
                     rules={[
-                        {required: true, message: "Comment is required"},
-                        {min: 10, message: "Comment must be at least 10 characters"}
+                        { required: true, message: "Comment is required" },
+                        { min: 10, message: "Comment must be at least 10 characters" }
                     ]}
                     help={fieldErrors.comment}
                     validateStatus={fieldErrors.comment ? 'error' : undefined}
                 >
                     <Input.TextArea
                         rows={4}
+                        placeholder="Write your feedback here..."
                         onChange={() => dispatch(clearFieldError(COMMENT))}
-                        placeholder="Write your review here"/>
+                        style={{
+                            borderRadius: 8,
+                            padding: 12,
+                            resize: 'none'
+                        }}
+                    />
                 </Form.Item>
 
                 <Form.Item
                     label="Rating"
                     name="rating"
                     rules={[
-                        {required: true, message: "Rating is required"}
+                        { required: true, message: "Rating is required" }
                     ]}
                     help={fieldErrors.rating}
                     validateStatus={fieldErrors.rating ? 'error' : undefined}
                 >
-                    <Rate onChange={() => dispatch(clearFieldError(RATING))}/>
+                    <Rate
+                        onChange={() => dispatch(clearFieldError(RATING))}
+                        character={<StarFilled />}
+                        style={{ color: '#FFAF00' }}
+                    />
                 </Form.Item>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={isSubmitting}
-                            disabled={!isFormValid || isSubmitting} block>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={isSubmitting}
+                        disabled={!isFormValid || isSubmitting}
+                        block
+                        style={{
+                            borderRadius: 6,
+                            background: theme==="dark" ? "#4668A9" : "linear-gradient(90deg, #a1c4fd, #c2e9fb)",
+                            fontWeight: 600,
+                            color: '#fff',
+                            height: 45
+                        }}
+                    >
                         Submit Review
                     </Button>
+
                 </Form.Item>
             </Form>
         </Modal>

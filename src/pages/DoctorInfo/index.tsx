@@ -1,24 +1,23 @@
 import {useEffect, useMemo, useState} from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {getDoctor} from "@/features/doctorSlice.ts";
-import {Avatar, Button, Card, Col, Rate, Row, Space, Tabs, Typography} from "antd";
+import {getDoctor, getDoctorCertificates} from "@/features/doctorSlice.ts";
+import {Button, Card, Col, Rate, Row, Space, Tabs, Typography} from "antd";
 import TabPane from "antd/es/tabs/TabPane";
-import {MessageOutlined, UserOutlined} from "@ant-design/icons";
+import {MessageOutlined, LeftOutlined, RightOutlined, PhoneOutlined} from "@ant-design/icons";
 import {Status} from "@/constants/enums.ts";
 import {renderStatus} from "../../utils/checkStateStatus.tsx";
 import type {ActivityModel, DoctorStateModel, EducationModel} from "@/models/doctor.model.ts";
 import type {AppDispatch, RootState} from "@/app/store.ts";
-import {getNamesByIds} from "@/utils/getSpecializationById.ts";
+import {getNamesByIds} from "@/utils/getNamesById.ts";
 import type {SpecificationStateModel} from "@/models/specification.model.ts";
 import ReviewModal from "../../components/doctors/ReviewModal";
 import type {ReviewStateModel} from "@/models/review.model.ts";
 import {getReviews} from "@/features/reviewSlice.ts";
-import {dateFormatting} from "@/utils/dateFormatting.ts";
 import type {HospitalStateModel} from "@/models/hospitals.model.ts";
-import "./style.css";
-
+import useThemeMode from "@/hooks/useThemeMode.ts";
 const {Title, Text} = Typography;
+import "@/assets/styles/doctors/doctorInfo.scss";
 
 const DoctorInfo = () => {
     const {id} = useParams<{ id: string }>();
@@ -26,6 +25,9 @@ const DoctorInfo = () => {
     const [isReviewModalVisible, setIsReviewModalVisible] = useState<boolean>(false);
     const dispatch: AppDispatch = useDispatch<AppDispatch>();
     const {doctor, status, error} = useSelector<RootState, DoctorStateModel>(
+        (state: RootState) => state.doctors
+    );
+    const {certificates} = useSelector<RootState, DoctorStateModel>(
         (state: RootState) => state.doctors
     );
     const {reviews} = useSelector<RootState, ReviewStateModel>(
@@ -37,7 +39,14 @@ const DoctorInfo = () => {
     const {hospitals} = useSelector<RootState, HospitalStateModel>(
         (state: RootState) => state.hospitals
     );
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const {theme} = useThemeMode();
     const stateStatus = renderStatus(status, error);
+    const groupSize = 3;
+    const totalSlides = Math.ceil((reviews?.length ?? 0) / groupSize);
+
+    const visibleReviews = reviews?.slice(currentSlide * groupSize, (currentSlide + 1) * groupSize);
+
 
     useEffect(() => {
         if (id) {
@@ -45,6 +54,12 @@ const DoctorInfo = () => {
             dispatch(getReviews(id));
         }
     }, [id]);
+
+    useEffect(() => {
+        if (id) {
+            dispatch(getDoctorCertificates(id));
+        }
+    }, [id])
 
     const averageRating = useMemo(() => {
         if (reviews.length === 0) return 0;
@@ -70,71 +85,74 @@ const DoctorInfo = () => {
     if (stateStatus) {
         return stateStatus;
     }
+    console.log(certificates)
 
     return (
         <div style={{padding: "20px"}}>
             {status === Status.SUCCEEDED && (
-                <Row gutter={[24, 24]} style={{width: '100%'}}>
-                    <Col xs={24} sm={10} md={8}
-                         style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <Row gutter={[32, 32]}
+                     style={{width: '100%', padding: '24px', borderRadius: '12px'}}>
+                    <Col
+                        xs={24}
+                        sm={10}
+                        md={8}
+                        lg={6}
+                        style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}
+                    >
                         {doctor.photoUrl ? (
                             <Card
-                                hoverable
                                 cover={
                                     <img
                                         alt={`${doctor.name} ${doctor.surname}`}
                                         src={doctor.photoUrl}
                                         style={{
-                                            width: '300px',
-                                            height: 300,
-                                            objectFit: 'cover',
-                                            borderRadius: 8,
+                                            width: '100%',
+                                            maxHeight: 300,
+                                            objectFit: 'contain',
+                                            borderRadius: '12px 12px 0 0',
                                         }}
                                     />
                                 }
+                                className="card-info card-image"
+                            >
+                            </Card>
+                        ) : (
+                            <img
+                                src="/doctorAvatar.png"
+                                alt="Doctor Avatar"
                                 style={{
-                                    height: 300,
-                                    borderRadius: 8,
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                    overflow: 'hidden',
+                                    maxWidth: '350px',
+                                    width: '100%',
+                                    maxHeight: '250px',
+                                    objectFit: 'contain',
+                                    backgroundColor: '#eef1ff',
+                                    borderRadius: '12px',
+                                    padding: '12px',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                                 }}
                             />
-                        ) : (
-                            <Card
-                                hoverable
-                                style={{
-                                    width: 350,
-                                    height: 300,
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: 8,
-                                    backgroundColor: '#fafafa',
-                                }}
-                            >
-                                <Avatar size={120} icon={<UserOutlined/>}/>
-                            </Card>
                         )}
                     </Col>
 
                     <Col xs={24} sm={14} md={16}>
-                        <Row
+                        <div
                             style={{
-                                height: 300,
-                                borderRadius: 8,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
+                                padding: '24px',
+                                borderRadius: '12px',
+                                minHeight: '100%',
                             }}
                         >
-                            <Title level={3} style={{marginBottom: 16, textAlign: 'left'}}>
-                                {doctor.name} {doctor.surname}
+                            <Title level={3} style={{marginBottom: 24, fontWeight: 600}}>
+                                Dr. {doctor.name} {doctor.surname}
                             </Title>
 
-                            <Space direction="vertical" size="middle" style={{width: '100%'}}>
+                            <Space direction="vertical" size="large" style={{width: '100%'}}>
                                 <Row>
                                     <Col span={8}>
-                                        <Text strong>Phone</Text>
+                                        <Text strong
+                                              style={{color: '#888', display: 'flex', alignItems: 'center', gap: 6}}>
+                                            <PhoneOutlined/> Phone
+                                        </Text>
                                     </Col>
                                     <Col span={16}>
                                         <Text>{doctor.phone || 'N/A'}</Text>
@@ -143,7 +161,7 @@ const DoctorInfo = () => {
 
                                 <Row>
                                     <Col span={8}>
-                                        <Text strong>Email</Text>
+                                        <Text strong style={{color: '#555'}}>✉️ Email</Text>
                                     </Col>
                                     <Col span={16}>
                                         <Text>{doctor.email || 'N/A'}</Text>
@@ -152,33 +170,49 @@ const DoctorInfo = () => {
 
                                 <Row>
                                     <Col span={8}>
-                                        <Text strong>Hospitals</Text>
+                                        <Text strong style={{color: '#555'}}>🏥 Hospitals</Text>
                                     </Col>
                                     <Col span={16}>
-                                        <Text><Text>{doctorHospitals.length ? doctorHospitals.join(', ') : 'N/A'}</Text></Text>
+                                        <Text>{doctorHospitals.length ? doctorHospitals.join(', ') : 'N/A'}</Text>
                                     </Col>
                                 </Row>
 
                                 <Row>
                                     <Col span={8}>
-                                        <Text strong>Specializations</Text>
+                                        <Text strong style={{color: '#555'}}>🩺 Specializations</Text>
                                     </Col>
                                     <Col span={16}>
                                         <Text>{doctorSpecifications.length ? doctorSpecifications.join(', ') : 'N/A'}</Text>
                                     </Col>
                                 </Row>
 
+                                {doctor.consultationPrice && (
+                                    <Row>
+                                        <Col span={8}>
+                                            <Text strong style={{color: '#555'}}>💳 Consultation Price</Text>
+                                        </Col>
+                                        <Col span={16}>
+                                            <Text>{doctor.consultationPrice}</Text>
+                                        </Col>
+                                    </Row>
+                                )}
+
                                 {reviews.length > 0 && (
-                                    <Row align="middle" style={{marginTop: 16}}>
-                                        <Col>
-                                            <Rate allowHalf disabled defaultValue={averageRating}/>
+                                    <Row align="middle">
+                                        <Col span={8}>
+                                            <Text strong style={{color: '#555'}}>⭐ Rating</Text>
+                                        </Col>
+                                        <Col span={16}>
+                                            <Rate allowHalf disabled value={averageRating}/>
+                                            <Text style={{marginLeft: 8}}>({reviews.length} reviews)</Text>
                                         </Col>
                                     </Row>
                                 )}
                             </Space>
-                        </Row>
+                        </div>
                     </Col>
                 </Row>
+
             )}
 
             <Tabs defaultActiveKey="1" style={{margin: "20px"}} className="tabs">
@@ -188,8 +222,10 @@ const DoctorInfo = () => {
                             style={{
                                 marginBottom: "10px",
                                 border: "none",
-                                padding: "16px 20px"
+                                padding: "16px 20px",
+                                background: "transparent"
                             }}
+                            className="card-info"
                         >
                             {doctor.education?.map((education: EducationModel, index) => (
                                 <div
@@ -207,7 +243,7 @@ const DoctorInfo = () => {
                                     >
                                         {education.endYear
                                             ? `${education.startYear} - ${education.endYear}`
-                                            : `Since ${education.startYear}`}
+                                            : `Since ${education.startYear ? education.startYear : ''}`}
                                     </div>
                                     <div>
                                         {education.institution}
@@ -265,61 +301,157 @@ const DoctorInfo = () => {
                                 </>
                             ))}
                         </Card>) : ''}
-
+                    {certificates.map((cert, index) => (
+                        <div key={index} style={{ marginBottom: '10px' }}>
+                            <img src={cert.url} alt="" width="400"/>
+                        </div>
+                    ))}
                 </TabPane>
+
                 <TabPane tab="Reviews" key="3" style={{position: 'relative'}}>
                     <Row justify="end" style={{margin: '20px'}}>
-                        <Button type="primary"
-                                size="large"
-                                variant="outlined"
-                                onClick={showModal}
-                                ghost
-                        >
+                        <Button type="primary" size="large" onClick={showModal} ghost>
                             Leave Review
                         </Button>
                     </Row>
 
                     {reviews?.length > 0 ? (
-                        reviews.map((review, index) => (
-                            <Card
-                                key={index}
-                                variant={"outlined"}
+                        <div
+                            style={{
+                                position: "relative",
+                                padding: "0 40px",
+                                transition: "all 0.5s ease",
+                            }}
+                        >
+                            {currentSlide > 0 && (
+                                <Button
+                                    shape="circle"
+                                    icon={<LeftOutlined/>}
+                                    onClick={() => setCurrentSlide((prev) => prev - 1)}
+                                    style={{
+                                        position: "absolute",
+                                        top: "50%",
+                                        left: "0",
+                                        transform: "translateY(-50%)",
+                                        zIndex: 1,
+                                        backgroundColor: "#fff",
+                                        border: "none",
+                                    }}
+                                />
+                            )}
+                            <div
                                 style={{
-                                    marginBottom: "15px",
-                                    padding: "30px 25px",
-                                    boxShadow: "rgba(0, 0, 0, 0.01) 0px 1px 2px 0px, rgba(27, 31, 35, 0.1) 0px 0px 0px 1px",
-                                    borderRadius: "8px",
-                                    backgroundColor: "#fff",
-                                    textAlign: "left"
+                                    transition: "transform 0.8s ease-in-out",
+                                    transform: `translateX(0)`,
                                 }}
                             >
-                                <div style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    marginBottom: 8
-                                }}>
-                                    <div style={{fontWeight: "bold", fontSize: 16}}>
-                                        {review.name} {review.surname}
-                                    </div>
-                                    <Rate disabled defaultValue={review.rating}/>
-                                </div>
-                                <div style={{marginBottom: "10px", fontSize: 14, color: "#444"}}>
-                                    {review.comment}
-                                </div>
-                                <div style={{fontStyle: "italic", fontSize: 12, color: "#888"}}>
-                                    {dateFormatting(review.createdAt)}
-                                </div>
-                            </Card>
-                        ))
+                                <Row gutter={[24, 24]} justify="center" align="stretch" style={{flexWrap: 'wrap'}}>
+                                    {visibleReviews.map((review, i) => (
+                                        <Col
+                                            key={i}
+                                            xs={24}
+                                            sm={12}
+                                            md={8}
+                                            lg={6}
+                                            style={{
+                                                display: "flex",
+                                                minHeight: "180px",
+                                            }}
+                                        >
+                                            <Card
+                                                style={{
+                                                    flex: 1,
+                                                    padding: "30px 25px",
+                                                    borderRadius: "10px",
+                                                    backgroundColor: theme === "dark" ? "#1F2A3D" : "rgba(226,237,246,0.5)",
+                                                    fontFamily: "Segoe UI, sans-serif",
+                                                    transition: "all 0.4s ease",
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    justifyContent: "space-between",
+                                                    position: "relative",
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: "-30px",
+                                                        left: "20px",
+                                                        fontSize: "50px",
+                                                        color: "#6c8382",
+                                                        fontFamily: "'Playfair Display', serif",
+                                                        fontWeight: "700",
+                                                    }}
+                                                >
+                                                    &ldquo;
+                                                </div>
+
+                                                <div
+                                                    style={{
+                                                        fontSize: "16px",
+                                                        fontWeight: "bold",
+                                                        textTransform: "capitalize",
+                                                    }}
+                                                >
+                                                    {review.name} {review.surname}
+                                                </div>
+
+                                                <div style={{position: "absolute", top: "10px", right: "20px"}}>
+                                                    <Rate
+                                                        disabled
+                                                        defaultValue={review.rating}
+                                                        style={{fontSize: "16px", color: "#FFAF00"}}
+                                                    />
+                                                </div>
+
+                                                <div
+                                                    style={{
+                                                        marginTop: "20px",
+                                                        fontSize: "15px",
+                                                        lineHeight: "1.6",
+                                                        flexGrow: 1,
+                                                    }}
+                                                >
+                                                    {review.comment}
+                                                </div>
+                                            </Card>
+                                        </Col>
+                                    ))}
+                                </Row>
+
+                            </div>
+
+                            {currentSlide < totalSlides - 1 && (
+                                <Button
+                                    shape="circle"
+                                    icon={<RightOutlined/>}
+                                    onClick={() => setCurrentSlide((prev) => prev + 1)}
+                                    style={{
+                                        position: "absolute",
+                                        top: "50%",
+                                        right: "0",
+                                        transform: "translateY(-50%)",
+                                        zIndex: 1,
+                                        backgroundColor: "#fff",
+                                        border: "none",
+                                    }}
+                                />
+                            )}
+                        </div>
+
                     ) : (
                         <div style={{textAlign: "center", margin: "20px 0", color: "#999", fontStyle: "italic"}}>
                             No reviews yet!
                         </div>
                     )}
-                    <ReviewModal isModalVisible={isReviewModalVisible}
-                                 setIsModalVisible={setIsReviewModalVisible} doctorId={id ?? ''}/>
+
+                    <ReviewModal
+                        isModalVisible={isReviewModalVisible}
+                        setIsModalVisible={setIsReviewModalVisible}
+                        doctorId={id ?? ''}
+                    />
                 </TabPane>
+
             </Tabs>
 
             <div style={{position: "relative"}}>
@@ -339,7 +471,7 @@ const DoctorInfo = () => {
                         navigate(`/request/doctor?doctorId=${doctor.id}`)
                     }}
                 >
-                    Chat Now
+                    Question to doctor
                 </Button>
             </div>
         </div>
