@@ -10,6 +10,7 @@ import type {AppDispatch, RootState} from "@/app/store.ts";
 import type {DoctorInfoModel, DoctorStateModel} from "@/models/doctor.model.ts";
 import type {SpecificationStateModel} from "@/models/specification.model.ts";
 import {stringToColor} from '@/utils/colorUtils';
+import useThemeMode from "@/hooks/useThemeMode.ts";
 
 const Doctors = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -20,6 +21,7 @@ const Doctors = () => {
     const {specifications} = useSelector<RootState, SpecificationStateModel>(
         (state: RootState) => state.specifications
     );
+    const {theme} = useThemeMode();
 
     const stateStatus = renderStatus(status, error);
 
@@ -56,7 +58,7 @@ const Doctors = () => {
 
     return (
         <Row gutter={0} style={{width: "100%", margin: 0}}>
-            <Col xs={24} md={4} style={{borderRight: "1px solid #eee", minHeight: "100vh", background: "#fafafa"}}>
+            <Col xs={24} md={6} lg={4}  style={{borderRight: theme==="dark" ? "1px solid #305595" : "1px solid #eee", minHeight: "100vh"}}>
                 <div style={{padding: "20px", position: "sticky", top: "20px"}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, fontSize: '16px'}}>
                         <FilterOutlined/>
@@ -73,7 +75,7 @@ const Doctors = () => {
                 </div>
             </Col>
             <Col xs={24} md={18}>
-                <div style={{padding: "20px"}}>
+                <div style={{padding: "50px"}}>
                     <div style={{
                         display: "flex",
                         justifyContent: "space-between",
