@@ -84,8 +84,11 @@ export const RequestPage = () => {
 
 		try {
 			const doctor = doctors.find((doc: any) => doc.id === doctorId);
+			const doctorName = doctor?.name || '';
+			const doctorSurname = doctor?.surname || '';
+			
 			await updateDoctorUnavailableDates(doctorId, date);
-			const result = await addRequestToFirestore(doctorId, values);
+			const result = await addRequestToFirestore(doctorName, doctorSurname, doctorId,values);
 
 			setrRquestId(result.id);
 			await emailjs.send(

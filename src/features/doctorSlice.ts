@@ -78,6 +78,27 @@ export const getDoctor = createAsyncThunk<
         }
     }
 )
+export const updateConsultationPrice = createAsyncThunk<
+    DoctorInfoModel,
+    { doctorId: string; price: string },
+    { rejectValue: ApiError }
+>(
+    'doctors/updateConsultationPrice',
+    async ({doctorId, price}, {rejectWithValue}) => {
+        try {
+            const updatedDoctor = await doctorService.updateConsultationPrice(doctorId, price);
+            if (!updatedDoctor) {
+                throw new Error("Doctor not found after update");
+            }
+            return updatedDoctor;
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return rejectWithValue({message: err.message});
+            }
+            return rejectWithValue({message: 'Failed to update consultation price'});
+        }
+    }
+);
 
 
 const doctorSlice = createSlice({
@@ -89,6 +110,9 @@ const doctorSlice = createSlice({
         },
         setSearchQuery(state: DoctorStateModel, action: PayloadAction<string>): void {
             state.searchQuery = action.payload;
+        },
+        clearDoctorError(state: DoctorStateModel) {
+            state.error = null;
         }
     },
     extraReducers: builder => {
@@ -141,8 +165,24 @@ const doctorSlice = createSlice({
                     state.error = action.error?.message || null;
                 }
             })
+            .addCase(updateConsultationPrice.pending, (state) => {
+                state.status = Status.LOADING;
+                state.error = null;
+            })
+            .addCase(updateConsultationPrice.fulfilled, (state, action) => {
+                state.status = Status.SUCCEEDED;
+                state.doctor = action.payload;
+            })
+            .addCase(updateConsultationPrice.rejected, (state, action) => {
+                state.status = Status.FAILED;
+                if (action.payload) {
+                    state.error = action.payload?.message;
+                } else {
+                    state.error = action.error?.message || null;
+                }
+            });
     }
 })
 
-export const {setFilter, setSearchQuery} = doctorSlice.actions;
+export const {setFilter, setSearchQuery, clearDoctorError} = doctorSlice.actions;
 export default doctorSlice.reducer;
