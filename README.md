@@ -1,54 +1,92 @@
-# React + TypeScript + Vite
+# Patient-Doctor Medical Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a full-stack web application that connects patients with certified doctors. The app features AI-powered doctor recommendations, session bookings, secure payments, and a knowledge base of medical articles
 
-Currently, two official plugins are available:
+## Features
+- Patients: Describe symptoms, get AI doctor recommendations, book sessions, and pay via Stripe.
+- Doctors: Register, edit their profile, get certified via AI, set consultation prices, view booked patients.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Pages Overview
+1. Login/Register
+- Doctors can create accounts.
+- Doctors must fill out professional and personal details.
+- Firebase Auth used for secure authentication.
 
-## Expanding the ESLint configuration
+2. Home
+- Public-facing page with general info.
+- Displays doctors, articles written by certified doctors.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3. Session
+- Patients can:
+  - Enter symptoms in a form powered by AI to get doctor recommendations.
+  - Or directly select a doctor from the list.
+- Once selected, the patient books a session.
+- Payment handled via Stripe Checkout if doctor has set a consultation fee.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+4. Doctors
+- List of all certified doctors.
+- Filters: Specialization, and Search by Name.
+- Certification badge if doctor certified.
+  - Click a doctor to view /doctors/:id:
+  - More information about doctors
+  - Leave review
+  - “Question to doctor” button.
+
+6. Profile
+- Doctors can:
+  - Edit profile.
+  - Upload photo and certifications.
+  - Set consultation price.
+  - See a list of booked patients.
+
+7. Articles
+- Doctors can publish articles via their profiles.
+- Patients can browse, search, and filter articles.
+- Clicking on an article title opens the Article Detail Page at /articles/:id, which includes:
+  - The full article content.
+  - An option to download the article as a PDF for offline reading or sharing.
+
+## Installation
+```
+git clone https://github.com/Hasmik-Gevorgyan/Medical-Form-App
+cd Medical-Form-App
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+## Environment Variables
 ```
+git clone https://github.com/Hasmik-Gevorgyan/Medical-Form-App
+cd Medical-Form-App
+npm install
+```
+VITE_FIREBASE_API_KEY
+VITE_FIREBASE_PROJECT_ID
+VITE_FIREBASE_AUTH_DOMAIN
+VITE_FIREBASE_STORAGE_BUCKET
+VITE_FIREBASE_MESSAGING_SENDER_ID
+VITE_FIREBASE_APP_ID
+VITE_MEASUREMENT_ID
+VITE_STRIPE_PUBLIC_KEY
+OPENAI_KEY 
+
+## Run locally
+```
+npm run dev
+```
+## Tech Stack
+- Frontend
+  - React,
+  - Redux Toolkit,
+  - Ant Design
+- Backend
+  - Firebase Auth,
+  - Firestore,
+  - Firebase Functions
+- AI Integration
+  - OpenAI 
+- Payments
+  - Stripe
+- Email
+  - EmailJS
+- Hosting
+  - Firebase Hosting 
