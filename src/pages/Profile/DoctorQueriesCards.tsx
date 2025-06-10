@@ -16,7 +16,6 @@ import {
   getDocs,
   query,
   where,
-  Timestamp,
   type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
@@ -27,6 +26,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 interface Message {
+  timestamp: any;
   about: string;
   sender: string;
   email?: string;
@@ -38,7 +38,6 @@ interface Message {
     fromTime: string;
     toTime: string;
   };
-  timestamp?: Timestamp;
 }
 
 interface QueryData {
@@ -48,7 +47,11 @@ interface QueryData {
   email: string;
   fileUrl?: string;
   about: string;
-  date: string;
+  date?: {
+    day: string;
+    fromTime: string;
+    toTime: string;
+  };
   status: string;
   response?: {
     message: string;
@@ -83,9 +86,13 @@ const DoctorQueriesCards = ({ doctorId }: Props) => {
             .reverse()
             .find((msg) => msg.sender === 'doctor');
 
-          const formattedDate = d.timestamp instanceof Timestamp
-            ? d.timestamp.toDate().toLocaleString()
-            : '';
+          const dateField = firstMsg.date && firstMsg.date.day
+            ? {
+                day: firstMsg.date.day,
+                fromTime: firstMsg.date.fromTime,
+                toTime: firstMsg.date.toTime,
+              }
+            : undefined;
 
           return {
             id: doc.id,
@@ -94,7 +101,7 @@ const DoctorQueriesCards = ({ doctorId }: Props) => {
             email: firstMsg.email || '',
             fileUrl: firstMsg.fileUrl || '',
             about: firstMsg.about || '',
-            date: formattedDate,
+            date: dateField,
             status: d.status || 'Unknown',
             response: doctorReply
               ? {
@@ -178,7 +185,12 @@ const DoctorQueriesCards = ({ doctorId }: Props) => {
                 className="query-card"
               >
                 <p className="query-card-email"><strong>Email:</strong> {query.email}</p>
-                <p className="query-card-date"><strong>Date:</strong> {query.date}</p>
+                <p className="query-card-date">
+                  <strong>Date:</strong>{' '}
+                  {query.date
+                    ? `${query.date.day} | ${query.date.fromTime} - ${query.date.toTime}`
+                    : '—'}
+                </p>
                 <p className="query-card-about"><strong>About:</strong> {query.about}</p>
               </Card>
             </Col>
@@ -201,7 +213,11 @@ const DoctorQueriesCards = ({ doctorId }: Props) => {
             <Descriptions column={1} bordered size="small" className="query-modal-descriptions">
               <Descriptions.Item label="Patient">{selectedQuery.patientName} {selectedQuery.patientSurname}</Descriptions.Item>
               <Descriptions.Item label="Email">{selectedQuery.email}</Descriptions.Item>
-              <Descriptions.Item label="Date">{selectedQuery.date}</Descriptions.Item>
+              <Descriptions.Item label="Date">
+                {selectedQuery.date
+                  ? `${selectedQuery.date.day} | ${selectedQuery.date.fromTime} - ${selectedQuery.date.toTime}`
+                  : '—'}
+              </Descriptions.Item>
               <Descriptions.Item label="Status">{selectedQuery.status}</Descriptions.Item>
               <Descriptions.Item label="About">{selectedQuery.about}</Descriptions.Item>
               <Descriptions.Item label="Response">

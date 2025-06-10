@@ -33,7 +33,7 @@ import HospitalService from '@/services/hospitals.service';
 import DrProfileEdit from './DrProfileEdit';
 import styles from './DoctorProfileView.module.css';
 import { useNavigate } from 'react-router';
-import CertificateUpload from "@/components/CertificateUploader";
+import CertificateUpload from '@/components/CertificateUploader';
 
 const { Title, Text } = Typography;
 
@@ -44,9 +44,9 @@ const DoctorProfileView: React.FC = () => {
   const [editVisible, setEditVisible] = useState(false);
   const [specs, setSpecs] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
-  const [isCertificationModalVisible, setIsCertificationModalVisible] = useState(false);
   const { userId: doctorId } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCertificationModalVisible, setIsCertificationModalVisible] = useState(false);
 
   const mode = useSelector((state: any) => state.theme.mode);
 
@@ -96,6 +96,9 @@ const DoctorProfileView: React.FC = () => {
       setDoctor(updatedDoc.data());
     }
   };
+  const showCertificationModal = () => {
+    setIsCertificationModalVisible(true);
+  }
 
   if (!doctorId || loading) {
     return (
@@ -105,10 +108,6 @@ const DoctorProfileView: React.FC = () => {
     );
   }
 
-  const showCertificationModal = () => {
-    setIsCertificationModalVisible(true);
-  }
-
   return (
     <div
       className={`${styles.profileContainer} ${mode === 'dark' ? styles.dark : ''}`}
@@ -116,10 +115,8 @@ const DoctorProfileView: React.FC = () => {
       <div className={styles.headerImage}>
         <div className={styles.headerOverlay}>
           <div className={styles.buttonGroupLeft}>
-            <Button danger onClick={() => console.log('My Articles clicked')}>
-              My Articles
-            </Button>
-            <Button type="default" onClick={() => navigate('/doctor-queries')}>
+
+            <Button className={styles.actionButton} type="default" onClick={() => navigate('/doctor-queries')}>
               My Queries
             </Button>
           </div>
@@ -129,6 +126,7 @@ const DoctorProfileView: React.FC = () => {
           </Title>
           <div className={styles.buttonGroupRight}>
             <Button
+            className={styles.editButton}
               type="primary"
               icon={<SettingOutlined />}
               onClick={() => setEditVisible(true)}
