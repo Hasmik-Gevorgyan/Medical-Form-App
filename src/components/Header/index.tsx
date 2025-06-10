@@ -2,20 +2,19 @@ import { useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '@/app/store';
-import { logoutUser } from '@/services/auth.service';
 import { toggleTheme } from '@/features/themeSlice';
 import useAuth from '@/hooks/useAuth';
 import { fetchUser } from '@/features/authSlice';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 import { MenuOutlined, MoonOutlined, SunOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Drawer, Button, type MenuProps, Space, Avatar, Dropdown, Typography, Skeleton } from 'antd';
+import { Layout, Menu, Drawer, Button, type MenuProps, Space, Avatar, Dropdown, Typography, Skeleton, Modal } from 'antd';
 
 import  '@/assets/styles/header.scss';
 import logo from '@/assets/images/logo.png';
 import useThemeMode from '@/hooks/useThemeMode';
 import {pageLinks, guestLinks, profileMenu} from '@/constants/headerMenu';
 import CodeModal from '@/components/CodeChecker';
+import { logoutUser } from '@/services/auth.service';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -25,6 +24,7 @@ const MainHeader = () => {
   const [isAppointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const {theme} = useThemeMode();
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
   const onMenuClick: MenuProps['onClick'] = () => {
@@ -39,9 +39,20 @@ const MainHeader = () => {
 
   const handleDropdownClick = ({ key }: { key: string }) => {
     if (key === 'logout') {
-      logoutUser();
-      dispatch(fetchUser(undefined));
-      window.location.reload();
+      Modal.confirm({
+        title: 'Are you sure you want to logout?',
+        icon: null,
+        okText: 'Logout',
+        cancelText: 'Cancel',
+        okType: 'primary',
+        onOk: () => {
+          navigate('/');
+          dispatch(fetchUser(undefined));
+          setTimeout(()=>{
+            logoutUser();
+          })
+        },
+      });
     }
   };
 
@@ -62,7 +73,7 @@ const MainHeader = () => {
       <div className="menu-page-links desktop-menu">
         <Menu
           mode="horizontal"
-          items={pageLinks}
+          items={pageLinks.filter(page => !page.isProtected || page.isProtected && isLoggedIn)}
           onClick={handleMenuClick}
         />
         <CodeModal 
@@ -110,7 +121,6 @@ const MainHeader = () => {
           </div>
         )}
       </Space>
-
       <Drawer
         className='mobile-drawer'
         title="Menu"
