@@ -1,4 +1,4 @@
-# Patient-Doctor Medical Platform
+# Medical Platform
 
 This is a full-stack web application that connects patients with certified doctors. The app features AI-powered doctor recommendations, session bookings, secure payments, and a knowledge base of medical articles
 
