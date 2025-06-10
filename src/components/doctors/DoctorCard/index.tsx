@@ -4,6 +4,7 @@ import type {DoctorCardProps} from "@/models/doctor.model.ts";
 import {getNamesByIds} from "@/utils/getNamesById.ts";
 import {useMemo} from "react";
 import {ROUTE_PATHS} from "@/routes/paths.ts";
+import {Card} from "antd";
 import "@/assets/styles/doctors/doctorCard.scss";
 
 const DoctorCard: FC<DoctorCardProps> = ({
@@ -19,7 +20,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
 
     return (
         <Link to={`/${ROUTE_PATHS.DOCTORS}/${doctor.id}`}>
-            <div className="card-wrapper">
+            <Card className="card-wrapper">
                 {doctor.photoUrl ? (
                     <img
                         alt="doctor"
@@ -59,7 +60,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
                         {doctorSpecializations.length ? doctorSpecializations.join(', ') : 'N/A'}
                     </p>
                 </div>
-            </div>
+            </Card>
         </Link>
     )
 }

@@ -15,7 +15,8 @@ import ReviewModal from "../../components/doctors/ReviewModal";
 import type {ReviewStateModel} from "@/models/review.model.ts";
 import {getReviews} from "@/features/reviewSlice.ts";
 import type {HospitalStateModel} from "@/models/hospitals.model.ts";
-import "./style.css";
+import useThemeMode from "@/hooks/useThemeMode.ts";
+import "@/assets/styles/doctors/doctorInfo.scss";
 
 const {Title, Text} = Typography;
 
@@ -36,9 +37,9 @@ const DoctorInfo = () => {
     const {hospitals} = useSelector<RootState, HospitalStateModel>(
         (state: RootState) => state.hospitals
     );
-    const stateStatus = renderStatus(status, error);
     const [currentSlide, setCurrentSlide] = useState(0);
-
+    const {theme} = useThemeMode();
+    const stateStatus = renderStatus(status, error);
     const groupSize = 3;
     const totalSlides = Math.ceil((reviews?.length ?? 0) / groupSize);
 
@@ -81,7 +82,7 @@ const DoctorInfo = () => {
         <div style={{padding: "20px"}}>
             {status === Status.SUCCEEDED && (
                 <Row gutter={[32, 32]}
-                     style={{width: '100%', padding: '24px', backgroundColor: '#f9fafc', borderRadius: '12px'}}>
+                     style={{width: '100%', padding: '24px', borderRadius: '12px'}}>
                     <Col
                         xs={24}
                         sm={10}
@@ -103,12 +104,7 @@ const DoctorInfo = () => {
                                         }}
                                     />
                                 }
-                                style={{
-                                    width: '100%',
-                                    maxWidth: '350px',
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                }}
+                                className="card-image"
                             >
                             </Card>
                         ) : (
@@ -150,7 +146,7 @@ const DoctorInfo = () => {
                                         </Text>
                                     </Col>
                                     <Col span={16}>
-                                        <Text style={{color: '#2E8B57'}}>{doctor.phone || 'N/A'}</Text>
+                                        <Text>{doctor.phone || 'N/A'}</Text>
                                     </Col>
                                 </Row>
 
@@ -352,7 +348,7 @@ const DoctorInfo = () => {
                                                     flex: 1,
                                                     padding: "30px 25px",
                                                     borderRadius: "10px",
-                                                    backgroundColor: "rgba(226,237,246,0.5)",
+                                                    backgroundColor: theme==="dark" ? "#1F2A3D" : "rgba(226,237,246,0.5)",
                                                     fontFamily: "Segoe UI, sans-serif",
                                                     transition: "all 0.4s ease",
                                                     display: "flex",
@@ -378,7 +374,6 @@ const DoctorInfo = () => {
                                                 <div
                                                     style={{
                                                         fontSize: "16px",
-                                                        color: "#333",
                                                         fontWeight: "bold",
                                                         textTransform: "capitalize",
                                                     }}
@@ -398,7 +393,6 @@ const DoctorInfo = () => {
                                                     style={{
                                                         marginTop: "20px",
                                                         fontSize: "15px",
-                                                        color: "#333",
                                                         lineHeight: "1.6",
                                                         flexGrow: 1,
                                                     }}
