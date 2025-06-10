@@ -179,7 +179,7 @@ const ArticleCard = ({ article, editable = false, onEdit, onDelete }: ArticleCar
                     alt={article.title}
                     style={{
                         width: '100%',
-                        height: 160,
+                        aspectRatio: '3/2',
                         objectFit: 'cover',
                         marginBottom: 12,
                         borderRadius: 10,
