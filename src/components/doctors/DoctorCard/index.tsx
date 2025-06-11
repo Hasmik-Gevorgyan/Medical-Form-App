@@ -19,49 +19,56 @@ const DoctorCard: FC<DoctorCardProps> = ({
     }, [doctor.specificationIds, specifications]);
 
     return (
-        <Link to={`/${ROUTE_PATHS.DOCTORS}/${doctor.id}`}>
-            <Card className="card-wrapper">
-                {doctor.photoUrl ? (
-                    <img
-                        alt="doctor"
-                        src={doctor.photoUrl}
-                        className="doctor-image"
-                    />
-                ) : (
-                    <img src="public/doctorAvatar.png" alt="avatar"
-                         className="doctor-avatar"
-                    />
-                )}
-
-                <div>
-                    <div style={{position: "relative", display: "flex", justifyContent: "center", alignItems: "center", gap: "6px"}}>
-                      <span className="doctor-fullname">
-                        {doctor.name} {doctor.surname}
-                      </span>
-                        {doctor.certified && (
+        <>
+            {doctor.certified ? (
+                <Link to={`/${ROUTE_PATHS.DOCTORS}/${doctor.id}`}>
+                    <Card className="card-wrapper">
+                        {doctor.photoUrl ? (
                             <img
-                                src="public/certified.png"
-                                style={{
-                                    width: "40px",
-                                    height: "40px",
-                                    position: "absolute",
-                                    top: -200,
-                                    right: 5,
-                                    color: "#52c41a",
-                                    borderRadius: "50%",
-                                    padding: 2
-                                }}
-                                title="Certified Doctor"
+                                alt="doctor"
+                                src={doctor.photoUrl}
+                                className="doctor-image"
+                            />
+                        ) : (
+                            <img src="public/doctorAvatar.png" alt="avatar"
+                                 className="doctor-avatar"
                             />
                         )}
-                    </div>
 
-                    <p className="doctor-specialization">
-                        {doctorSpecializations.length ? doctorSpecializations.join(', ') : 'N/A'}
-                    </p>
-                </div>
-            </Card>
-        </Link>
+                        <div>
+                            <div style={{
+                                position: "relative",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: "6px"
+                            }}>
+                                  <span className="doctor-fullname">
+                                    {doctor.name} {doctor.surname}
+                                  </span>
+                                  <img
+                                    src="public/certified.png"
+                                    style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        position: "absolute",
+                                        top: -200,
+                                        right: 5,
+                                        color: "#52c41a",
+                                        borderRadius: "50%",
+                                        padding: 2
+                                    }}
+                                    title="Certified Doctor"
+                                   />
+                            </div>
+
+                            <p className="doctor-specialization">
+                                {doctorSpecializations.length ? doctorSpecializations.join(', ') : 'N/A'}
+                            </p>
+                        </div>
+                    </Card>
+                </Link>) : ""}
+        </>
     )
 }
 
