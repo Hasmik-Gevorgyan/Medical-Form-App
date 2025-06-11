@@ -58,16 +58,10 @@ export const ResponsePage = () => {
         if (docSnap.exists()) {
           const data = docSnap.data() as ChatData;
 			console.log('Fetched chat data:', data);
-		  if (1) {
-            setIsValid(true);
             setChatData(data);
             setCompleted(data.status === 'completed');
             setIsButtonDisabled(data.status === 'completed');
-          } else {
-            setIsValid(true);
-          }
-        } else {
-          setIsValid(false);
+			setIsValid(true);
         }
       } catch (error) {
         console.error('Error fetching chat data:', error);
@@ -181,14 +175,14 @@ export const ResponsePage = () => {
 	};
 
  
-  const headingName = userId
+  const headingName = userId === chatData?.doctorId
     ? `${chatData?.messages[0]?.name} ${chatData?.messages[0]?.surname || ''}`
     : `${chatData?.doctorName} ${chatData?.doctorSurname || ''}`;
 
   return (
     <div style={{width:'60vw', maxWidth: '100vw', margin: 'auto', maxHeight: '100vh' }} className='ll'>
       <Title level={2} style={{ textAlign: 'center', marginBottom: 5, }}>
-        {userId ? `Patient ${headingName}` : `Doctor ${headingName}`}
+        {userId == chatData?.doctorId ? `Patient ${headingName}` : `Doctor ${headingName}`}
       </Title>
       <Card style={{maxWidth : '80vw', borderRadius: 8, boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'}} className='ss'>
         <div className='ocean-scroll' style={{padding: 16, maxHeight: '55vh', overflowY: 'auto', scrollBehavior: 'smooth',}}>
