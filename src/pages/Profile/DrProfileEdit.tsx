@@ -183,8 +183,8 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
       </Form.Item>
       <Form.Item label="Gender" name="gender" rules={[{ required: true }]}>
         <Select placeholder="Select gender">
-          <Option value="Male">Male</Option>
-          <Option value="Female">Female</Option>
+          <Option value="male">Male</Option>
+          <Option value="female">Female</Option>
         </Select>
       </Form.Item>
 
