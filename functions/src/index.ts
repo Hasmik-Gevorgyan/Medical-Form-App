@@ -5,6 +5,9 @@ import {getFirestore} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
 import cors from "cors";
 import pdf from "pdf-parse";
+// import type { Request, Response } from 'firebase-functions/v2/https';
+import type { Request, Response } from "express";
+import type { QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
 
 const OPENAI_KEY = defineSecret("OPENAPI_KEY");
 
@@ -18,7 +21,7 @@ const corsHandler = cors({
 // Exporting the askGpt function as a Firebase Cloud Function
 export const askGpt = onRequest(
     { secrets: [OPENAI_KEY] },
-    async (req, res) => {
+    async (req: Request, res: Response) => {
         const allowedOrigins = [
             "http://localhost:5173",
             "https://your-production-domain.com" // Добавь свой продакшен-домен
@@ -63,7 +66,7 @@ export const askGpt = onRequest(
 
             const reply = completion.choices[0]?.message?.content || "";
             res.status(200).json({ reply });
-        } catch (error) {
+        } catch (error: any) {
             console.error("OpenAI error:", error);
             res.status(500).json({ error: "Internal Server Error" });
         }
@@ -84,7 +87,7 @@ export const createPaymentIntent = functions.https.onRequest(
         memory: "256MiB",
         secrets: [STRIPE_SECRET], // 🔑 declare dependency
     },
-    (req, res) => {
+    (req: Request, res: Response) => {
         corsHandler(req, res, async () => {
             try {
                 const stripe = new Stripe(STRIPE_SECRET.value(), {
@@ -112,7 +115,7 @@ export const createPaymentIntent = functions.https.onRequest(
 );
 
 initializeApp();
-export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req, res) => {
+export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req: Request, res: Response) => {
     corsHandler(req, res, async () => {
         if (req.method !== "POST") {
             res.status(405).send("Method Not Allowed");
@@ -180,9 +183,9 @@ export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req
             const doctorRef = db.collection("doctors").doc(doctorId);
 
             const certsSnap = await doctorRef.collection("certificates").get();
-            const allCerts = certsSnap.docs.map(doc => doc.data());
+            const allCerts = certsSnap.docs.map((doc: QueryDocumentSnapshot<DocumentData> )=> doc.data());
 
-            const certifiedStatus = allCerts.every(cert => cert.certified === true);
+            const certifiedStatus = allCerts.every((cert: any)  => cert.certified === true);
 
 
             await doctorRef.update({
