@@ -15,7 +15,7 @@ const STRIPE_SECRET = defineSecret("STRIPE_SECRET");
 
 // Setting up CORS to allow requests from a specific origin
 const corsHandler = cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://medical-project-2ba5d-7073c.web.app"],
 });
 
 // Exporting the askGpt function as a Firebase Cloud Function
@@ -24,7 +24,7 @@ export const askGpt = onRequest(
     async (req: Request, res: Response) => {
         const allowedOrigins = [
             "http://localhost:5173",
-            "https://your-production-domain.com" // Добавь свой продакшен-домен
+            "https://medical-project-2ba5d-7073c.web.app" // Добавь свой продакшен-домен
         ];
 
         const origin = req.headers.origin || "";
