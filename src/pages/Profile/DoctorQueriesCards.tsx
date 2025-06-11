@@ -191,7 +191,10 @@ const DoctorQueriesCards = ({ doctorId }: Props) => {
                     ? `${query.date.day} | ${query.date.fromTime} - ${query.date.toTime}`
                     : '—'}
                 </p>
-                <p className="query-card-about"><strong>About:</strong> {query.about}</p>
+                <p className="query-card-about">
+    <strong>About:</strong>{' '}
+    {query.about.length > 100 ? query.about.slice(0, 10) + '...' : query.about}
+  </p>
               </Card>
             </Col>
           ))}

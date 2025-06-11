@@ -126,19 +126,20 @@ const DoctorProfileView: React.FC = () => {
           </Title>
           <div className={styles.buttonGroupRight}>
             <Button
-            className={styles.editButton}
+                className={`${styles.actionButton} ${styles.editButton}`}
               type="primary"
               icon={<SettingOutlined />}
               onClick={() => setEditVisible(true)}
             >
               Edit
             </Button>
-            <Button
-              type="default"
-              onClick={showCertificationModal}
-            >
-              Verification
-            </Button>
+          <Button
+            className={`${styles.actionButton} ${styles.CertificationButton}`}
+            type="default"
+            onClick={showCertificationModal}
+          >
+      Certification
+          </Button>
             <CertificateUpload
                 isCertificationModalVisible={isCertificationModalVisible}
                 setIsCertificationModalVisible={setIsCertificationModalVisible}
@@ -183,7 +184,7 @@ const DoctorProfileView: React.FC = () => {
                 ) : (
                   <WomanOutlined className={styles.icon} />
                 )}
-                <Text> {doctor?.gender === 'Male' ? 'Male' : 'Female'}</Text>
+                <Text> {doctor?.gender === 'male' ? 'Male' : 'Female'}</Text>
               </Col>
               <Col xs={24} sm={12} className={styles.infoItem}>
                 <CalendarOutlined className={styles.icon} />{' '}

@@ -9,13 +9,13 @@
   color: var(--color-text);
   transition: background-color 0.5s ease, color 0.5s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Было hidden — может резать скругления */
 }
 
 .headerImage {
   width: 100%;
-  max-width: 1200px; /* как у .profileCard */
-  margin: 0 auto 24px auto; /* центрируем */
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
   height: 180px;
   background: linear-gradient(135deg, var(--color-primary), #0A84FF);
   border-radius: 12px;
@@ -44,7 +44,7 @@
 }
 
 :root[data-theme='dark'] .headerOverlay {
-  background: rgba(0, 0, 0, 0.3); /* усиленное затемнение в тёмной теме */
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .settingsButton {
@@ -74,6 +74,7 @@
   transition: background-color 0.5s ease, color 0.5s ease;
   position: relative;
   z-index: 1;
+  overflow: hidden; /* Чтобы скругления работали и содержимое не выходило */
 }
 
 /* Адаптивный аватар */
@@ -132,25 +133,22 @@
   transform: translateY(-2px);
 }
 
-.actionButton.secondary {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+/* Кнопки редактирования и верификации (как actionButton) */
+.editButton {
+  margin-right: 8px;
 }
 
-/* Темная тема переменные */
-:root[data-theme='dark'] {
-  --color-primary: #004E8C;
-  --color-success: #4A8669;
-  --color-bg: #151D2B;
-  --color-text: #A3B1C2;
-  --color-bg-container: #1F2A3D;
-  --header-bg: #1B2A49;
-  --header-text: #E0F7FA;
+.cerficationButton {
+  margin-left: 8px;
 }
 
-/* Медиа-запросы */
+/* В мобильной версии кнопки */
 @media (max-width: 768px) {
+  .profileCard {
+    padding: 20px;
+    border-radius: 32px !important; /* Важно, чтобы перебить */
+    overflow: hidden; /* чтобы содержимое не выходило за скругления */
+  }
   .headerOverlay {
     flex-direction: column;
     justify-content: center;
@@ -168,24 +166,21 @@
     margin: 20px auto;
   }
 
-  .profileCard {
-    padding: 20px;
-  }
-
-  .actionButton {
-    width: 100%;
-    margin: 8px 0;
-    padding: 12px;
-  }
-}
-
-
-/* В мобильной версии кнопки */
-@media (max-width: 768px) {
   .actionButton {
     width: 100%;
     margin: 8px 0;
     padding: 12px;
     font-size: 1rem;
   }
+}
+
+/* Темная тема переменные */
+:root[data-theme='dark'] {
+  --color-primary: #004E8C;
+  --color-success: #4A8669;
+  --color-bg: #151D2B;
+  --color-text: #A3B1C2;
+  --color-bg-container: #1F2A3D;
+  --header-bg: #1B2A49;
+  --header-text: #E0F7FA;
 }

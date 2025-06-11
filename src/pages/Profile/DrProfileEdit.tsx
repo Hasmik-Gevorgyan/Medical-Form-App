@@ -16,6 +16,7 @@ import { getDownloadURL, ref, uploadBytes, deleteObject } from 'firebase/storage
 import SpecificationService from '@/services/specification.service';
 import HospitalService from '@/services/hospitals.service';
 import dayjs from 'dayjs';
+import './drprofileedit.css'
 
 const { Option } = Select;
 
@@ -158,7 +159,12 @@ const DrProfileEdit: React.FC<Props> = ({ doctorId, initialData, onSave }) => {
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleSave}>
+    <Form
+      className="drprofile-form"
+      form={form}
+      layout="vertical"
+      onFinish={handleSave}
+    >
       <Form.Item label="Name" name="name" rules={[{ required: true }]}>
         <Input />
       </Form.Item>
