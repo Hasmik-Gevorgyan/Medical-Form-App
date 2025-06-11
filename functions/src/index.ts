@@ -15,8 +15,14 @@ const STRIPE_SECRET = defineSecret("STRIPE_SECRET");
 
 // Setting up CORS to allow requests from a specific origin
 const corsHandler = cors({
-    origin: ["http://localhost:5173", "https://medical-project-2ba5d-7073c.web.app"],
-});
+    origin: [
+      "http://localhost:5173",
+      "https://medical-project-2ba5d-7073c.web.app"
+    ],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
+  
 
 // Exporting the askGpt function as a Firebase Cloud Function
 export const askGpt = onRequest(
