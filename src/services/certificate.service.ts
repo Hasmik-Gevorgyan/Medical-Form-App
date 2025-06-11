@@ -3,7 +3,7 @@ import {STORAGE_FILE_NAMES} from "@/constants/collections.ts";
 import axios from 'axios';
 
 export const CertificateService = ()=> {
-    const API_URL = `${import.meta.env.VITE_BASE_URL}/verifyCertificate`;
+    const API_URL = `https://verifycertificate-d2hus5cjwa-uc.a.run.app`;
 
     const uploadCertificate = (file: File, doctorId: string) => {
         const storage = getStorage();
