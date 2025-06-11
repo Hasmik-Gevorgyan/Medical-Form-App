@@ -117,7 +117,6 @@ export const createPaymentIntent = functions.https.onRequest(
     }
 );
 
-initializeApp();
 export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req: Request, res: Response) => {
     corsHandler(req, res, async () => {
         if (req.method !== "POST") {
