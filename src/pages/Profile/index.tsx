@@ -134,11 +134,11 @@ const DoctorProfileView: React.FC = () => {
               Edit
             </Button>
           <Button
-            className={`${styles.actionButton} ${styles.CertificationButton}`}
+            className={`${styles.actionButton} ${styles.licenseButton}`}
             type="default"
             onClick={showCertificationModal}
           >
-      Certification
+      License
           </Button>
             <CertificateUpload
                 isCertificationModalVisible={isCertificationModalVisible}
