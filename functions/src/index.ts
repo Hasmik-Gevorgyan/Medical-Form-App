@@ -1,14 +1,19 @@
-import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
-import { OpenAI } from "openai";
+import {onRequest} from "firebase-functions/v2/https";
+import {defineSecret} from "firebase-functions/params";
+import {OpenAI} from "openai";
 import {getFirestore} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
+import {initializeApp} from "firebase-admin/app";
+import * as functions from "firebase-functions/v2";
+import Stripe from "stripe";
 import cors from "cors";
 import pdf from "pdf-parse";
 
 const OPENAI_KEY = defineSecret("OPENAPI_KEY");
 
 const STRIPE_SECRET = defineSecret("STRIPE_SECRET");
+
+initializeApp();
 
 // Setting up CORS to allow requests from a specific origin
 const corsHandler = cors({
@@ -17,7 +22,7 @@ const corsHandler = cors({
 
 // Exporting the askGpt function as a Firebase Cloud Function
 export const askGpt = onRequest(
-    { secrets: [OPENAI_KEY] },
+    {secrets: [OPENAI_KEY]},
     async (req, res) => {
         const allowedOrigins = [
             "http://localhost:5173",
@@ -46,7 +51,7 @@ export const askGpt = onRequest(
         // Проверка prompt
         const prompt = req.body.prompt;
         if (!prompt) {
-            res.status(400).json({ error: "Prompt is required." });
+            res.status(400).json({error: "Prompt is required."});
             return;
         }
 
@@ -58,25 +63,17 @@ export const askGpt = onRequest(
         try {
             const completion = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: prompt }],
+                messages: [{role: "user", content: prompt}],
             });
 
             const reply = completion.choices[0]?.message?.content || "";
-            res.status(200).json({ reply });
+            res.status(200).json({reply});
         } catch (error) {
             console.error("OpenAI error:", error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({error: "Internal Server Error"});
         }
     }
 );
-
-import * as functions from "firebase-functions/v2";
-import Stripe from "stripe";
-import {initializeApp} from "firebase-admin/app";
-
-// const stripe = new Stripe(functions.config().stripe.secret, {
-//   apiVersion: "2022-11-15" as any,
-// });
 
 export const createPaymentIntent = functions.https.onRequest(
     {
@@ -102,7 +99,7 @@ export const createPaymentIntent = functions.https.onRequest(
                     currency: "usd",
                 });
 
-                res.json({ clientSecret: paymentIntent.client_secret });
+                res.json({clientSecret: paymentIntent.client_secret});
             } catch (error: any) {
                 console.error("Payment error:", error);
                 res.status(500).send(error.message || "Failed to create payment intent");
@@ -111,18 +108,18 @@ export const createPaymentIntent = functions.https.onRequest(
     }
 );
 
-initializeApp();
-export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req, res) => {
+
+export const verifyCertificate = onRequest({secrets: [OPENAI_KEY]}, async (req, res) => {
     corsHandler(req, res, async () => {
         if (req.method !== "POST") {
             res.status(405).send("Method Not Allowed");
             return;
         }
 
-        const { doctorId, fileName } = req.body;
+        const {doctorId, fileName} = req.body;
 
         if (!doctorId || !fileName) {
-            res.status(400).json({ error: "doctorId and fileName are required" });
+            res.status(400).json({error: "doctorId and fileName are required"});
             return;
         }
 
@@ -130,7 +127,7 @@ export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req
             const db = getFirestore();
             const doctorDoc = await db.collection("doctors").doc(doctorId).get();
             if (!doctorDoc.exists) {
-                res.status(404).json({ error: "Doctor not found" });
+                res.status(404).json({error: "Doctor not found"});
                 return;
             }
 
@@ -143,7 +140,7 @@ export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req
 
             const [exists] = await file.exists();
             if (!exists) {
-                res.status(404).json({ error: "Certificate file not found" });
+                res.status(404).json({error: "Certificate file not found"});
                 return;
             }
 
@@ -151,7 +148,7 @@ export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req
             const pdfFiles = await pdf(buffer);
             const extractedText = pdfFiles.text;
 
-            const openai = new OpenAI({ apiKey: OPENAI_KEY.value() });
+            const openai = new OpenAI({apiKey: OPENAI_KEY.value()});
 
             const prompt = `
                 You are a strict medical document verification agent.
@@ -172,7 +169,7 @@ export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req
 
             const response = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: prompt }],
+                messages: [{role: "user", content: prompt}],
             });
 
             const aiReply = response.choices[0]?.message?.content?.trim() || "No response";
@@ -200,7 +197,7 @@ export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req
                 stack: error.stack,
                 details: error
             })
-            return res.status(500).json({ error: "Verification failed", details: error.message });
+            return res.status(500).json({error: "Verification failed", details: error.message});
         }
     })
 })

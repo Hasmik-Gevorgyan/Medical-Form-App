@@ -16,6 +16,10 @@ export const pageLinks = [
   { key: 'articles', label: <Link to={ROUTE_PATHS.ARTICLES}>Articles</Link>, isProtected: false },
   { key: 'session', label: <Link to={ROUTE_PATHS.REQUEST}>Book An Appointment</Link>, isProtected: false },
   { key: 'appointment', label: 'My Appointment', isProtected: false},
+  {
+	key: 'about-us',
+	label: <Link to={ROUTE_PATHS.ABOUT_US}>About Us</Link>,
+  },
 ];
   
 export const guestLinks = [
@@ -34,6 +38,10 @@ export const guestLinks = [
         <Button type="primary">Register</Button>
       </Link>
     ),
+  },
+  {
+	key: 'about-us',
+	label: <Link to={ROUTE_PATHS.ABOUT_US}>About Us</Link>,
   },
 ];
   
