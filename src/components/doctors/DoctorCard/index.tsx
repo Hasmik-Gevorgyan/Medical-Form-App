@@ -1,16 +1,16 @@
-import { Card, Avatar } from "antd";
-import { Link } from "react-router";
-import { ROUTE_PATHS } from "../../../routes/paths.ts";
+import {Link} from "react-router";
 import type {FC} from "react";
-import type {DoctorCardProps} from "../../../models/doctor.model.ts";
-import {getNamesByIds} from "../../../utils/getSpecializationById.ts";
+import type {DoctorCardProps} from "@/models/doctor.model.ts";
+import {getNamesByIds} from "@/utils/getNamesById.ts";
 import {useMemo} from "react";
+import {ROUTE_PATHS} from "@/routes/paths.ts";
+import {Card} from "antd";
+import "@/assets/styles/doctors/doctorCard.scss";
 
 const DoctorCard: FC<DoctorCardProps> = ({
-       doctor,
-       specifications,
-       stringToColor
-   }) => {
+     doctor,
+     specifications
+ }) => {
 
     const doctorSpecializations = useMemo(() => {
         return doctor.specificationIds
@@ -19,66 +19,56 @@ const DoctorCard: FC<DoctorCardProps> = ({
     }, [doctor.specificationIds, specifications]);
 
     return (
-        <Link to={`/${ROUTE_PATHS.DOCTORS}/${doctor.id}`}>
-            <Card
-                hoverable
-                style={{
-                    height: "350px",
-                    borderRadius: "12px",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                    overflow: "hidden",
-                }}
-                cover={
-                    doctor.photoUrl ? (
-                        <img
-                            alt="doctor"
-                            src={doctor.photoUrl}
-                            style={{
-                                height: "220px",
-                                width: "100%",
-                                objectFit: "cover",
-                                borderTopLeftRadius: "12px",
-                                borderTopRightRadius: "12px",
-                            }}
-                        />
-                    ) : (
-                        <div
-                            style={{
-                                height: "220px",
+        <>
+            {doctor.certified ? (
+                <Link to={`/${ROUTE_PATHS.DOCTORS}/${doctor.id}`}>
+                    <Card className="card-wrapper">
+                        {doctor.photoUrl ? (
+                            <img
+                                alt="doctor"
+                                src={doctor.photoUrl}
+                                className="doctor-image"
+                            />
+                        ) : (
+                            <img src="public/doctorAvatar.png" alt="avatar"
+                                 className="doctor-avatar"
+                            />
+                        )}
+
+                        <div>
+                            <div style={{
+                                position: "relative",
                                 display: "flex",
-                                alignItems: "center",
                                 justifyContent: "center",
-                                backgroundColor: "#f0f2f5",
-                                borderTopLeftRadius: "12px",
-                                borderTopRightRadius: "12px",
-                            }}
-                        >
-                            <Avatar
-                                size={80}
-                                style={{
-                                    backgroundColor: doctor.name ? stringToColor(doctor.name) : "#cccccc",
-                                    fontSize: "28px",
-                                    color: "#fff",
-                                }}
-                            >
-                                {doctor.name?.charAt(0).toUpperCase()}
-                                {doctor.surname?.charAt(0).toUpperCase()}
-                            </Avatar>
+                                alignItems: "center",
+                                gap: "6px"
+                            }}>
+                                  <span className="doctor-fullname">
+                                    {doctor.name} {doctor.surname}
+                                  </span>
+                                  <img
+                                    src="public/certified.png"
+                                    style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        position: "absolute",
+                                        top: -200,
+                                        right: 5,
+                                        color: "#52c41a",
+                                        borderRadius: "50%",
+                                        padding: 2
+                                    }}
+                                    title="Certified Doctor"
+                                   />
+                            </div>
+
+                            <p className="doctor-specialization">
+                                {doctorSpecializations.length ? doctorSpecializations.join(', ') : 'N/A'}
+                            </p>
                         </div>
-                    )
-                }
-            >
-                <div style={{ textAlign: "center" }}>
-                    <p style={{ marginBottom: "6px", fontWeight: 600, fontSize: "16px" }}>
-                        {doctor.name} {doctor.surname}
-                    </p>
-                    <p style={{ color: "#888", fontSize: "14px" }}>
-                        Specializations:{" "}
-                        {doctorSpecializations.join(", ")}
-                    </p>
-                </div>
-            </Card>
-        </Link>
+                    </Card>
+                </Link>) : ""}
+        </>
     )
 }
 

@@ -20,7 +20,16 @@ const SortArticles: React.FC<SortArticlesProps> = ({ onSort }) => {
 
     return (
         <Dropdown menu={{ items, onClick: handleMenuClick }} placement="bottomRight">
-            <Button>Sort By</Button>
+            <Button
+                style={{
+                    backgroundColor: 'var(--header-bg)',
+                    color: 'var(--header-text)',
+                    border: 'none',
+                    borderRadius: 8,
+                }}
+            >
+                Sort By
+            </Button>
         </Dropdown>
     );
 };

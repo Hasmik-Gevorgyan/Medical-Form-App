@@ -1,5 +1,4 @@
 .banner-slider {
-
   .slide-container {
     color: #fff;
     text-align: center;
@@ -16,5 +15,13 @@
     align-items: center;
     padding: 2rem;
     overflow: hidden;
+    position: relative;
+    .shade {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+      border-radius: 0.5rem;
+    }
   }
 }

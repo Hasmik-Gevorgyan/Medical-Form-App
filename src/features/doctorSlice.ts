@@ -1,7 +1,12 @@
 import type {PayloadAction} from "@reduxjs/toolkit";
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import DoctorService from "../services/doctor.service.ts";
-import type {DoctorInfoModel, DoctorStateModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
+import type {
+    CertificateModel,
+    DoctorInfoModel,
+    DoctorStateModel,
+    PaginatedDoctorsResponse
+} from "../models/doctor.model.ts";
 import {Status} from "../constants/enums.ts";
 
 interface ApiError {
@@ -12,6 +17,7 @@ const initialState: DoctorStateModel = {
     doctors: [],
     doctorsByPage: {total: 0, doctors: []},
     doctor: {},
+    certificates: [],
     selectedSpecificationId: '',
     searchQuery: '',
     status: Status.IDLE,
@@ -78,6 +84,46 @@ export const getDoctor = createAsyncThunk<
         }
     }
 )
+export const updateConsultationPrice = createAsyncThunk<
+    DoctorInfoModel,
+    { doctorId: string; price: string },
+    { rejectValue: ApiError }
+>(
+    'doctors/updateConsultationPrice',
+    async ({doctorId, price}, {rejectWithValue}) => {
+        try {
+            const updatedDoctor = await doctorService.updateConsultationPrice(doctorId, price);
+            if (!updatedDoctor) {
+                throw new Error("Doctor not found after update");
+            }
+            return updatedDoctor;
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return rejectWithValue({message: err.message});
+            }
+            return rejectWithValue({message: 'Failed to update consultation price'});
+        }
+    }
+);
+
+export const getDoctorCertificates= createAsyncThunk<
+    CertificateModel[],
+    string,
+    { rejectValue: ApiError }
+>(
+    'doctors/getCertificates',
+    async (doctorId: string, { rejectWithValue }) => {
+        try {
+            const urls = await doctorService.getDoctorCertificates(doctorId);
+            return urls.map((url) => ({ url }));
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                return rejectWithValue({ message: err.message });
+            }
+            return rejectWithValue({ message: 'Failed to fetch certificates' });
+        }
+    }
+);
 
 
 const doctorSlice = createSlice({
@@ -89,6 +135,9 @@ const doctorSlice = createSlice({
         },
         setSearchQuery(state: DoctorStateModel, action: PayloadAction<string>): void {
             state.searchQuery = action.payload;
+        },
+        clearDoctorError(state: DoctorStateModel) {
+            state.error = null;
         }
     },
     extraReducers: builder => {
@@ -141,8 +190,40 @@ const doctorSlice = createSlice({
                     state.error = action.error?.message || null;
                 }
             })
+            .addCase(updateConsultationPrice.pending, (state) => {
+                state.status = Status.LOADING;
+                state.error = null;
+            })
+            .addCase(updateConsultationPrice.fulfilled, (state, action) => {
+                state.status = Status.SUCCEEDED;
+                state.doctor = action.payload;
+            })
+            .addCase(updateConsultationPrice.rejected, (state, action) => {
+                state.status = Status.FAILED;
+                if (action.payload) {
+                    state.error = action.payload?.message;
+                } else {
+                    state.error = action.error?.message || null;
+                }
+            })
+            .addCase(getDoctorCertificates.pending, (state: DoctorStateModel) => {
+                state.status = Status.LOADING;
+                state.error = null;
+            })
+            .addCase(getDoctorCertificates.fulfilled, (state: DoctorStateModel, action) => {
+                state.status = Status.SUCCEEDED;
+                state.certificates = action.payload;
+            })
+            .addCase(getDoctorCertificates.rejected, (state: DoctorStateModel, action) => {
+                state.status = Status.FAILED;
+                if (action.payload) {
+                    state.error = action.payload.message;
+                } else {
+                    state.error = action.error?.message || null;
+                }
+            });
     }
 })
 
-export const {setFilter, setSearchQuery} = doctorSlice.actions;
+export const {setFilter, setSearchQuery, clearDoctorError} = doctorSlice.actions;
 export default doctorSlice.reducer;

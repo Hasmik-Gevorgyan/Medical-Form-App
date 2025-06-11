@@ -8,17 +8,19 @@ import {
     orderBy,
     query,
     startAfter,
+    updateDoc,
     where
 } from "firebase/firestore";
-import {db} from "../firebase/config.ts";
+import {db, storage} from "../firebase/config.ts";
 import type {DoctorInfoModel, PaginatedDoctorsResponse} from "../models/doctor.model.ts";
 import {COLLECTIONS} from "../constants/collections.ts";
 import {convertFirestoreTimestampToDate} from "@/utils/dateFormatting.ts";
+import {getDownloadURL, listAll, ref} from "firebase/storage";
 
 export const DoctorService = () => {
     const DOCTOR_COLLECTION = collection(db, COLLECTIONS.DOCTORS);
     const NAME = "name";
-    const DOCTOR_PAGE_SIZE = 5;
+    const DOCTOR_PAGE_SIZE = 8;
     const doctorPageCursors: any[] = [];
 
     const getDoctors = async (): Promise<DoctorInfoModel[]> => {
@@ -45,7 +47,7 @@ export const DoctorService = () => {
         const cursor = pageNumber > 1 ? doctorPageCursors[pageNumber - 2] : null;
 
         try {
-            const filters: any[] = [];
+            const filters: any[] = [where("certified", "==", true)];
 
             if (searchQuery) {
                 filters.push(where(NAME, "==", searchQuery));
@@ -55,7 +57,6 @@ export const DoctorService = () => {
                 filters.push(where("specificationIds", "array-contains", specificationId));
             }
 
-            // Build constraints for the paginated query
             const constraints = [
                 ...filters,
                 orderBy(NAME),
@@ -89,7 +90,7 @@ export const DoctorService = () => {
                 total: countSnapshot.data().count,
                 doctors,
             };
-        } catch {
+        } catch(error) {
             throw new Error("Failed to fetch doctors");
         }
     };
@@ -112,10 +113,56 @@ export const DoctorService = () => {
         }
     }
 
+    const updateConsultationPrice = async (
+        doctorId: string,
+        price: string
+    ): Promise<DoctorInfoModel | null> => {
+        const numericPrice = parseFloat(price.replace(/[^0-9.-]/g, ''));
+
+        if (isNaN(numericPrice) || numericPrice <= 0) {
+            throw new Error('Consultation price must be a number');
+        }
+
+        if (!/^\$?\d+(\.\d{1,2})?$/.test(price.trim())) {
+            throw new Error('Consultation price must be a number with up to 2 decimal places');
+        }
+
+        try {
+            const doctorRef = doc(DOCTOR_COLLECTION, doctorId);
+
+            await updateDoc(doctorRef, {
+                consultationPrice: price
+            });
+
+            const updatedDoc = await getDoc(doctorRef);
+
+            if (!updatedDoc.exists()) return null;
+
+            return {
+                id: updatedDoc.id,
+                ...updatedDoc.data(),
+                createdAt: convertFirestoreTimestampToDate(updatedDoc.data().createdAt, true)
+            } as DoctorInfoModel;
+        } catch (error) {
+            throw new Error('Failed to update consultation price for doctor');
+        }
+    };
+
+    const getDoctorCertificates = async (doctorId: string): Promise<string[]> => {
+        const certFolderRef = ref(storage, `certificates/${doctorId}/`);
+        const listResult = await listAll(certFolderRef);
+
+        return await Promise.all(
+            listResult.items.map((itemRef) => getDownloadURL(itemRef))
+        );
+    }
+
     return {
         getDoctors,
         getDoctor,
-        getDoctorsByPage
+        getDoctorsByPage,
+        updateConsultationPrice,
+        getDoctorCertificates
     };
 }
 

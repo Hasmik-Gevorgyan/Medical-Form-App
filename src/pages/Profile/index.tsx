@@ -33,6 +33,7 @@ import HospitalService from '@/services/hospitals.service';
 import DrProfileEdit from './DrProfileEdit';
 import styles from './DoctorProfileView.module.css';
 import { useNavigate } from 'react-router';
+import CertificateUpload from '@/components/CertificateUploader';
 
 const { Title, Text } = Typography;
 
@@ -45,6 +46,7 @@ const DoctorProfileView: React.FC = () => {
   const [hospitals, setHospitals] = useState<any[]>([]);
   const { userId: doctorId } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCertificationModalVisible, setIsCertificationModalVisible] = useState(false);
 
   const mode = useSelector((state: any) => state.theme.mode);
 
@@ -94,6 +96,9 @@ const DoctorProfileView: React.FC = () => {
       setDoctor(updatedDoc.data());
     }
   };
+  const showCertificationModal = () => {
+    setIsCertificationModalVisible(true);
+  }
 
   if (!doctorId || loading) {
     return (
@@ -110,10 +115,8 @@ const DoctorProfileView: React.FC = () => {
       <div className={styles.headerImage}>
         <div className={styles.headerOverlay}>
           <div className={styles.buttonGroupLeft}>
-            <Button danger onClick={() => console.log('My Articles clicked')}>
-              My Articles
-            </Button>
-            <Button type="default" onClick={() => navigate('/doctor-queries')}>
+
+            <Button className={styles.actionButton} type="default" onClick={() => navigate('/doctor-queries')}>
               My Queries
             </Button>
           </div>
@@ -123,6 +126,7 @@ const DoctorProfileView: React.FC = () => {
           </Title>
           <div className={styles.buttonGroupRight}>
             <Button
+            className={styles.editButton}
               type="primary"
               icon={<SettingOutlined />}
               onClick={() => setEditVisible(true)}
@@ -131,10 +135,14 @@ const DoctorProfileView: React.FC = () => {
             </Button>
             <Button
               type="default"
-              onClick={() => console.log('Verification clicked')}
+              onClick={showCertificationModal}
             >
               Verification
             </Button>
+            <CertificateUpload
+                isCertificationModalVisible={isCertificationModalVisible}
+                setIsCertificationModalVisible={setIsCertificationModalVisible}
+            />
           </div>
         </div>
       </div>
