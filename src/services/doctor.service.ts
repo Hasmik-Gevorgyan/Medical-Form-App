@@ -47,7 +47,7 @@ export const DoctorService = () => {
         const cursor = pageNumber > 1 ? doctorPageCursors[pageNumber - 2] : null;
 
         try {
-            const filters: any[] = [];
+            const filters: any[] = [where("certified", "==", true)];
 
             if (searchQuery) {
                 filters.push(where(NAME, "==", searchQuery));
@@ -57,7 +57,6 @@ export const DoctorService = () => {
                 filters.push(where("specificationIds", "array-contains", specificationId));
             }
 
-            // Build constraints for the paginated query
             const constraints = [
                 ...filters,
                 orderBy(NAME),
@@ -91,7 +90,7 @@ export const DoctorService = () => {
                 total: countSnapshot.data().count,
                 doctors,
             };
-        } catch {
+        } catch(error) {
             throw new Error("Failed to fetch doctors");
         }
     };
