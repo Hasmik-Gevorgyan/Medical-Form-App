@@ -17,8 +17,8 @@ export const pageLinks = [
   { key: 'session', label: <Link to={ROUTE_PATHS.REQUEST}>Book An Appointment</Link>, isProtected: false },
   { key: 'appointment', label: 'My Appointment', isProtected: false},
   {
-	key: 'about-us',
-	label: <Link to={ROUTE_PATHS.ABOUT_US}>About Us</Link>,
+    key: 'about-us',
+    label: <Link to={ROUTE_PATHS.ABOUT_US}>About Us</Link>,
   },
 ];
   
@@ -38,10 +38,6 @@ export const guestLinks = [
         <Button type="primary">Register</Button>
       </Link>
     ),
-  },
-  {
-	key: 'about-us',
-	label: <Link to={ROUTE_PATHS.ABOUT_US}>About Us</Link>,
   },
 ];
   
