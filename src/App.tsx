@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
-import { App as AntdApp,ConfigProvider, theme as antdTheme } from 'antd';
+import { App as AntdApp,ConfigProvider, theme as antdTheme, message } from 'antd';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import { auth } from '@/firebase/config';
@@ -13,12 +13,14 @@ import { themes } from '@/theme/theme';
 import { router } from '@/routes';
 import type { AppDispatch } from '@/app/store';
 import useThemeMode from '@/hooks/useThemeMode';
+import useAuth from '@/hooks/useAuth';
 
 import '@/App.css';
 
 const App = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useThemeMode();
+  const { isLoggedIn, user} = useAuth();
 
   const algorithm = theme === 'dark'
     ? antdTheme.darkAlgorithm
@@ -44,7 +46,16 @@ const App = () => {
     return unsubscribe;
   }, [dispatch]);
 
-  console.log('Current theme:', theme);
+  useEffect(() => {
+    if (isLoggedIn && !user?.certified) {
+      message.info(
+        `Your profile is not yet certified. Please upload your medical certificate from your
+        profile and become visible to patients`,
+        5
+      )
+    }
+}, [isLoggedIn]);
+
 
   return (
     <ConfigProvider

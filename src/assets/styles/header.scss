@@ -127,7 +127,8 @@
         }
     }
     .menu-page-links{
-        width: 80%;
+        flex: 1;
+        min-width: 0;
         padding-right: 1rem;
         .ant-menu {
             justify-content: flex-end;
@@ -166,5 +167,19 @@
     }
     button, a {
         width: 100%;
+    }
+}
+
+.logout-modal {
+    .ant-modal-content {
+        background: var(--color-bg);
+        text-align: center;
+    }
+    .ant-modal-confirm-title {
+        color: var(--color-text)
+    }
+    .ant-modal-confirm-btns {
+        display: flex;
+        justify-content: center;
     }
 }

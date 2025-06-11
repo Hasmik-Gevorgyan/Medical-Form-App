@@ -341,7 +341,7 @@ body {
 		height: 400px; /* Adjust height for smaller screens */
 	}
 	body {
-		width: 900px; /* Full width on smaller screens */
+		/* width: 900px; Full width on smaller screens */
 	}
   }
 
@@ -351,6 +351,6 @@ body {
 		height: 500px; /* Adjust height for smaller screens */
 	}
 	body {
-		width: 1250px; /* Full width on smaller screens */
+		/* width: 1250px; Full width on smaller screens */
 	}
   }

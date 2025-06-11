@@ -16,7 +16,8 @@ export const registerUser = async (registerData: RegisterUserParams) => {
         email,
         password,
         phone,
-        birthdate
+        birthdate,
+        ...regData
     } = registerData
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,7 +38,8 @@ export const registerUser = async (registerData: RegisterUserParams) => {
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
         await setDoc(doc(db, "doctors", user.uid), {
-            ...registerData,
+            ...regData,
+            phone,
             email: user.email,
             birthdate: dayjs(birthdate).toDate(),
             createdAt: new Date(),
