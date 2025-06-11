@@ -134,11 +134,11 @@ const DoctorProfileView: React.FC = () => {
               Edit
             </Button>
           <Button
-            className={`${styles.actionButton} ${styles.verificationButton}`}
+            className={`${styles.actionButton} ${styles.CertificationButton}`}
             type="default"
             onClick={showCertificationModal}
           >
-            Verification
+      Certification
           </Button>
             <CertificateUpload
                 isCertificationModalVisible={isCertificationModalVisible}
@@ -184,7 +184,7 @@ const DoctorProfileView: React.FC = () => {
                 ) : (
                   <WomanOutlined className={styles.icon} />
                 )}
-                <Text> {doctor?.gender === 'Male' ? 'Male' : 'Female'}</Text>
+                <Text> {doctor?.gender === 'male' ? 'Male' : 'Female'}</Text>
               </Col>
               <Col xs={24} sm={12} className={styles.infoItem}>
                 <CalendarOutlined className={styles.icon} />{' '}

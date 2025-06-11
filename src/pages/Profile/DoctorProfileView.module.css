@@ -9,13 +9,13 @@
   color: var(--color-text);
   transition: background-color 0.5s ease, color 0.5s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Было hidden — может резать скругления */
 }
 
 .headerImage {
   width: 100%;
-  max-width: 1200px; /* как у .profileCard */
-  margin: 0 auto 24px auto; /* центрируем */
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
   height: 180px;
   background: linear-gradient(135deg, var(--color-primary), #0A84FF);
   border-radius: 12px;
@@ -44,7 +44,7 @@
 }
 
 :root[data-theme='dark'] .headerOverlay {
-  background: rgba(0, 0, 0, 0.3); /* усиленное затемнение в тёмной теме */
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .settingsButton {
@@ -74,6 +74,7 @@
   transition: background-color 0.5s ease, color 0.5s ease;
   position: relative;
   z-index: 1;
+  overflow: hidden; /* Чтобы скругления работали и содержимое не выходило */
 }
 
 /* Адаптивный аватар */
@@ -137,12 +138,17 @@
   margin-right: 8px;
 }
 
-.verificationButton {
+.cerficationButton {
   margin-left: 8px;
 }
 
 /* В мобильной версии кнопки */
 @media (max-width: 768px) {
+  .profileCard {
+    padding: 20px;
+    border-radius: 32px !important; /* Важно, чтобы перебить */
+    overflow: hidden; /* чтобы содержимое не выходило за скругления */
+  }
   .headerOverlay {
     flex-direction: column;
     justify-content: center;
@@ -158,10 +164,6 @@
     max-width: 90%;
     aspect-ratio: 4 / 3;
     margin: 20px auto;
-  }
-
-  .profileCard {
-    padding: 20px;
   }
 
   .actionButton {
