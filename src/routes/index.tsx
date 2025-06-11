@@ -17,6 +17,7 @@ import { RequestPage } from '@/pages/Session/requestPage.tsx';
 import EditArticle from "@/components/EditArticle";
 import MyArticles from "@/pages/MyArticles";
 import DoctorQueriesPage from "@/pages/Profile/DoctorQueriesPage.tsx";
+import AboutUsPage from '@/pages/AboutUs/index.tsx';
 
 
 export const router = createBrowserRouter([
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
         path: ROUTE_PATHS.ARTICLE_DETAIL,
         element: <ArticleDetail />
       },
+	  {
+		path: ROUTE_PATHS.ABOUT_US,
+		element: <AboutUsPage />
+	  },
       {
         element: <PrivateRoute />,
         children: [

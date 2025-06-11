@@ -58,14 +58,16 @@ export const ResponsePage = () => {
         if (docSnap.exists()) {
           const data = docSnap.data() as ChatData;
 			console.log('Fetched chat data:', data);
-		  if (1) {
+		  if (data.doctorId === userId) {
             setIsValid(true);
             setChatData(data);
             setCompleted(data.status === 'completed');
             setIsButtonDisabled(data.status === 'completed');
           } else {
-            setIsValid(true);
-          }
+			setIsValid(false);
+			message.error('You do not have permission to view this request.');
+			navigate('/');
+		}
         } else {
           setIsValid(false);
         }
