@@ -126,19 +126,20 @@ const DoctorProfileView: React.FC = () => {
           </Title>
           <div className={styles.buttonGroupRight}>
             <Button
-            className={styles.editButton}
+                className={`${styles.actionButton} ${styles.editButton}`}
               type="primary"
               icon={<SettingOutlined />}
               onClick={() => setEditVisible(true)}
             >
               Edit
             </Button>
-            <Button
-              type="default"
-              onClick={showCertificationModal}
-            >
-              Verification
-            </Button>
+          <Button
+            className={`${styles.actionButton} ${styles.verificationButton}`}
+            type="default"
+            onClick={showCertificationModal}
+          >
+            Verification
+          </Button>
             <CertificateUpload
                 isCertificationModalVisible={isCertificationModalVisible}
                 setIsCertificationModalVisible={setIsCertificationModalVisible}
