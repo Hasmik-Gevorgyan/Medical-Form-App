@@ -61,7 +61,7 @@ body {
   
   .member-image {
 	width: 100%;
-	height: 300px;              /* Set a consistent height */
+	height: 250px;              /* Set a consistent height */
 	object-fit: cover;          /* Makes the image fill the box without stretching */
 	border-radius: 1rem;
 	margin-bottom: 1.5rem;
@@ -204,6 +204,7 @@ body {
 
   .member-about {
 	max-height: 100%;
+	max-width: 50%;
 	flex: 1 0 auto;
 	padding: 1.5rem;
 	border-bottom: #197fbe 0.2rem solid;
@@ -226,8 +227,16 @@ body {
 	position: relative;
 	padding-left: 1.5rem;
 	margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
 	line-height: 1.6;
+	max-width: 60;
 	font-size: 15px !important;
+  }
+
+  .about-intro svg {
+	margin-right: 6px;
+	color: #1890ff; /* Ant Design primary color */
   }
   
   .about-list li::before {
@@ -344,10 +353,4 @@ body {
 	body {
 		width: 1250px; /* Full width on smaller screens */
 	}
-  }
-
-  .slide-image {
-	width: 100vw;
-	height: 500px; /* Set a consistent height */
-	object-fit: cover; /* Makes the image fill the box without stretching */
   }

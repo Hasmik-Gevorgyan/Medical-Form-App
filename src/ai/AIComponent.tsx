@@ -34,7 +34,12 @@ const faqs = [
       const res = await fetch('https://us-central1-medical-project-2ba5d.cloudfunctions.net/askGpt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: "Youre our medical assistant give response to our patients depends the provided data . this is the message :" + userInput + "this is our data ." + JSON.stringify(send) }),
+		body: JSON.stringify({
+			prompt:
+			  `You are a helpful and professional medical assistant. Speak naturally and clearly to the patient, as a real assistant would. Don't mention that you're basing your response on data — just answer the question directly and kindly.\n\n` +
+			  `Here is the patient's message:\n"${userInput}"\n\n` +
+			  `Here is the data you have:\n${JSON.stringify(send)}`
+		  })		  
       });
 
       const data = await res.json();
