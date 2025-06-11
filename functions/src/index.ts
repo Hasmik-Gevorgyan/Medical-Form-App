@@ -8,6 +8,9 @@ import * as functions from "firebase-functions/v2";
 import Stripe from "stripe";
 import cors from "cors";
 import pdf from "pdf-parse";
+// import type { Request, Response } from 'firebase-functions/v2/https';
+import type { Request, Response } from "express";
+import type { QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
 
 const OPENAI_KEY = defineSecret("OPENAPI_KEY");
 
@@ -17,16 +20,22 @@ initializeApp();
 
 // Setting up CORS to allow requests from a specific origin
 const corsHandler = cors({
-    origin: "http://localhost:5173",
-});
+    origin: [
+      "http://localhost:5173",
+      "https://medical-project-2ba5d-7073c.web.app"
+    ],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
+  
 
 // Exporting the askGpt function as a Firebase Cloud Function
 export const askGpt = onRequest(
-    {secrets: [OPENAI_KEY]},
-    async (req, res) => {
+    { secrets: [OPENAI_KEY] },
+    async (req: Request, res: Response) => {
         const allowedOrigins = [
             "http://localhost:5173",
-            "https://your-production-domain.com" // Добавь свой продакшен-домен
+            "https://medical-project-2ba5d-7073c.web.app" // Добавь свой продакшен-домен
         ];
 
         const origin = req.headers.origin || "";
@@ -67,8 +76,8 @@ export const askGpt = onRequest(
             });
 
             const reply = completion.choices[0]?.message?.content || "";
-            res.status(200).json({reply});
-        } catch (error) {
+            res.status(200).json({ reply });
+        } catch (error: any) {
             console.error("OpenAI error:", error);
             res.status(500).json({error: "Internal Server Error"});
         }
@@ -81,7 +90,7 @@ export const createPaymentIntent = functions.https.onRequest(
         memory: "256MiB",
         secrets: [STRIPE_SECRET], // 🔑 declare dependency
     },
-    (req, res) => {
+    (req: Request, res: Response) => {
         corsHandler(req, res, async () => {
             try {
                 const stripe = new Stripe(STRIPE_SECRET.value(), {
@@ -108,8 +117,8 @@ export const createPaymentIntent = functions.https.onRequest(
     }
 );
 
-
-export const verifyCertificate = onRequest({secrets: [OPENAI_KEY]}, async (req, res) => {
+initializeApp();
+export const verifyCertificate = onRequest({ secrets: [OPENAI_KEY] }, async (req: Request, res: Response) => {
     corsHandler(req, res, async () => {
         if (req.method !== "POST") {
             res.status(405).send("Method Not Allowed");
@@ -177,9 +186,9 @@ export const verifyCertificate = onRequest({secrets: [OPENAI_KEY]}, async (req, 
             const doctorRef = db.collection("doctors").doc(doctorId);
 
             const certsSnap = await doctorRef.collection("certificates").get();
-            const allCerts = certsSnap.docs.map(doc => doc.data());
+            const allCerts = certsSnap.docs.map((doc: QueryDocumentSnapshot<DocumentData> )=> doc.data());
 
-            const certifiedStatus = allCerts.every(cert => cert.certified === true);
+            const certifiedStatus = allCerts.every((cert: any)  => cert.certified === true);
 
 
             await doctorRef.update({
