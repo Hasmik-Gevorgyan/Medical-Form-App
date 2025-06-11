@@ -44,13 +44,15 @@ const MainHeader = () => {
         icon: null,
         okText: 'Logout',
         cancelText: 'Cancel',
+        className: "logout-modal",
         okType: 'primary',
         onOk: () => {
           navigate('/');
-          dispatch(fetchUser(undefined));
+
           setTimeout(()=>{
             logoutUser();
-          })
+            dispatch(fetchUser(undefined));
+          },100)
         },
       });
     }
