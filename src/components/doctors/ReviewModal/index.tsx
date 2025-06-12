@@ -5,12 +5,12 @@ import {useDispatch, useSelector} from "react-redux";
 import {addReview, clearFieldError, clearFieldErrors} from "@/features/reviewSlice.ts";
 import {Button, Form, Input, message, Modal, Rate} from "antd";
 import {useEffect, useState} from "react";
-import useThemeMode from "@/hooks/useThemeMode.ts";
 import {Status} from "@/constants/enums.ts";
 import {
     UserOutlined,
     StarFilled
-} from '@ant-design/icons';
+} from "@ant-design/icons";
+import "@/assets/styles/doctors/review.scss"
 
 
 const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, doctorId}) => {
@@ -18,7 +18,6 @@ const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, d
     const [reviewForm] = Form.useForm();
     const {fieldErrors, status} = useSelector((state: RootState) => state.reviews);
     const dispatch: AppDispatch = useDispatch();
-    const {theme} = useThemeMode();
     const NAME = "name";
     const SURNAME = "surname";
     const COMMENT = "comment";
@@ -62,12 +61,14 @@ const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, d
     return (
         <Modal
             title="💬 Leave a Review"
+            className="review-modal"
             open={isModalVisible}
             onCancel={handleReviewCancel}
             footer={null}
             destroyOnHidden
             centered
             maskClosable={false}
+            width={600}
         >
             <Form
                 form={reviewForm}
@@ -166,9 +167,7 @@ const ReviewModal: FC<ReviewModalProps> = ({setIsModalVisible, isModalVisible, d
                         block
                         style={{
                             borderRadius: 6,
-                            background: theme==="dark" ? "#4668A9" : "linear-gradient(90deg, #a1c4fd, #c2e9fb)",
                             fontWeight: 600,
-                            color: '#fff',
                             height: 45
                         }}
                     >
