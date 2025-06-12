@@ -1,6 +1,6 @@
 // Imports
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getDoctors } from '@/features/doctorSlice';
 import { Steps, Button, Form, Input, Select, DatePicker, Upload, Typography, Spin, message, Descriptions } from 'antd';
@@ -17,6 +17,7 @@ import useResponsive from "@/hooks/useResponsive";
 const { Title } = Typography;
 const { Step } = Steps;
 
+// Form values type definition
 type FormValues = {
 	name: string;
 	surname: string;
@@ -28,6 +29,7 @@ type FormValues = {
 	toTime?: any;
 };
 
+// Steps titles for the request process
 const stepsTitles = [
 	"Select a Doctor",
 	"Personal Information",
@@ -36,33 +38,49 @@ const stepsTitles = [
 	"Payment",
 	"Confirmation" // Final step, completed
 ];
+
+// Main component for the request page
 export const RequestPage = () => {
+	// State and hooks initialization
 	const [currentStep, setCurrentStep] = useState(0);
 	const [searchParams] = useSearchParams();
 	const [form] = Form.useForm();
 	const dispatch: AppDispatch = useDispatch();
 	const doctors = useSelector((state: any) => state.doctors.doctors);
 	const [doctorId, setDoctorID] = useState(() => searchParams.get('doctorId') || '');
-	// const [isAboutModalVisible, setIsAboutModalVisible] = useState(false);
 	const [_, forceUpdate] = useState(0);
+	const navigate = useNavigate();
 	const undates = useRef<Array<{ day: string; fromTime: string; toTime: string }>>([]);
 	const [loading, setLoading] = useState(false);
 	const [imageLoaded, setImageLoaded] = useState<{ [key: string]: boolean }>({});
 	const [requestId, setrRquestId] = useState<null | string>(null);
 	const { isMobile } = useResponsive();
 	
+	// Spinner icon for loading state
 	const spinnerIcon = <LoadingOutlined style={{ fontSize: 48, color: '#1890ff' }} spin />;
-	// const handleReadMore = () => setIsAboutModalVisible(true);
-	// const handleClose = () => setIsAboutModalVisible(false);
 
 	useEffect(() => {
+		// On first render, check if our doctors stored in the Redux store
 		if (!doctors.length) {
 			dispatch(getDoctors());
 		}
 	}, []);
 
+	// Effect to set the doctorId from search params if available
+
 	useEffect(() => {
+		// If doctorId is not set, return early
 		if (!doctorId) return;
+
+		const doc = doctors.find((doc: any) => doc.id === doctorId);
+
+		if (!doc?.certified){
+			message.error('This doctor is not certified. Please select another doctor.');
+			setDoctorID('');
+			navigate('/session/request');
+		}
+
+		// Fetch unavailable dates for the selected doctor
 		getDoctorUnavailableDates(doctorId).then((d) => {
 			undates.current = d.map((date: any) => ({
 				day: date.day,
@@ -73,24 +91,29 @@ export const RequestPage = () => {
 	}, [doctorId]);
 
 	const onFinish = async (values: FormValues) => {
-		console.log('onFinish', values)
-		// setLoading(true);
+
+		// creating date object from form values
 		const date = {
 			day: values.date.format('YYYY-MM-DD'),
 			fromTime: values.fromTime || '',
 			toTime: values.toTime || '',
 		};
 		if (!doctorId) return;
-
 		try {
+			// Finding the selected doctor from the list of doctors
 			const doctor = doctors.find((doc: any) => doc.id === doctorId);
 			const doctorName = doctor?.name || '';
 			const doctorSurname = doctor?.surname || '';
 			
+			// Updating the days the doctor is unavailable
 			await updateDoctorUnavailableDates(doctorId, date);
+			// Adding the request to Firestore
 			const result = await addRequestToFirestore(doctorName, doctorSurname, doctorId,values);
 
+			// If the request was successful, set the requestId for user to get and use it for chat
 			setrRquestId(result.id);
+
+			// Sending an email notification using EmailJS about successful appointment request
 			await emailjs.send(
 				'service_bb7nlek',
 				'template_9lcfm4f',
@@ -105,10 +128,12 @@ export const RequestPage = () => {
 				},
 				'ooOyDWjTfU7j0PLn-'
 			);
+			// Resetting the form fields and step
 			handleStepChange(currentStep, 1)
 
 			message.success('Request submitted successfully!');
 		} catch (error) {
+			// If there was an error during the request submission, log it and show an error message
 			console.error('Error submitting request:', error);
 			message.error('Failed to submit request.');
 		} finally {
@@ -116,9 +141,14 @@ export const RequestPage = () => {
 		}
 	};
 
+	// Function to handle step changes in the form
 	const handleStepChange = async (step: number, action: number) => {
+		// If the step is out of bounds, return early
 		if (step < 0 || step > 4) return;
+
+		// If the action is -1 (going back), just set the step
 		if (action !== -1) {
+			// Validate the current step's form fields before proceeding depending on the step
 			try {
 				if (step === 0)
 					await form.validateFields(['doctorId']);
@@ -130,13 +160,16 @@ export const RequestPage = () => {
 				return;
 			}
 		}
+		// If the action is -1, just set the step without validation
 		setCurrentStep(step + action);
 	};
 
+	// Function to generate time options for the time selection dropdown
 	const timeOptions = () => {
 		const selectedDate = form.getFieldValue('date');
 		const selectedDateStr = selectedDate?.format('YYYY-MM-DD');
 
+		// Check if the selected date is valid
 		const isTimeDisabled = (time: string): boolean => {
 			return undates.current.some((d) => d.day === selectedDateStr && time >= d.fromTime && time <= d.toTime);
 		};
@@ -151,6 +184,7 @@ export const RequestPage = () => {
 		return options;
 	};
 
+	// Function to handle payment submission
 	const onPayment = () => {
 		setTimeout(()=>{
 			form.submit();
@@ -159,20 +193,26 @@ export const RequestPage = () => {
 	
 	return (
 		<>
+		{/* Loading overlay with spinner */}
 			{loading ? (
 				<div className='loading-overlay'>
 					<Spin indicator={spinnerIcon} tip="Submitting your request..." />
 				</div>
 			) : (
+				// Main request page content
 				<div className='request-page'>
+					{/* Title */}
 					<Title level={2} className='title-heading'>Request an Appointment</Title>
+					{/* Steps part */}
 					<Steps current={currentStep} className="steps-wrapper" responsive>
 						{stepsTitles.map((title, index) => (
 							<Step key={index} title={isMobile || index === currentStep ? title : ""} />
 						))}
 					</Steps>
+					{/* Form */}
 					<div className='form-container'>
 						<Form requiredMark={false} form={form} layout="vertical" onFinish={onFinish} initialValues={{ doctorId }}>
+							{/* Rendering by step first comes doctor checking */}
 							<div style={{display : currentStep === 0 ? 'block' : 'none'}}>
 								<Form.Item name="doctorId" label="Select Doctor" rules={[{ required: true, message: 'Please select a doctor!' }]}>
 									<Select
@@ -182,7 +222,9 @@ export const RequestPage = () => {
 										allowClear
 										style={{ height: '50px' }}
 									>
-										{doctors.map((doctor: any) => (
+										{doctors.map((doctor: any) => {
+											if (!doctor.certified) return null; // Skip unverified doctors
+											return (
 											<Select.Option key={doctor.id} value={doctor.id}>
 												<div className='doctor-option'>
 													<div className='doctor-avatar-wrapper'>
@@ -196,12 +238,12 @@ export const RequestPage = () => {
 													</div>
 													{doctor.name} {doctor.surname}
 												</div>
-											</Select.Option>
-										))}
+											</Select.Option>);
+										})}
 									</Select>
 								</Form.Item>
 							</div>
-
+							{/* Personal datas */}
 							<div style={{display : currentStep === 1 ? 'block' : 'none'}}>
 								<Form.Item name="name" label={<><UserOutlined /> Your Name</>} rules={[{ required: true, message: 'Please enter your name!' }]}>
 									<Input placeholder="Enter your name" />
@@ -213,6 +255,7 @@ export const RequestPage = () => {
 									<Input placeholder="Enter your email" />
 								</Form.Item>
 							</div>
+							{/* Time and file pick option */}
 							<div style={{display : currentStep === 2 ? 'block' : 'none'}}>
 								<Form.Item name="about" label={<><IdcardOutlined /> About Your Request</>} rules={[{ required: true, message: 'Please tell us about your request!' }]}>
 									<Input.TextArea rows={4} placeholder="Tell us about your request" />
@@ -242,6 +285,7 @@ export const RequestPage = () => {
 									</Upload>
 								</Form.Item>
 							</div>
+							{/* Review part */}
 							<div style={{display : currentStep === 3 ? 'block' : 'none'}}>
 								<Descriptions
 									className="review-table"
@@ -286,11 +330,13 @@ export const RequestPage = () => {
 								</Descriptions>
 							</div>
 							
+							{/* Payment part */}
 							{currentStep === 4 &&
 								<div>
 									<PaymentComponent onPayment={onPayment} consultationPrice={doctors.find((doc: any) => doc.id === form.getFieldValue("doctorId"))?.consultationPrice}/>
 								</div>
 							}
+							{/* Querry Id getting */}
 							{currentStep === 5 &&
 								<div>
 									<RequestSucceeded requestId={requestId || ''}/>

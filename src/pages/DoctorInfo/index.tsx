@@ -16,6 +16,9 @@ import type {ReviewStateModel} from "@/models/review.model.ts";
 import {getReviews} from "@/features/reviewSlice.ts";
 import type {HospitalStateModel} from "@/models/hospitals.model.ts";
 import useThemeMode from "@/hooks/useThemeMode.ts";
+import "@/assets/styles/doctors/doctorInfo.scss";
+import dayjs from "dayjs";
+
 const {Title, Text} = Typography;
 import "@/assets/styles/doctors/doctorInfo.scss";
 
@@ -42,7 +45,7 @@ const DoctorInfo = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const {theme} = useThemeMode();
     const stateStatus = renderStatus(status, error);
-    const groupSize = 3;
+    const groupSize = 2;
     const totalSlides = Math.ceil((reviews?.length ?? 0) / groupSize);
 
     const visibleReviews = reviews?.slice(currentSlide * groupSize, (currentSlide + 1) * groupSize);
@@ -242,8 +245,8 @@ const DoctorInfo = () => {
                                         }}
                                     >
                                         {education.endYear
-                                            ? `${education.startYear} - ${education.endYear}`
-                                            : `Since ${education.startYear ? education.startYear : ''}`}
+                                            ? `${dayjs(education.startYear).format('YYYY')} - ${dayjs(education.endYear).format('YYYY')}`
+                                            : `Since ${dayjs(education.startYear).format('YYYY') ? dayjs(education.startYear).format('YYYY') : ''}`}
                                     </div>
                                     <div>
                                         {education.institution}
@@ -263,7 +266,7 @@ const DoctorInfo = () => {
                         </Card>) : ''}
                 </TabPane>
 
-                <TabPane tab="Activity" key="2">
+                <TabPane tab="Certificates" key="2">
                     {doctor.activity?.length ? (
                         <Card
                             style={{
@@ -301,11 +304,13 @@ const DoctorInfo = () => {
                                 </>
                             ))}
                         </Card>) : ''}
-                    {certificates.map((cert, index) => (
-                        <div key={index} style={{ marginBottom: '10px' }}>
-                            <img src={cert.url} alt="" width="400"/>
-                        </div>
-                    ))}
+                    <div  style={{display: "flex", gap: "30px"}}>
+                        {certificates.map((cert, index) => (
+                            <div key={index}>
+                                <img src={cert.url} alt="Certificate" width="300" height="auto"/>
+                            </div>
+                        ))}
+                    </div>
                 </TabPane>
 
                 <TabPane tab="Reviews" key="3" style={{position: 'relative'}}>
@@ -352,7 +357,7 @@ const DoctorInfo = () => {
                                             xs={24}
                                             sm={12}
                                             md={8}
-                                            lg={6}
+                                            lg={10}
                                             style={{
                                                 display: "flex",
                                                 minHeight: "180px",

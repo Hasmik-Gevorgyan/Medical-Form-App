@@ -58,7 +58,7 @@ const Doctors = () => {
 
     return (
         <Row gutter={0} style={{width: "100%", margin: 0}}>
-            <Col xs={24} md={6} lg={6}  style={{borderRight: theme==="dark" ? "1px solid #305595" : "1px solid #eee", minHeight: "100vh"}}>
+            <Col xs={24} md={6} lg={5}  style={{borderRight: theme==="dark" ? "1px solid #305595" : "1px solid #eee", minHeight: "100vh"}}>
                 <div style={{padding: "20px", position: "sticky", top: "20px"}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500, fontSize: '16px'}}>
                         <FilterOutlined/>

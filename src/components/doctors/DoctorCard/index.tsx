@@ -30,7 +30,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
                                 className="doctor-image"
                             />
                         ) : (
-                            <img src="/doctorAvatar.png" alt="avatar"
+                            <img src="/src/assets/images/doctorAvatar.png" alt="avatar"
                                  className="doctor-avatar"
                             />
                         )}
@@ -47,7 +47,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
                                     {doctor.name} {doctor.surname}
                                   </span>
                                   <img
-                                    src="/certified.png"
+                                    src="/src/assets/images/certified.png"
                                     style={{
                                         width: "40px",
                                         height: "40px",

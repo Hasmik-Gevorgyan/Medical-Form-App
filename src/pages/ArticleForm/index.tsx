@@ -6,6 +6,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { storage } from '@/firebase/config.ts';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import useAuth from '@/hooks/useAuth';
+import {useNavigate } from 'react-router';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -15,6 +16,7 @@ const ArticleForm: React.FC = () => {
     const [content, setContent] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const { user, userId } = useAuth();
+	const navigate = useNavigate();
 
     const dispatch = useAppDispatch();
 
@@ -40,7 +42,8 @@ const ArticleForm: React.FC = () => {
             );
 
             message.success('Article submitted successfully');
-            setTitle('');
+            navigate('/my-articles'); // Redirect to My Articles page after submission
+			setTitle('');
             setContent('');
             setImage(null);
         } catch (err) {

@@ -146,7 +146,7 @@ const CertificateUpload: FC<
                 return rest;
             });
         },
-        accept: "pdf,.jpg,.jpeg,.png",
+        accept: ".pdf,.jpg,.jpeg,.png",
     }
 
     const isFileVerifying = Object.values(statusMap).some((s) => s.verifying);
@@ -164,7 +164,7 @@ const CertificateUpload: FC<
             }}
             footer={null}
             destroyOnHidden
-            width={720}
+            width={800}
             className="modal"
         >
             <Card style={{padding: 24, border: "none", boxShadow: "none"}}>
@@ -183,7 +183,7 @@ const CertificateUpload: FC<
                     <>
                         <Title level={4}>Step 1: Upload & Verify Certificates</Title>
                         <Paragraph>
-                            Upload valid medical certificates in PDF format. We’ll verify them using AI. Once
+                            Upload valid medical certificates. We’ll verify them using AI. Once
                             verified, you can proceed to set your price.
                         </Paragraph>
 
