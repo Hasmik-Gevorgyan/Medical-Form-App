@@ -89,7 +89,6 @@ export const RequestPage = () => {
 			toTime: values.toTime || '',
 		};
 		if (!doctorId) return;
-
 		try {
 			// Finding the selected doctor from the list of doctors
 			const doctor = doctors.find((doc: any) => doc.id === doctorId);
@@ -213,7 +212,9 @@ export const RequestPage = () => {
 										allowClear
 										style={{ height: '50px' }}
 									>
-										{doctors.map((doctor: any) => (
+										{doctors.map((doctor: any) => {
+											if (!doctor.certified) return null; // Skip unverified doctors
+											return (
 											<Select.Option key={doctor.id} value={doctor.id}>
 												<div className='doctor-option'>
 													<div className='doctor-avatar-wrapper'>
@@ -227,8 +228,8 @@ export const RequestPage = () => {
 													</div>
 													{doctor.name} {doctor.surname}
 												</div>
-											</Select.Option>
-										))}
+											</Select.Option>);
+										})}
 									</Select>
 								</Form.Item>
 							</div>
