@@ -1,37 +1,46 @@
+// Import necessary libraries and components
 import { useEffect, useRef, useState } from 'react';
 import { Tooltip} from 'antd';
 import { Modal, Button, Input, List} from 'antd';
-
 import { getJSONFromFirebase } from './getFirebasedata';
 import { CloseOutlined, RobotOutlined, SendOutlined} from '@ant-design/icons';
 const { TextArea } = Input;
 
 
-
+// Main AIChatModal component
 const AIChatModal = () => {
-
-const faqs = [
-	'What are the symptoms of diabetes?',
-	'How can I manage my blood pressure?',
-	'What should I do if I have a headache?',
-	'What vaccinations do I need as an adult?'
-  ];
+	// Define frequently asked questions
+	const faqs = [
+		"What services do you offer through your medical consulting platform?",
+		"Are your online consultations secure and confidential?",
+		"Can I get prescriptions through your platform?",
+		"Do you offer pediatric consultations?",
+		"Can I consult with a specialist through your platform?",
+		"Is insurance accepted for online consultations?",
+	];
+	  
+	// state for opening modal, chat log, user input, and loading state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [chatLog, setChatLog] = useState<{ sender: string; text: string }[]>([]);
   const [userInput, setUserInput] = useState('');
   const [loading, setLoading] = useState(false);
   const send = useRef<any>(null); // Using useRef to store fetched data
 
+//   Sending user message to the deployed firebase function
   const handleSend = async () => {
+	// Prevent sending empty messages
     setUserInput('');
 	setChatLog((prev) => [...prev, userMessage]); // Add user message
     setLoading(true);
 
+	// If user input is empty, do not proceed
     if (!userInput.trim()) return;
     const userMessage = { sender: 'You', text: userInput };
 
+
     try {
-      const res = await fetch('https://us-central1-medical-project-2ba5d.cloudfunctions.net/askGpt', {
+    //   Send user input and data to the Firebase function getting the information about doctors and services from firebase
+		const res = await fetch('https://us-central1-medical-project-2ba5d.cloudfunctions.net/askGpt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
@@ -42,10 +51,11 @@ const faqs = [
 		  })		  
       });
 
+	//   Check if the response is ok
       const data = await res.json();
 
-	  console.log(data);
-      const aiReply = {
+    //  If the response is not ok, throw an error 
+	  const aiReply = {
         sender: 'AI',
         text: data.reply || 'Sorry, I did not understand that.',
       };
@@ -53,6 +63,7 @@ const faqs = [
       setChatLog((prev) => [...prev, aiReply]); // Add AI reply
 	  setLoading(false);
 	} catch (error) {
+		// If there is an error, set loading to false and add an error message to the chat log
       setChatLog((prev) => [
         ...prev,
         { sender: 'AI', text: 'Error: Failed to get a response.' },
@@ -63,6 +74,7 @@ const faqs = [
 
   useEffect(() => {
 
+	// In first render, fetch data from Firebase and store it in useRef to avoid re-fetching on every render
 	const fetchData = async () => {
 		try {
 			const data = await getJSONFromFirebase();
@@ -76,6 +88,7 @@ const faqs = [
 
   return (
     <>
+	  {/* Floating button to open the modal */}
       <Tooltip title="AI Assistant" placement="left">
         <Button
           type="primary"
@@ -99,6 +112,7 @@ const faqs = [
         />
       </Tooltip>
 
+		{/* Modal for AI chat */}
       <Modal
         title={
           <span style={{ fontWeight: 700, fontSize: 22, color: '#0050b3' }}>
@@ -114,6 +128,7 @@ const faqs = [
         centered
       >
 
+{/* The part for main chat */}
 <div
   style={{
     maxHeight: 300,
@@ -131,6 +146,7 @@ const faqs = [
     fontSize: 16,
   }}
 >
+	{/* Messages if not found showing FAQS */}
   {chatLog.length === 0 ? (
     userInput.trim() === "" ? (
       <div style={{ width: '100%' }}>
@@ -153,6 +169,7 @@ const faqs = [
       <p style={{ marginTop: 40 }}>No messages yet. Type something and press Send!</p>
     )
   ) : (
+	// Render chat messages
     <List
       dataSource={chatLog}
       renderItem={(item) => (

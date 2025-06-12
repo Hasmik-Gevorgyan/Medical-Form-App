@@ -1,3 +1,5 @@
+
+// Import necessary libraries and components
 import "./styles.css"; // Assuming you have a CSS file for styles
 import { motion } from "framer-motion";
 import {
@@ -11,6 +13,7 @@ import {
   } from "@ant-design/icons";
 
 
+//   The Member type defines the structure of each team member's data
 interface Member {
   name: string;
   image: string;
@@ -19,11 +22,10 @@ interface Member {
   contributions?: string[];
   git?: string;
   linkedin?: string;
-
 }
 
-export default function AboutUsPage() {
-  const members = [
+// Our team members data and their contributions to the project
+const members = [
     {
       name: "Hasmik - Team Lead",
       image: "src/assets/team/Hasmik.jpg",
@@ -35,7 +37,9 @@ export default function AboutUsPage() {
 	  contributions : [
 		"Implemented authentication using Firebase and stored user data in Redux.",
 		"Designed the homepage and header with React states for dynamic UI.",
-		"Used Firebase Functions to integrate Stripe payment processing."
+		"Used Firebase Functions to integrate Stripe payment processing.",
+		"Deployed the project on Firebase Hosting.",
+		"Controlled the project repository and managed team tasks using GitHub.",
 	  ],	  
 	git : "https://github.com/Hasmik-Gevorgyan",
 	linkedin : "https://www.linkedin.com/in/gevorgyan-hasmik/",
@@ -48,7 +52,8 @@ export default function AboutUsPage() {
 			"Bachelor's degree in Data Processing in Physics with AI, YSU"
 		],
 		contributions: [
-		  "Developed articles feature with Firebase CRUD operations.",
+		  "Developed articles feature with Firebase CRUD operations. with Download option.",
+		  "Implemented article filtering and searching using Firebase queries.",		  
 		  "Handled state management using Redux.",
 		  "Improved UI styling with React, HTML, and CSS."
 		],
@@ -67,6 +72,7 @@ export default function AboutUsPage() {
 		  "Developed AI-based doctor certification using Firebase Functions.",
 		  "Implemented doctor list filtering and searching handled by Firebase backend.",
 		  "Managed doctor data storage using Redux.",
+
 		],
 		git: "https://github.com/dianna-paronyan",  // Replace with actual GitHub
 		linkedin: "https://www.linkedin.com/in/dianna-paronyan-bb7baa240/"  // Replace with actual LinkedIn
@@ -106,7 +112,11 @@ export default function AboutUsPage() {
 		git: "https://www.linkedin.com/in/david-sargsyan-a059a9213/",  // Replace with actual GitHub
 		linkedin: "https://www.linkedin.com/in/david-sargsian"  // Replace with actual LinkedIn
 	  }	  
-  ];
+];
+
+//  The AboutUsPage component renders the "About Us" page with team member details
+export default function AboutUsPage() {
+  
 
   return (
     <div className="about-page">
@@ -116,6 +126,7 @@ export default function AboutUsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
+		{/* Title part */}
 		<div className="Opening-Title">
 		  <h1 className="about-title">About Us</h1>
 		  <p className="about-intro">
@@ -133,9 +144,8 @@ export default function AboutUsPage() {
 		  <p className="about-intro">
 		    <TeamOutlined /> This project is a demo showing how technology can make healthcare simpler, smarter, and more accessible. None of this would have been possible without working together as a real team — combining our ideas, skills, and effort to bring it to life.
 		  </p>
-
-
-			<h2 className="opening-title">Project Github</h2>
+			{/* Link to Github */}
+			<h2 className="opening-title">Github of the project</h2>
 		  	<div className="opening-links">
 		  	<a
 				  href="https://github.com/Hasmik-Gevorgyan/Medical-Form-App"
@@ -147,6 +157,8 @@ export default function AboutUsPage() {
 				</a>
 		  	</div>
 		</div>
+
+		{/* Team members section */}
         {members.map((member, index) => (
           <div
             key={index}
@@ -161,10 +173,12 @@ export default function AboutUsPage() {
 }
 
 function MemberCard({ member, index }: { member: Member; index: number }) {
+	// Determine the alignment of the member card based on its index
 	const isLeft = index % 2 === 0;
 
 	return (
 		<>
+		{/* Member card with animation and layout based on index */}
 	  <motion.div
 		className={`member-card ${isLeft ? "align-left" : "align-right"}`}
 		initial={{ opacity: 0, x: isLeft ? -100 : 100 }}
@@ -172,6 +186,7 @@ function MemberCard({ member, index }: { member: Member; index: number }) {
 		transition={{ duration: 0.6, ease: "easeInOut" }}
 		viewport={{ once: false, amount: 0.3 }}
 	  >
+		{/* If in Left putting first its education and contribution info */}
 		{!isLeft ? (
 			<div className="member-about">
 			<h3>Education</h3>
@@ -193,6 +208,7 @@ function MemberCard({ member, index }: { member: Member; index: number }) {
 			</ul>
 			</div>
 		) : ''} 
+		{/* Member info box with image, name, description, and social links */}
 		<div className={`info-box ${isLeft ? "to-right" : "to-left"}`}>
 			{member.image && (<img src={member.image} alt={member.name} className="member-image" />)}
 			  <h2 className="member-name">{member.name}</h2>
@@ -210,6 +226,7 @@ function MemberCard({ member, index }: { member: Member; index: number }) {
 			</a>
 		  </div>
 		</div>
+		{/* If in Right putting first its education and contribution info */}
 	{isLeft ? (
 			<div className="member-about">
 			<h3>Education</h3>
