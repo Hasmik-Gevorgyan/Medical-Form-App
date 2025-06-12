@@ -4,7 +4,9 @@ import { db } from "@/firebase/config";
 // Getting all docs
 const getAllDoctors = async () => {
 	try {
+		// Fetching all doctors from the "doctors" collection
 	  const snapshot = await getDocs(collection(db, "doctors"));
+	//   For each doctor, fetch their specifications and hospitals
 	  const doctors = await Promise.all(
 		snapshot.docs.map(async (document) => {
 		  const data = document.data();
@@ -29,6 +31,7 @@ const getAllDoctors = async () => {
 			})
 		  );
 
+		  // Returning the doctor data with specifications and hospitals
 		  return {
 			id: document.id,
 			name : data.name,
@@ -41,7 +44,7 @@ const getAllDoctors = async () => {
 			};
 		})
 	  );
-  
+	  // Returning the array of doctors
 	  return doctors;
 	} catch (error) {
 	  console.error("Ошибка при получении докторов:", error);
@@ -49,6 +52,7 @@ const getAllDoctors = async () => {
 	}
   };
 
+// Function to get JSON data from Firebase its after will be used in AIComponent.tsx
 export const getJSONFromFirebase = async () => {
 	const data: {
 	  doctors: { id: string; [key: string]: any }[];
@@ -57,7 +61,6 @@ export const getJSONFromFirebase = async () => {
 	};
   
 	const doctors = await getAllDoctors();
-	// const articles = await getAllArticles();
   
 	data.doctors = doctors;
   
