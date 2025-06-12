@@ -146,7 +146,7 @@ const CertificateUpload: FC<
                 return rest;
             });
         },
-        accept: "pdf,.jpg,.jpeg,.png",
+        accept: ".pdf,.jpg,.jpeg,.png",
     }
 
     const isFileVerifying = Object.values(statusMap).some((s) => s.verifying);

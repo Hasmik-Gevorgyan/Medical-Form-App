@@ -28,7 +28,7 @@ interface Member {
 const members = [
     {
       name: "Hasmik - Team Lead",
-      image: "src/assets/team/Hasmik.jpg",
+      image: "https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/team%2FHasmik.jpg?alt=media&token=80288e7d-625b-4796-9b77-8dbe51b36620",
 	  description: "Built doctor authentication, payment system, and homepage.",
 	  education : [
 		"Bachelor's degree in IT Automation, NPUA Armenia",
@@ -46,7 +46,7 @@ const members = [
 	},
 	{
 		name: "Eliza - Content Manager",
-		image: "src/assets/team/Eliza.jpg",
+		image: "https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/team%2FEliza.jpg?alt=media&token=4a73c301-e103-4c38-91ed-6777241656c7",
 		description: "Built articles section with Firebase CRUD and Redux state management.",
 		education: [
 			"Bachelor's degree in Data Processing in Physics with AI, YSU"
@@ -61,7 +61,7 @@ const members = [
 		linkedin: "https://www.linkedin.com/in/eliza-hovhannisyan-b62b33329/"  // Replace with actual LinkedIn
 	},
 	{
-		name: "Dianna - AI & Backend Specialist",
+		name: "Dianna - AI, Redux & Backend Specialist",
 		image: "",
 		description: "Built doctor certification system with AI-powered Firebase functions and backend filtering.",
 		education: [
@@ -72,14 +72,14 @@ const members = [
 		  "Developed AI-based doctor certification using Firebase Functions.",
 		  "Implemented doctor list filtering and searching handled by Firebase backend.",
 		  "Managed doctor data storage using Redux.",
-
+		"Helped with redux state management and Firebase integration.",
 		],
 		git: "https://github.com/dianna-paronyan",  // Replace with actual GitHub
 		linkedin: "https://www.linkedin.com/in/dianna-paronyan-bb7baa240/"  // Replace with actual LinkedIn
 	},
     {
 		name: "David Hovhannisyan - Backend & Dashboard Developer",
-		image: "src/assets/team/DavidH.jpeg",
+		image: "https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/team%2FDavidH.jpeg?alt=media&token=13d91686-3013-4a48-af34-9399d4c3d937",
 		description: "Built doctor profile view and dashboard with backend-powered data filtering.",
 		education: [
 		  "Graduated from Kotayk State Regional College",
@@ -88,14 +88,15 @@ const members = [
 		contributions: [
 		  "Fetched and displayed doctor profiles and specifications using Firebase.",
 		  "Implemented profile editing functionality for doctors.",
-		  "Developed the doctor dashboard with query filtering and searching handled in the backend."
+		  "Developed the doctor dashboard with query filtering and searching handled in the backend.",
+			"Worked with Html and CSS to style the dashboard.",
 		],
 		git: "https://github.com/DavidHovhannisyan888",  // Replace with actual GitHub
 		linkedin: "http://linkedin.com/in/davit-hovhannisyan-64722136b"  // Replace with actual LinkedIn
 	  },	  
 	  {
 		name: "David Sargsian - AI & Interaction Developer",
-		image: "src/assets/team/DavidS.jpeg",
+		image: "https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/team%2FDavidS.jpeg?alt=media&token=1bfc3f68-6e41-45fb-a3c2-052012dd0240",
 		description: "Integrated AI assistant and built key features for appointments, chat, and messaging.",
 		education: [
 		  "Student at NPUA Armenia, Hardware Engineering Faculty",
@@ -106,7 +107,7 @@ const members = [
 		  "Integrated AI assistant using Firebase Functions.",
 		  "Built the appointment submission system by day, date, and file — with logic to prevent double booking (not using Firebase validation).",
 		  "Implemented doctor-patient chat with file attachment support.",
-		  "Developed the About Us page with added interactivity using React.",
+		  "Developed the About Us page with added interactivity using React, HTML CSS for adaptivity.",
 		  "Created the messaging system to notify patients upon booking and deliver messages from doctors by email."
 		],
 		git: "https://www.linkedin.com/in/david-sargsyan-a059a9213/",  // Replace with actual GitHub
