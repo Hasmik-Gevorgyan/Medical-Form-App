@@ -1,4 +1,4 @@
-// ResponsePage.tsx
+// Import necessary libraries and components
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Checkbox, message, Typography, Spin, Input, Button, Card, Avatar, Upload } from 'antd';
@@ -11,6 +11,7 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 const { Title, Text } = Typography;
 
+// Define interfaces for message and chat data structures
 interface Message {
 	fileUrl?: string; // Optional for messages that don't have files
 	sender: 'doctor' | 'patient';
@@ -48,14 +49,17 @@ export const ResponsePage = () => {
 
 	// EFFECTS
   useEffect(() => {
+	// Check if requestId is valid
     if (isLoading || !requestId) return;
 
+	// Fetch chat data from Firestore
     const fetchData = async () => {
       try {
         const ref = doc(db, 'queries', requestId);
         const docSnap = await getDoc(ref);
 
         if (docSnap.exists()) {
+			// If the document exists, setting the chat data
           const data = docSnap.data() as ChatData;
 			console.log('Fetched chat data:', data);
             setChatData(data);
@@ -64,6 +68,7 @@ export const ResponsePage = () => {
 			setIsValid(true);
         }
       } catch (error) {
+		// Handle errors during data fetching
         console.error('Error fetching chat data:', error);
         setIsValid(false);
         message.error('Failed to load request data.');
@@ -75,18 +80,21 @@ export const ResponsePage = () => {
 
 //   FINAL
   const handleFinish = async () => {
+	// If the requestId is not valid or the message input is empty, do nothing
     if (!requestId || !messageInput.trim()) return;
 
     try {
-
+		// Prepare the message to be sent
 		setMessageInput(''); // Clear input after sending
 		setSelectedFile(null); // Clear selected file after sending
       const queryDocRef = doc(db, 'queries', requestId);
       const status = completed ? 'completed' : 'in_progress';
 
+	//   Fetch the existing chat data
       const docSnap = await getDoc(queryDocRef);
       let messages: Message[] = [];
 
+	//   If the document exists, retrieve messages
       if (docSnap.exists()) {
         const data = docSnap.data() as ChatData;
         messages = data.messages || [];
@@ -95,12 +103,13 @@ export const ResponsePage = () => {
 	  let fileUrl = '';
 
 	  if (selectedFile) {
+		// If a file is selected, upload it to Firebase Storage
 			const storageRef = ref(storage, `files/${selectedFile.name}`);
 			await uploadBytes(storageRef, selectedFile);
 			fileUrl = await getDownloadURL(storageRef);
-			console.log('File uploaded successfully:', fileUrl);
 	}
 
+	// Adding the new message to the messages array
       messages.push({
 		fileUrl,
         sender: userId === chatData?.doctorId ? 'doctor' : 'patient',
@@ -109,6 +118,7 @@ export const ResponsePage = () => {
       });
 
 
+	//   Update the Firestore document with the new message and status
 	  await updateDoc(queryDocRef, {
         status,
         timestamp: serverTimestamp(),
@@ -116,6 +126,7 @@ export const ResponsePage = () => {
       });
 
 
+	//   Update the local state with the new messages and status
 	  setChatData((prev) => ({
         ...prev!,
         messages: [...messages],
@@ -124,7 +135,7 @@ export const ResponsePage = () => {
 
 
 
-	  console.log(userId, chatData?.doctorId);
+	//   If the user is a doctor, send an email notification to the patient
       if (userId === chatData?.doctorId) {
         await emailjs.send(
           'service_bb7nlek',
@@ -144,6 +155,7 @@ export const ResponsePage = () => {
       }
 
 
+	//   Show success message and update UI state
       if (completed) {
         setIsButtonDisabled(true); // Disable button after successful submission if marked completed
         setCompleted(true); // Ensure completed state is set
@@ -156,6 +168,7 @@ export const ResponsePage = () => {
     }
   };
 
+//   The spinner is displayed while the data is being fetched
   if (isValid === null) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -164,29 +177,36 @@ export const ResponsePage = () => {
     );
   }
 
+//   If the user does not have permission to view the request, redirect them to the home page
   if (!isValid) {
     message.error('You do not have permission to view this request.');
     navigate('/');
     return null;
   }
 
+//   Getting the file
   const handleFileChange = (file : any) => {
 		setSelectedFile(file?.fileList[0].originFileObj);
 	};
 
  
+	// Getting the heading name based on the userId and chatData
   const headingName = userId === chatData?.doctorId
     ? `${chatData?.messages[0]?.name} ${chatData?.messages[0]?.surname || ''}`
     : `${chatData?.doctorName} ${chatData?.doctorSurname || ''}`;
 
   return (
-    <div style={{width:'60vw', maxWidth: '100vw', margin: 'auto', maxHeight: '100vh' }} className='ll'>
-      <Title level={2} style={{ textAlign: 'center', marginBottom: 5, }}>
+    // Main container for the response page
+	<div style={{width:'60vw', maxWidth: '100vw', margin: 'auto', maxHeight: '100vh' }} className='ll'>
+      {/* Title part */}
+	  <Title level={2} style={{ textAlign: 'center', marginBottom: 5, }}>
         {userId == chatData?.doctorId ? `Patient ${headingName}` : `Doctor ${headingName}`}
       </Title>
+	  {/* Card for messages */}
       <Card style={{maxWidth : '80vw', borderRadius: 8, boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'}} className='ss'>
         <div className='ocean-scroll' style={{padding: 16, maxHeight: '55vh', overflowY: 'auto', scrollBehavior: 'smooth',}}>
-          {chatData?.messages?.map((msg, idx) => (
+          {/* Mapping */}
+		  {chatData?.messages?.map((msg, idx) => (
             <div
               key={idx}
               style={{
@@ -210,6 +230,7 @@ export const ResponsePage = () => {
 					color: '#fff',
 					fontSize: 24,}}
 			  />
+			  {/* The name showing part depends on auth state */}
               <div style={{ flex: 1 }}>
                 <Text strong style={{ display: 'block', marginBottom: 4 }}>
                   {msg.sender === 'doctor'
@@ -225,6 +246,7 @@ export const ResponsePage = () => {
                   }}
                 >
                   <Text style={{ display: 'block', marginBottom: 4 }}>{msg.about}
+					{/* If there is file attach it link too */}
 				  {msg.fileUrl && <a
     				href={msg.fileUrl}
     				rel="noopener noreferrer"
@@ -234,6 +256,7 @@ export const ResponsePage = () => {
     							View Attached File
 					</a>}
 				  </Text>
+				  {/* Displaying time of response */}
                   <Text type="secondary" style={{ fontSize: 12 }}>
                     {msg.timestamp?.toDate?.()
                       ? msg.timestamp.toDate().toLocaleString()
@@ -245,6 +268,7 @@ export const ResponsePage = () => {
           ))}
         </div>
 
+		  {/* If the request is completed no space for message sending */}
         {!isButtonDisabled && (
 			<>
 			<div style={{ display: 'flex',flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', marginTop: 8, }}>
@@ -268,6 +292,7 @@ export const ResponsePage = () => {
             	</Button>
 			</div>
 			<div className='ff'>
+				{/* Part for checking completed file uploading */}
             	{userId && (
             	  <Checkbox
             	    checked={completed}
