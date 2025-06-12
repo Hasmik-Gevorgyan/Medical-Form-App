@@ -1,6 +1,6 @@
 // Imports
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getDoctors } from '@/features/doctorSlice';
 import { Steps, Button, Form, Input, Select, DatePicker, Upload, Typography, Spin, message, Descriptions } from 'antd';
@@ -49,6 +49,7 @@ export const RequestPage = () => {
 	const doctors = useSelector((state: any) => state.doctors.doctors);
 	const [doctorId, setDoctorID] = useState(() => searchParams.get('doctorId') || '');
 	const [_, forceUpdate] = useState(0);
+	const navigate = useNavigate();
 	const undates = useRef<Array<{ day: string; fromTime: string; toTime: string }>>([]);
 	const [loading, setLoading] = useState(false);
 	const [imageLoaded, setImageLoaded] = useState<{ [key: string]: boolean }>({});
@@ -65,10 +66,20 @@ export const RequestPage = () => {
 		}
 	}, []);
 
+	// Effect to set the doctorId from search params if available
 
 	useEffect(() => {
 		// If doctorId is not set, return early
 		if (!doctorId) return;
+
+		const doc = doctors.find((doc: any) => doc.id === doctorId);
+
+		if (!doc?.certified){
+			message.error('This doctor is not certified. Please select another doctor.');
+			setDoctorID('');
+			navigate('/session/request');
+		}
+
 		// Fetch unavailable dates for the selected doctor
 		getDoctorUnavailableDates(doctorId).then((d) => {
 			undates.current = d.map((date: any) => ({
@@ -79,7 +90,6 @@ export const RequestPage = () => {
 		});
 	}, [doctorId]);
 
-	// Effect to set the doctorId from search params if available
 	const onFinish = async (values: FormValues) => {
 
 		// creating date object from form values

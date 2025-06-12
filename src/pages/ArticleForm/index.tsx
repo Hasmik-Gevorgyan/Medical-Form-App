@@ -7,7 +7,6 @@ import { storage } from '@/firebase/config.ts';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import useAuth from '@/hooks/useAuth';
 import {useNavigate } from 'react-router';
-import { ROUTE_PATHS } from '@/routes/paths';
 
 const { Title } = Typography;
 const { Content } = Layout;
