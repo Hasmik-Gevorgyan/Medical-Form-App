@@ -193,7 +193,7 @@ const DoctorQueriesCards = ({ doctorId }: Props) => {
                 </p>
                 <p className="query-card-about">
     <strong>About:</strong>{' '}
-    {query.about.length > 100 ? query.about.slice(0, 10) + '...' : query.about}
+    {query.about.length > 23 ? query.about.slice(0, 10) + '...' : query.about}
   </p>
               </Card>
             </Col>
