@@ -30,7 +30,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
                                 className="doctor-image"
                             />
                         ) : (
-                            <img src="/src/assets/images/doctorAvatar.png" alt="avatar"
+                            <img src="https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/doctorAvatar.png?alt=media&token=e635981c-2c24-4f02-b794-85b89d341e9b" alt="avatar"
                                  className="doctor-avatar"
                             />
                         )}
@@ -47,7 +47,7 @@ const DoctorCard: FC<DoctorCardProps> = ({
                                     {doctor.name} {doctor.surname}
                                   </span>
                                   <img
-                                    src="/src/assets/images/certified.png"
+                                    src="https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/certified.png?alt=media&token=38886bbe-8f9e-4261-93cf-4c0b7de7a975"
                                     style={{
                                         width: "40px",
                                         height: "40px",

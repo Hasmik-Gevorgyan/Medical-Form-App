@@ -62,7 +62,7 @@ const members = [
 	},
 	{
 		name: "Dianna - AI, Redux & Backend Specialist",
-		image: "",
+		image: "https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/team%2Fphoto_2025-06-13_15-22-49.jpg?alt=media&token=bffff84f-e1a1-41af-b17d-3a27c2893eaa",
 		description: "Built doctor certification system with AI-powered Firebase functions and backend filtering.",
 		education: [
 		  "Bachelor's degree in IT, NPUA",
