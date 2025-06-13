@@ -99,9 +99,9 @@ export const RequestPage = () => {
 			toTime: values.toTime || '',
 		};
 		if (!doctorId) return;
+		const doctor = doctors.find((doc: any) => doc.id === doctorId);
 		try {
 			// Finding the selected doctor from the list of doctors
-			const doctor = doctors.find((doc: any) => doc.id === doctorId);
 			const doctorName = doctor?.name || '';
 			const doctorSurname = doctor?.surname || '';
 			
@@ -114,6 +114,17 @@ export const RequestPage = () => {
 			setrRquestId(result.id);
 
 			// Sending an email notification using EmailJS about successful appointment request
+			console.log(values.email);
+		
+			// Resetting the form fields and step
+			handleStepChange(currentStep, 1)
+
+			message.success('Request submitted successfully!');
+		} catch (error) {
+			// If there was an error during the request submission, log it and show an error message
+			console.error('Error submitting request:', error);
+			message.error('Failed to submit request.');
+		} finally {
 			await emailjs.send(
 				'service_bb7nlek',
 				'template_9lcfm4f',
@@ -128,15 +139,6 @@ export const RequestPage = () => {
 				},
 				'ooOyDWjTfU7j0PLn-'
 			);
-			// Resetting the form fields and step
-			handleStepChange(currentStep, 1)
-
-			message.success('Request submitted successfully!');
-		} catch (error) {
-			// If there was an error during the request submission, log it and show an error message
-			console.error('Error submitting request:', error);
-			message.error('Failed to submit request.');
-		} finally {
 			setLoading(false);
 		}
 	};
@@ -236,7 +238,7 @@ export const RequestPage = () => {
 															</span>
 														)}
 													</div>
-													{doctor.name} {doctor.surname}
+													{doctor.name} {doctor.surname}     {doctor.price}
 												</div>
 											</Select.Option>);
 										})}

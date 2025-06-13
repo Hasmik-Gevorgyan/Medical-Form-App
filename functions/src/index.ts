@@ -190,13 +190,13 @@ export const verifyCertificate = functions.https.onRequest(
                 extractedText = "File format accepted but text extraction not implemented yet.";
             }
 
-            const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
+            const openai = new OpenAI({ apiKey: process.env.OPENAPI_KEY });
             const prompt = `
                 You are verifying a doctor's certificate.
                 
                 Validation Rules:
-                1. If the document contains readable content related to **medical education**, **medical license**, **certification**, or **institution names** that issue such credentials, consider it a **valid medical certificate**.
-                2. If the document is **blank**, **unreadable**, or clearly **not a medical certificate** (such as a CV, resume, job application, or unrelated text), consider it **invalid medical certificate**.
+                1. If the document contains readable content related to **medical education**, **medical license**, **certification**, or **institution names** that issue such credentials, consider return only this message **valid medical certificate**.
+                2. If the document is **blank**, **unreadable**, or clearly **not a medical certificate** (such as a CV, resume, job application, or unrelated text),return only this **invalid medical certificate**.
                 
                 Respond in a friendly and natural tone. Clearly state whether it's a valid or invalid certificate and briefly explain why. If you can find the full name of the doctor, include it in the response.
                 
@@ -211,7 +211,7 @@ export const verifyCertificate = functions.https.onRequest(
 
             const aiReply = response.choices[0]?.message?.content?.trim() || "No response";
             const firstLine = aiReply.split("\n")[0] || "";
-            const isCertified = /^Valid\b/i.test(firstLine) && !/^Invalid\b/i.test(firstLine);
+            const isCertified = /^valid\b/i.test(firstLine) && !/^invalid\b/i.test(firstLine);
 
             const doctorRef = db.collection("doctors").doc(doctorId);
 

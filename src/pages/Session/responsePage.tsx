@@ -82,6 +82,7 @@ export const ResponsePage = () => {
   const handleFinish = async () => {
 	// If the requestId is not valid or the message input is empty, do nothing
     if (!requestId || !messageInput.trim()) return;
+	let messages: Message[] = [];
 
     try {
 		// Prepare the message to be sent
@@ -92,7 +93,6 @@ export const ResponsePage = () => {
 
 	//   Fetch the existing chat data
       const docSnap = await getDoc(queryDocRef);
-      let messages: Message[] = [];
 
 	//   If the document exists, retrieve messages
       if (docSnap.exists()) {
@@ -134,27 +134,6 @@ export const ResponsePage = () => {
       }));
 
 
-
-	//   If the user is a doctor, send an email notification to the patient
-      if (userId === chatData?.doctorId) {
-        await emailjs.send(
-          'service_bb7nlek',
-          'template_vrnbuod',
-          {
-            title: 'Response to your request',
-            name: messages[0]?.name || 'Patient',
-            time: new Date().toISOString(),
-            email: messages[0]?.email,
-            doctor_name: `${user?.name} ${user?.surname}`,
-            status,
-            message: messages[messages.length - 1].about,
-            replyTime: new Date().toISOString(),
-          },
-          'ooOyDWjTfU7j0PLn-'
-        );
-      }
-
-
 	//   Show success message and update UI state
       if (completed) {
         setIsButtonDisabled(true); // Disable button after successful submission if marked completed
@@ -165,7 +144,26 @@ export const ResponsePage = () => {
     } catch (error) {
       console.error('Error updating response:', error);
       message.error('Failed to send response. Please try again.');
-    }
+    } finally {
+		//   If the user is a doctor, send an email notification to the patient
+		if (userId === chatData?.doctorId) {
+			await emailjs.send(
+			  'service_bb7nlek',
+			  'template_vrnbuod',
+			  {
+				title: 'Response to your request',
+				name: messages[0]?.name || 'Patient',
+				time: new Date().toISOString(),
+				email: messages[0]?.email,
+				doctor_name: `${user?.name} ${user?.surname}`,
+				status,
+				message: messages[messages.length - 1].about,
+				replyTime: new Date().toISOString(),
+			  },
+			  'ooOyDWjTfU7j0PLn-'
+			);
+		  }
+	}
   };
 
 //   The spinner is displayed while the data is being fetched
