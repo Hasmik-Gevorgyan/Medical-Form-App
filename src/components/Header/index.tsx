@@ -32,7 +32,7 @@ const MainHeader = () => {
   };
 
   const handleMenuClick = (e: { key: string }) => {
-    if (e.key === 'appointment') {
+	if (e.key === 'appointment') {
       setAppointmentModalOpen(true);
     }
   };
@@ -77,6 +77,7 @@ const MainHeader = () => {
           mode="horizontal"
           items={pageLinks.filter(page => !page.isProtected || page.isProtected && isLoggedIn)}
           onClick={handleMenuClick}
+		  onTouchStart={() => handleMenuClick({ key: 'appointment' })}
         />
         <CodeModal 
           open={isAppointmentModalOpen}

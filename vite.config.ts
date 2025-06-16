@@ -9,5 +9,14 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src')
     }
-  }
+  },
+  server: {
+    proxy: {
+      '/verifyCertificate': {
+        target: 'https://us-central1-medical-project-2ba5d.cloudfunctions.net',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })

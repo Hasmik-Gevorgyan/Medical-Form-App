@@ -2,8 +2,8 @@ import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import {STORAGE_FILE_NAMES} from "@/constants/collections.ts";
 import axios from 'axios';
 
-export const CertificateService = ()=> {
-    const API_URL = `https://us-central1-medical-project-2ba5d.cloudfunctions.net/verifyCertificate`;
+export const CertificateService = () => {
+    const API_URL = `/verifyCertificate`;
 
     const uploadCertificate = (file: File, doctorId: string) => {
         const storage = getStorage();

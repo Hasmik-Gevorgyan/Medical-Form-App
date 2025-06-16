@@ -121,12 +121,9 @@ export const verifyCertificate = functions.https.onRequest(
         secrets: [OPENAI_KEY],
     },
     async (req, res) => {
-        const allowedOrigins = [
-            "http://localhost:5173",
-            "https://medical-project-2ba5d-7073c.web.app",
-        ];
-
+        const allowedOrigins = ["https://medical-project-2ba5d-7073c.web.app"];
         const origin = req.headers.origin || "";
+
         if (allowedOrigins.includes(origin)) {
             res.setHeader("Access-Control-Allow-Origin", origin);
             res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -139,12 +136,11 @@ export const verifyCertificate = functions.https.onRequest(
         }
 
         if (req.method !== "POST") {
-            res.status(405).send("Method Not Allowed");
+            res.status(405).json({ error: "Method Not Allowed" });
             return;
         }
 
         const { doctorId, fileName } = req.body;
-
         if (!doctorId || !fileName) {
             res.status(400).json({ error: "doctorId and fileName are required" });
             return;
@@ -152,7 +148,6 @@ export const verifyCertificate = functions.https.onRequest(
 
         try {
             const supportedFormats = [".pdf", ".png", ".jpg", ".jpeg"];
-
             const fileExtension = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
 
             if (!supportedFormats.includes(fileExtension)) {
@@ -161,68 +156,73 @@ export const verifyCertificate = functions.https.onRequest(
             }
 
             const db = getFirestore();
-            const doctorDoc = await db.collection("doctors").doc(doctorId).get();
+            const doctorRef = db.collection("doctors").doc(doctorId);
+            const doctorDoc = await doctorRef.get();
 
             if (!doctorDoc.exists) {
                 res.status(404).json({ error: "Doctor not found" });
                 return;
             }
 
-            const filePath = `certificates/${doctorId}/${fileName}`;
             const bucket = getStorage().bucket();
+            const filePath = `certificates/${doctorId}/${fileName}`;
             const file = bucket.file(filePath);
 
-            const [exists] = await file.exists();
-            if (!exists) {
+            const [fileExists] = await file.exists();
+            if (!fileExists) {
                 res.status(404).json({ error: "Certificate file not found" });
                 return;
             }
 
             const [buffer] = await file.download();
-
             let extractedText = "";
+
             if (fileExtension === ".pdf") {
                 const pdfFiles = await pdf(buffer);
                 extractedText = pdfFiles.text;
             } else if (fileExtension === ".txt") {
                 extractedText = buffer.toString("utf-8");
             } else {
-                extractedText = "File format accepted but text extraction not implemented yet.";
+                extractedText = "File format accepted but text extraction not implemented.";
             }
 
-            const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
+            const openai = new OpenAI({ apiKey: process.env.OPENAPI_KEY });
             const prompt = `
                 You are verifying a doctor's certificate.
                 
                 Validation Rules:
-                1. If the document contains readable content related to **medical education**, **medical license**, **certification**, or **institution names** that issue such credentials, consider it a **valid medical certificate**.
-                2. If the document is **blank**, **unreadable**, or clearly **not a medical certificate** (such as a CV, resume, job application, or unrelated text), consider it **invalid medical certificate**.
+                1. If the document contains readable content related to **medical education**, **medical license**, **certification**, or **institution names** that issue such credentials, consider return only this message **Valid medical certificate**.
+                2. If the document is **blank**, **unreadable**, or clearly **not a medical certificate** (such as a CV, resume, job application, or unrelated text),return only this **Invalid medical certificate**.
                 
                 Respond in a friendly and natural tone. Clearly state whether it's a valid or invalid certificate and briefly explain why. If you can find the full name of the doctor, include it in the response.
                 
                 Certificate text:  
                 """${extractedText}"""
-`;
+            `;
 
-            const response = await openai.chat.completions.create({
+            const aiResponse = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
                 messages: [{ role: "user", content: prompt }],
             });
 
-            const aiReply = response.choices[0]?.message?.content?.trim() || "No response";
-            const firstLine = aiReply.split("\n")[0] || "";
-            const isCertified = /^Valid\b/i.test(firstLine) && !/^Invalid\b/i.test(firstLine);
+            const aiReply = aiResponse.choices[0]?.message?.content?.trim() || "No response";
+            const isCertified = /^Valid\b/i.test(aiReply) && !/^Invalid\b/i.test(aiReply);
 
-            const doctorRef = db.collection("doctors").doc(doctorId);
+
+            await doctorRef.collection("certificates").doc(fileName).set(
+                {
+                    certified: isCertified,
+                    fileName,
+                    uploadedAt: new Date(),
+                },
+                { merge: true }
+            );
 
             const certsSnap = await doctorRef.collection("certificates").get();
             const allCerts = certsSnap.docs.map((doc) => doc.data());
+            const allAreCertified = allCerts.every((cert: any) => cert.certified === true);
 
-            const certifiedStatus = allCerts.every((cert: any) => cert.certified === true);
-
-            await doctorRef.update({
-                certified: certifiedStatus || isCertified,
-            });
+            await doctorRef.update({ certified: allAreCertified });
 
             res.status(200).json({
                 message: "Verification complete",
@@ -230,13 +230,7 @@ export const verifyCertificate = functions.https.onRequest(
                 summary: aiReply,
             });
         } catch (error: any) {
-            console.error("Verification failed:", {
-                message: error.message,
-                stack: error.stack,
-                details: error,
-            });
             res.status(500).json({ error: "Verification failed", details: error.message });
-            return;
         }
     }
 )

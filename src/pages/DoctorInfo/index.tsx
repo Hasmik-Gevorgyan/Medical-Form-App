@@ -55,14 +55,9 @@ const DoctorInfo = () => {
         if (id) {
             dispatch(getDoctor(id));
             dispatch(getReviews(id));
-        }
-    }, [id]);
-
-    useEffect(() => {
-        if (id) {
             dispatch(getDoctorCertificates(id));
         }
-    }, [id])
+    }, [id]);
 
     const averageRating = useMemo(() => {
         if (reviews.length === 0) return 0;
@@ -88,7 +83,6 @@ const DoctorInfo = () => {
     if (stateStatus) {
         return stateStatus;
     }
-    console.log(certificates)
 
     return (
         <div style={{padding: "20px"}}>
@@ -121,7 +115,7 @@ const DoctorInfo = () => {
                             </Card>
                         ) : (
                             <img
-                                src="/doctorAvatar.png"
+                                src="https://firebasestorage.googleapis.com/v0/b/medical-project-2ba5d.firebasestorage.app/o/doctorAvatar.png?alt=media&token=e635981c-2c24-4f02-b794-85b89d341e9b"
                                 alt="Doctor Avatar"
                                 style={{
                                     maxWidth: '350px',
