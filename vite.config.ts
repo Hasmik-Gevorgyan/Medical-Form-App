@@ -11,12 +11,14 @@ export default defineConfig({
     }
   },
   server: {
-    proxy: {
-      '/verifyCertificate': {
-        target: 'https://us-central1-medical-project-2ba5d.cloudfunctions.net',
-        changeOrigin: true,
-        secure: true,
-      },
-    },
-  },
+    proxy: process.env.NODE_ENV === 'production'
+        ? undefined
+        : {
+          '/verifyCertificate': {
+            target: 'https://us-central1-medical-project-2ba5d.cloudfunctions.net',
+            changeOrigin: true,
+            secure: true,
+          },
+        },
+  }
 })
