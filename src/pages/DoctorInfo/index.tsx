@@ -55,14 +55,9 @@ const DoctorInfo = () => {
         if (id) {
             dispatch(getDoctor(id));
             dispatch(getReviews(id));
-        }
-    }, [id]);
-
-    useEffect(() => {
-        if (id) {
             dispatch(getDoctorCertificates(id));
         }
-    }, [id])
+    }, [id]);
 
     const averageRating = useMemo(() => {
         if (reviews.length === 0) return 0;
@@ -88,7 +83,6 @@ const DoctorInfo = () => {
     if (stateStatus) {
         return stateStatus;
     }
-    console.log(certificates)
 
     return (
         <div style={{padding: "20px"}}>
